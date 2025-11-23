@@ -1,0 +1,2188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Watch Sports Videos & Highlights - AllSports</title>
+  <meta name="description" content="Watch the latest sports highlights, full match replays, and exclusive video content."/>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Additional styles for watch page */
+    .featured-video-section {
+      margin-bottom: var(--space-4);
+    }
+    
+    .featured-video {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    
+    .video-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    @media (min-width: 768px) {
+      .video-container {
+        flex-direction: row;
+      }
+    }
+    
+    .video-player {
+      position: relative;
+      flex: 1;
+      min-height: 300px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .video-thumbnail {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .play-btn {
+      position: absolute;
+      background: rgba(232, 29, 47, 0.9);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .play-btn:hover {
+      background: var(--accent);
+      transform: scale(1.1);
+    }
+    
+    .play-btn.large {
+      width: 80px;
+      height: 80px;
+    }
+    
+    .play-btn.medium {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .video-info {
+      flex: 1;
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .video-tag {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--space-2);
+    }
+    
+    .video-info h2 {
+      font-size: 24px;
+      margin: 0 0 var(--space-2) 0;
+      color: var(--text-primary);
+    }
+    
+    .video-meta {
+      display: flex;
+      gap: var(--space-2);
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-3);
+      flex-wrap: wrap;
+    }
+    
+    .video-info p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0;
+    }
+    
+    .video-categories {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+      overflow-x: auto;
+      padding-bottom: var(--space-2);
+      scrollbar-width: none;
+    }
+    
+    .video-categories::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .video-category {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    
+    .video-category:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .video-category.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    
+    .videos-main {
+      padding: var(--space-4) 0;
+    }
+    
+    .videos-section {
+      margin-bottom: var(--space-4);
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .section-title {
+      font-size: 28px;
+      margin: 0;
+      color: var(--text-primary);
+      position: relative;
+      padding-left: 12px;
+    }
+    
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    
+    .section-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+    
+    .live-badge {
+      background: var(--accent);
+      color: white;
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+    
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-3);
+    }
+    
+    .video-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .video-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    
+    .video-card-thumbnail {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+      background: #000;
+    }
+    
+    .video-card-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    .video-card:hover .video-card-thumbnail img {
+      transform: scale(1.05);
+    }
+    
+    .video-card-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .video-card:hover .video-card-overlay {
+      opacity: 1;
+    }
+    
+    .video-card-duration {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .video-card-content {
+      padding: var(--space-3);
+    }
+    
+    .video-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-2) 0;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .video-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .video-card-views {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .video-card-date {
+      font-size: 12px;
+    }
+    
+    .live-streams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: var(--space-3);
+    }
+    
+    .live-stream-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(232, 29, 47, 0.3);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .live-stream-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--accent);
+    }
+    
+    .live-stream-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 30px rgba(232, 29, 47, 0.2);
+    }
+    
+    .live-stream-thumbnail {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      background: #000;
+    }
+    
+    .live-stream-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    .live-stream-card:hover .live-stream-thumbnail img {
+      transform: scale(1.05);
+    }
+    
+    .live-indicator {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--accent);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .live-indicator::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+      animation: pulse 2s infinite;
+    }
+    
+    .live-stream-content {
+      padding: var(--space-3);
+    }
+    
+    .live-stream-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-2) 0;
+      line-height: 1.4;
+    }
+    
+    .live-stream-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+    
+    .live-stream-sport {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .live-stream-viewers {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .live-stream-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: var(--space-3);
+    }
+    
+    .live-stream-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+    
+    .live-stream-actions .btn {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+    
+    /* Video Modal Styles - FIXED */
+    .modal.large .modal-content {
+      max-width: 900px;
+      width: 95%;
+    }
+    
+    .modal-content.large {
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .modal-title {
+      font-size: 24px;
+      margin: 0;
+      color: var(--text-primary);
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-close:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text-primary);
+    }
+    
+    .modal-body {
+      padding: 0;
+    }
+    
+    .video-player-modal {
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      position: relative;
+    }
+    
+    .video-player-modal iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    /* Toast notification styles */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    /* Loading state */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: var(--space-4);
+      color: var(--text-secondary);
+    }
+    
+    .loading::after {
+      content: '';
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top: 2px solid var(--accent);
+      border-radius: 50%;
+      margin-left: var(--space-2);
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-4);
+      color: var(--text-secondary);
+    }
+    
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: var(--space-2);
+      opacity: 0.5;
+    }
+    
+    .empty-state-text {
+      font-size: 18px;
+      margin-bottom: var(--space-2);
+    }
+    
+    /* Advanced Search Styles */
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto var(--space-4);
+    }
+    
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232, 29, 47, 0.2);
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: var(--space-3);
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 16px;
+      outline: none;
+    }
+    
+    .search-input::placeholder {
+      color: var(--text-secondary);
+    }
+    
+    .search-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 0 var(--space-3);
+    }
+    
+    .search-filters-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: var(--text-secondary);
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+    }
+    
+    .search-filters-btn:hover {
+      background: rgba(255,255,255,0.12);
+      color: var(--text-primary);
+    }
+    
+    .search-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+    
+    .search-btn:hover {
+      background: #d32f2f;
+    }
+    
+    .advanced-filters {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: var(--space-3);
+      margin-top: var(--space-2);
+      display: none;
+    }
+    
+    .advanced-filters.active {
+      display: block;
+    }
+    
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    
+    .filter-group label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    
+    .filter-select {
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .filter-select:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .search-results-container {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      z-index: 100;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .search-results-container.active {
+      display: block;
+    }
+    
+    .search-result-item {
+      padding: var(--space-3);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .search-result-item:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    
+    .search-result-thumbnail {
+      width: 60px;
+      height: 40px;
+      border-radius: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    
+    .search-result-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .search-result-content {
+      flex: 1;
+    }
+    
+    .search-result-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .search-result-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .search-result-type {
+      background: rgba(232, 29, 47, 0.1);
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .search-stats {
+      padding: var(--space-3);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .no-results {
+      padding: var(--space-4);
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    @media (max-width: 768px) {
+      .videos-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .live-streams-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .video-container {
+        flex-direction: column;
+      }
+      
+      .video-info {
+        padding: var(--space-3);
+      }
+      
+      .video-info h2 {
+        font-size: 20px;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+      
+      .section-actions {
+        width: 100%;
+      }
+      
+      .section-actions .btn {
+        flex: 1;
+      }
+      
+      .filter-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .search-actions {
+        flex-direction: column;
+        gap: var(--space-1);
+        padding: var(--space-2);
+      }
+      
+      .search-filters-btn, .search-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="AllSports home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+      </div>
+      <div class="brand-text">
+        <h1>AllSports</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="watch.html" class="nav-link nav-active" aria-current="page">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="teams.html" class="nav-link">Teams</a>
+        </li>
+
+         <li role="none">
+          <a role="menuitem" href="players.html" class="nav-link">Players</a>
+        </li>
+
+
+        <li role="none">
+          <a role="menuitem" href="fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+         <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="more/podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="more/highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="more/news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="more/statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="more/transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="more/injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+        </div>
+        <div class="brand-text">
+          <h2>AllSports</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="scores.html" class="mobile-nav-link">Scores</a></li>
+        <li><a href="watch.html" class="mobile-nav-link mobile-nav-active">Watch</a></li>
+        <li><a href="teams.html" class="mobile-nav-link">Teams</a></li>
+        <li><a href="fixtures.html" class="mobile-nav-link">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search videos..." aria-label="Search videos" id="mobileSearchInput">
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Watch Sports Videos</h1>
+    <p class="page-subtitle">Highlights, full matches, analysis and exclusive content</p>
+  </div>
+
+  <!-- Advanced Search -->
+  <div class="search-container">
+    <div class="search-box">
+      <input 
+        type="text" 
+        class="search-input" 
+        id="videoSearchInput" 
+        placeholder="Search videos by title, description, sport, or category..."
+        aria-label="Search videos"
+      >
+      <div class="search-actions">
+        <button class="search-filters-btn" id="filtersToggle">
+          <i class="fas fa-sliders-h"></i>
+          Filters
+        </button>
+        <button class="search-btn" id="searchButton">
+          <i class="fas fa-search"></i>
+          Search
+        </button>
+      </div>
+    </div>
+    
+    <div class="advanced-filters" id="advancedFilters">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="sportFilter">Sport</label>
+          <select id="sportFilter" class="filter-select">
+            <option value="all">All Sports</option>
+            <option value="football">⚽ Football</option>
+            <option value="basketball">🏀 Basketball</option>
+            <option value="cricket">🏏 Cricket</option>
+            <option value="tennis">🎾 Tennis</option>
+            <option value="baseball">⚾ Baseball</option>
+            <option value="hockey">🏒 Hockey</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="categoryFilter">Category</label>
+          <select id="categoryFilter" class="filter-select">
+            <option value="all">All Categories</option>
+            <option value="highlights">Highlights</option>
+            <option value="analysis">Analysis</option>
+            <option value="live">Live Streams</option>
+            <option value="full-match">Full Matches</option>
+            <option value="interviews">Interviews</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="durationFilter">Duration</label>
+          <select id="durationFilter" class="filter-select">
+            <option value="all">Any Duration</option>
+            <option value="short">Short (0-5 min)</option>
+            <option value="medium">Medium (5-15 min)</option>
+            <option value="long">Long (15+ min)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="dateFilter">Upload Date</label>
+          <select id="dateFilter" class="filter-select">
+            <option value="all">Any Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="sortFilter">Sort By</label>
+          <select id="sortFilter" class="filter-select">
+            <option value="relevance">Relevance</option>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="popular">Most Popular</option>
+            <option value="duration">Duration</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary" id="resetFilters">Reset Filters</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="search-results-container" id="searchResultsContainer">
+      <!-- Search results will be populated by JavaScript -->
+    </div>
+  </div>
+
+  <!-- Featured Video Section -->
+  <section class="featured-video-section">
+    <div class="featured-video">
+      <div class="video-container">
+        <div class="video-player" id="featuredVideoPlayer" data-video-id="eLMdRRu-AiA">
+          <img src="https://slapioneer.wordpress.com/wp-content/uploads/2013/11/cristiano-ronaldo-sweden-goal.gif" alt="Portugal vs Sweden - World Cup Qualifiers" class="video-thumbnail">
+          <button class="play-btn large" aria-label="Play featured video">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="video-info">
+          <div class="video-tag">⚽ Featured</div>
+          <h2>Portugal vs Sweden - World Cup Qualifiers</h2>
+          <div class="video-meta">
+            <span>2.5M views</span>
+            <span>•</span>
+            <span>15:42</span>
+            <span>•</span>
+            <span>Published 2 hours ago</span>
+          </div>
+          <p>Watch the full highlights from the thrilling World Cup qualifier between Portugal and Sweden. Cristiano Ronaldo scored a stunning hat-trick in this exciting match.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video Categories -->
+  <div class="video-categories">
+    <button class="video-category active" data-category="all">All Videos</button>
+    <button class="video-category" data-category="football">⚽ Football</button>
+    <button class="video-category" data-category="basketball">🏀 Basketball</button>
+    <button class="video-category" data-category="cricket">🏏 Cricket</button>
+    <button class="video-category" data-category="tennis">🎾 Tennis</button>
+    <button class="video-category" data-category="baseball">⚾ Baseball</button>
+    <button class="video-category" data-category="highlights">Highlights</button>
+    <button class="video-category" data-category="analysis">Analysis</button>
+  </div>
+
+  <!-- Videos Grid -->
+  <main class="videos-main">
+    <section class="videos-section">
+      <div class="section-header">
+        <h2 class="section-title">Latest Videos</h2>
+        <div class="section-actions">
+          <button class="btn btn-small active" data-sort="recent">Most Recent</button>
+          <button class="btn btn-small ghost" data-sort="popular">Most Popular</button>
+        </div>
+      </div>
+      
+      <div class="videos-grid" id="videosGrid">
+        <!-- Videos will be populated by JavaScript -->
+        <div class="loading">Loading videos...</div>
+      </div>
+    </section>
+
+    <!-- Live Streams Section -->
+    <section class="videos-section">
+      <div class="section-header">
+        <h2 class="section-title">Live Streams</h2>
+        <div class="live-badge">LIVE NOW</div>
+      </div>
+      
+      <div class="live-streams-grid" id="liveStreamsGrid">
+        <!-- Live streams will be populated by JavaScript -->
+        <div class="loading">Loading live streams...</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer role="contentinfo">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h5>AllSports</h5>
+      <p>Your premier destination for sports news, live scores, and video highlights.</p>
+    </div>
+    <div class="footer-section">
+      <h5>Sports</h5>
+      <a href="games/football.html">Football</a>
+      <a href="games/cricket.html">Cricket</a>
+      <a href="games/basketball.html">Basketball</a>
+      <a href="games/tennis.html">Tennis</a>
+    </div>
+    <div class="footer-section">
+      <h5>Company</h5>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#terms">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2024 AllSports — Built with ❤️ for sports fans worldwide
+  </div>
+</footer>
+
+<!-- Video Modal -->
+<div class="modal" id="videoModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="videoModalBackdrop"></div>
+  <div class="modal-content large" role="document">
+    <div class="modal-header">
+      <h3 id="videoModalTitle">Video Player</h3>
+      <button class="modal-close" aria-label="Close" id="videoModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="videoContainer">
+        <!-- Video player will be injected by JavaScript -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<script>
+// Watch App
+class WatchApp {
+  constructor() {
+    this.state = {
+      user: null,
+      currentCategory: 'all',
+      currentSort: 'recent',
+      videos: [],
+      liveStreams: [],
+      savedVideos: new Set(),
+      watchedVideos: new Set(),
+      searchQuery: '',
+      searchFilters: {
+        sport: 'all',
+        category: 'all',
+        duration: 'all',
+        date: 'all',
+        sort: 'relevance'
+      }
+    };
+    
+    // Updated video data with real YouTube video IDs and working thumbnails
+    this.videoData = [
+      {
+        id: 'v1',
+        title: 'Manchester United vs Chelsea - Premier League Highlights',
+        thumbnail: 'https://i.pinimg.com/1200x/1a/e8/dd/1ae8ddb20fe93a6dec8e20ece6da259e.jpg',
+        videoId: 'z0I8LF4oCKw',
+        duration: '12:34',
+        views: '1.2M',
+        date: '2 hours ago',
+        category: 'football',
+        tags: ['highlights'],
+        description: 'Watch the thrilling encounter between Manchester United and Chelsea'
+      },
+      {
+        id: 'v2',
+        title: 'NBA Finals: Lakers vs Celtics Game 7 Highlights',
+        thumbnail: 'https://i.pinimg.com/1200x/d8/00/26/d80026ebb0cbe0bf90a9735a215f7360.jpg',
+        videoId: 'uqf13CnVVSo',
+        duration: '15:22',
+        views: '2.1M',
+        date: '5 hours ago',
+        category: 'basketball',
+        tags: ['highlights'],
+        description: 'Incredible Game 7 highlights from the NBA Finals'
+      },
+      {
+        id: 'v3',
+        title: 'India vs Australia - T20 World Cup Final Highlights',
+        thumbnail: 'https://i.pinimg.com/1200x/e8/1f/01/e81f0149de7e5f102f78d284d6f7f9fb.jpg',
+        videoId: 'YqKYpgZ9FWU',
+        duration: '18:45',
+        views: '3.4M',
+        date: '1 day ago',
+        category: 'cricket',
+        tags: ['highlights'],
+        description: 'The epic final of the T20 World Cup'
+      },
+      {
+        id: 'v4',
+        title: 'Wimbledon 2024: Djokovic vs Alcaraz Final Highlights',
+        thumbnail: 'https://i.pinimg.com/736x/fe/f3/c4/fef3c4d369fc207ca2ac6998763118a5.jpg',
+        videoId: 'bKF9rN81zmY',
+        duration: '14:32',
+        views: '1.8M',
+        date: '3 days ago',
+        category: 'tennis',
+        tags: ['highlights'],
+        description: 'An epic Wimbledon final between two tennis giants'
+      },
+      {
+        id: 'v5',
+        title: 'Tactical Analysis: How Man City Dominated the Premier League',
+        thumbnail: 'https://i.pinimg.com/736x/b4/ce/24/b4ce24f9aa10b6950fc1ef556d7a6503.jpg',
+        videoId: 'i8fhQQ--4nI',
+        duration: '22:15',
+        views: '856K',
+        date: '1 week ago',
+        category: 'football',
+        tags: ['analysis'],
+        description: 'In-depth tactical analysis of Manchester City\'s dominant season'
+      },
+      {
+        id: 'v6',
+        title: 'Yankees vs Red Sox - MLB Classic Rivalry Highlights',
+        thumbnail: 'https://i.pinimg.com/1200x/c8/4b/35/c84b35ec1dcbacb01f5ce58dff9101b2.jpg',
+        videoId: 'qI8mgNT2G0s',
+        duration: '11:28',
+        views: '742K',
+        date: '4 days ago',
+        category: 'baseball',
+        tags: ['highlights'],
+        description: 'Classic rivalry highlights between Yankees and Red Sox'
+      },
+      {
+        id: 'v7',
+        title: 'Stephen Curry 50-Point Game Highlights',
+        thumbnail: 'https://i.pinimg.com/1200x/24/f7/eb/24f7ebc53ae9073fe7b32609b1872347.jpg',
+        videoId: 'dbf-xGWJ4wA',
+        duration: '9:45',
+        views: '1.5M',
+        date: '2 days ago',
+        category: 'basketball',
+        tags: ['highlights'],
+        description: 'Stephen Curry\'s incredible 50-point performance'
+      },
+      {
+        id: 'v8',
+        title: 'Virat Kohli Century - Masterclass Batting Analysis',
+        thumbnail: 'https://i.pinimg.com/736x/d4/c8/b0/d4c8b0bc89ebfe8749833a1bc5498682.jpg',
+        videoId: 'm8u-18Q0s7I',
+        duration: '25:10',
+        views: '923K',
+        date: '5 days ago',
+        category: 'cricket',
+        tags: ['analysis'],
+        description: 'Technical analysis of Virat Kohli\'s century innings'
+      }
+    ];
+    
+    // Updated live stream data with working images
+    this.liveStreamData = [
+      {
+        id: 'ls1',
+        title: 'Premier League: Arsenal vs Tottenham - LIVE',
+        thumbnail: 'https://i.pinimg.com/736x/7f/dd/e6/7fdde67690adbf0311849ac00f214733.jpg',
+        videoId: '7JCD30o01Ak',
+        viewers: '245K',
+        sport: 'football',
+        description: 'Watch the North London Derby live from Emirates Stadium',
+        status: 'live'
+      },
+      {
+        id: 'ls2',
+        title: 'NBA: Golden State Warriors vs LA Clippers - LIVE',
+        thumbnail: 'https://i.pinimg.com/736x/5c/2e/c6/5c2ec66b10d0dd3928e6ef3a43c0815c.jpg',
+        videoId: 'bdPYcAZdcTE',
+        viewers: '189K',
+        sport: 'basketball',
+        description: 'Western Conference showdown live from Chase Center',
+        status: 'live'
+      },
+      {
+        id: 'ls3',
+        title: 'ICC World Cup: India vs Pakistan - LIVE',
+        thumbnail: 'https://i.pinimg.com/1200x/72/75/cb/7275cbc36e4dece4e59a3f47d4cc4906.jpg',
+        videoId: 'fTyeo4zqb-o',
+        viewers: '1.2M',
+        sport: 'cricket',
+        description: 'The biggest rivalry in cricket - live from MCG',
+        status: 'live'
+      },
+      {
+        id: 'ls4',
+        title: 'UFC 300: Main Card - LIVE',
+        thumbnail: 'https://i.pinimg.com/1200x/91/d7/ea/91d7ea9f4a60af7273af2f5f8761f532.jpg',
+        videoId: 'mx-QZcBhZZM',
+        viewers: '876K',
+        sport: 'mma',
+        description: 'UFC 300 main card live from T-Mobile Arena',
+        status: 'live'
+      }
+    ];
+    
+    this.init();
+  }
+
+  async init() {
+    console.log('Watch App Initializing...');
+    await this.checkAuthStatus();
+    await this.loadUserPreferences();
+    this.setupEventListeners();
+    this.loadVideos();
+    this.loadLiveStreams();
+    this.setupSearch();
+  }
+
+  async checkAuthStatus() {
+    try {
+      const response = await fetch('/api/user');
+      const data = await response.json();
+      
+      if (data.success && data.user) {
+        this.state.user = data.user;
+        this.updateAuthUI();
+        console.log('User authenticated:', this.state.user.username);
+      } else {
+        console.log('User not authenticated');
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+    }
+  }
+
+  async loadUserPreferences() {
+    try {
+      const response = await fetch('/api/user/preferences');
+      const data = await response.json();
+      
+      if (data.success) {
+        this.state.savedVideos = new Set(data.savedVideos || []);
+        this.state.watchedVideos = new Set(data.watchedVideos || []);
+        console.log('Loaded user preferences');
+      }
+    } catch (error) {
+      console.error('Error loading user preferences:', error);
+    }
+  }
+
+  updateAuthUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    
+    if (this.state.user) {
+      if (loginText) loginText.textContent = this.state.user.username;
+      if (mobileLoginText) mobileLoginText.textContent = this.state.user.username;
+    }
+  }
+
+  loadVideos() {
+    // In a real app, this would be an API call
+    setTimeout(() => {
+      this.state.videos = [...this.videoData];
+      this.renderVideos();
+    }, 1000);
+  }
+
+  loadLiveStreams() {
+    // In a real app, this would be an API call
+    setTimeout(() => {
+      this.state.liveStreams = [...this.liveStreamData];
+      this.renderLiveStreams();
+    }, 1500);
+  }
+
+  renderVideos() {
+    const videosGrid = document.getElementById('videosGrid');
+    
+    if (!videosGrid) return;
+    
+    // Filter videos based on current category and search
+    let filteredVideos = this.state.videos;
+    
+    // Apply category filter
+    if (this.state.currentCategory !== 'all') {
+      filteredVideos = this.state.videos.filter(video => 
+        video.category === this.state.currentCategory || 
+        video.tags.includes(this.state.currentCategory)
+      );
+    }
+    
+    // Apply search filter if there's a query
+    if (this.state.searchQuery) {
+      const query = this.state.searchQuery.toLowerCase();
+      filteredVideos = filteredVideos.filter(video => 
+        video.title.toLowerCase().includes(query) ||
+        video.description.toLowerCase().includes(query) ||
+        video.category.toLowerCase().includes(query) ||
+        video.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
+    
+    // Sort videos based on current sort
+    if (this.state.currentSort === 'popular') {
+      filteredVideos.sort((a, b) => {
+        const aViews = this.parseViews(a.views);
+        const bViews = this.parseViews(b.views);
+        return bViews - aViews;
+      });
+    } else {
+      // Default: recent (already in order)
+    }
+    
+    if (filteredVideos.length === 0) {
+      videosGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📹</div>
+          <div class="empty-state-text">No videos found</div>
+          <p>Try selecting a different category or search term</p>
+        </div>
+      `;
+      return;
+    }
+    
+    let videosHTML = '';
+    
+    filteredVideos.forEach(video => {
+      const isSaved = this.state.savedVideos.has(video.id);
+      const isWatched = this.state.watchedVideos.has(video.id);
+      
+      videosHTML += `
+        <div class="video-card" data-video-id="${video.id}">
+          <div class="video-card-thumbnail">
+            <img src="${video.thumbnail}" alt="${video.title}">
+            <div class="video-card-overlay">
+              <button class="play-btn medium" aria-label="Play video">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="video-card-duration">${video.duration}</div>
+          </div>
+          <div class="video-card-content">
+            <h3 class="video-card-title">${video.title}</h3>
+            <div class="video-card-meta">
+              <div class="video-card-views">
+                <i class="fas fa-eye"></i>
+                <span>${video.views}</span>
+              </div>
+              <div class="video-card-date">${video.date}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    videosGrid.innerHTML = videosHTML;
+    
+    // Add event listeners to video cards
+    const videoCards = videosGrid.querySelectorAll('.video-card');
+    videoCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        const videoId = card.dataset.videoId;
+        const video = this.state.videos.find(v => v.id === videoId);
+        if (video) {
+          this.playVideo(video);
+        }
+      });
+    });
+  }
+
+  renderLiveStreams() {
+    const liveStreamsGrid = document.getElementById('liveStreamsGrid');
+    
+    if (!liveStreamsGrid) return;
+    
+    // Apply search filter if there's a query
+    let filteredStreams = this.state.liveStreams;
+    
+    if (this.state.searchQuery) {
+      const query = this.state.searchQuery.toLowerCase();
+      filteredStreams = this.state.liveStreams.filter(stream => 
+        stream.title.toLowerCase().includes(query) ||
+        stream.description.toLowerCase().includes(query) ||
+        stream.sport.toLowerCase().includes(query)
+      );
+    }
+    
+    if (filteredStreams.length === 0) {
+      liveStreamsGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔴</div>
+          <div class="empty-state-text">No live streams available</div>
+          <p>Check back later for live events</p>
+        </div>
+      `;
+      return;
+    }
+    
+    let streamsHTML = '';
+    
+    filteredStreams.forEach(stream => {
+      streamsHTML += `
+        <div class="live-stream-card" data-stream-id="${stream.id}">
+          <div class="live-stream-thumbnail">
+            <img src="${stream.thumbnail}" alt="${stream.title}">
+            <div class="live-indicator">LIVE</div>
+          </div>
+          <div class="live-stream-content">
+            <h3 class="live-stream-title">${stream.title}</h3>
+            <div class="live-stream-meta">
+              <div class="live-stream-sport">
+                <span class="sport-icon">${this.getSportIcon(stream.sport)}</span>
+                <span>${this.formatSportName(stream.sport)}</span>
+              </div>
+              <div class="live-stream-viewers">
+                <i class="fas fa-users"></i>
+                <span>${stream.viewers}</span>
+              </div>
+            </div>
+            <p class="live-stream-description">${stream.description}</p>
+            <div class="live-stream-actions">
+              <button class="btn" data-action="watch-live">Watch Live</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    liveStreamsGrid.innerHTML = streamsHTML;
+    
+    // Add event listeners to live stream cards
+    const streamCards = liveStreamsGrid.querySelectorAll('.live-stream-card');
+    streamCards.forEach(card => {
+      const watchBtn = card.querySelector('[data-action="watch-live"]');
+      
+      watchBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const streamId = card.dataset.streamId;
+        const stream = this.state.liveStreams.find(s => s.id === streamId);
+        if (stream) {
+          this.watchLiveStream(stream);
+        }
+      });
+    });
+  }
+
+  getSportIcon(sport) {
+    const icons = {
+      football: '⚽',
+      basketball: '🏀',
+      cricket: '🏏',
+      tennis: '🎾',
+      baseball: '⚾',
+      hockey: '🏒',
+      rugby: '🏉',
+      formula1: '🏎️',
+      boxing: '🥊',
+      mma: '🥋'
+    };
+    
+    return icons[sport] || '🏆';
+  }
+
+  formatSportName(sport) {
+    return sport.charAt(0).toUpperCase() + sport.slice(1);
+  }
+
+  parseViews(viewsStr) {
+    if (viewsStr.includes('M')) {
+      return parseFloat(viewsStr) * 1000000;
+    } else if (viewsStr.includes('K')) {
+      return parseFloat(viewsStr) * 1000;
+    }
+    return parseInt(viewsStr);
+  }
+
+  playVideo(video) {
+    // Mark as watched
+    this.state.watchedVideos.add(video.id);
+    
+    // Show video in modal
+    this.showVideoModal(video);
+    
+    // In a real app, you would track this on the server
+    if (this.state.user) {
+      this.trackVideoWatched(video.id);
+    }
+  }
+
+  watchLiveStream(stream) {
+    // Show live stream in modal
+    this.showVideoModal(stream, true);
+  }
+
+  showVideoModal(video, isLive = false) {
+    const videoModal = document.getElementById('videoModal');
+    const videoModalTitle = document.getElementById('videoModalTitle');
+    const videoContainer = document.getElementById('videoContainer');
+    
+    if (!videoModal || !videoModalTitle || !videoContainer) return;
+    
+    videoModalTitle.textContent = video.title;
+    
+    if (isLive) {
+      videoContainer.innerHTML = `
+        <div class="video-player-modal">
+          <iframe 
+            src="https://www.youtube.com/embed/${video.videoId}?autoplay=1" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+      `;
+    } else {
+      videoContainer.innerHTML = `
+        <div class="video-player-modal">
+          <iframe 
+            src="https://www.youtube.com/embed/${video.videoId}?autoplay=1" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
+      `;
+    }
+    
+    videoModal.setAttribute('aria-hidden', 'false');
+    videoModal.style.display = 'flex';
+    
+    // Add to watched history
+    this.addToWatchedHistory(video);
+  }
+
+  async addToWatchedHistory(video) {
+    if (!this.state.user) return;
+    
+    try {
+      const response = await fetch('/api/user/watched-videos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          videoId: video.id,
+          title: video.title,
+          duration: video.duration,
+          watchedAt: new Date().toISOString()
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        console.log('Added to watched history');
+      }
+    } catch (error) {
+      console.error('Error adding to watched history:', error);
+    }
+  }
+
+  async trackVideoWatched(videoId) {
+    try {
+      const response = await fetch('/api/user/track-watch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ videoId })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        console.log('Tracked video watch');
+      }
+    } catch (error) {
+      console.error('Error tracking video watch:', error);
+    }
+  }
+
+  setupSearch() {
+    const searchInput = document.getElementById('videoSearchInput');
+    const searchButton = document.getElementById('searchButton');
+    const filtersToggle = document.getElementById('filtersToggle');
+    const advancedFilters = document.getElementById('advancedFilters');
+    const searchResultsContainer = document.getElementById('searchResultsContainer');
+    const resetFilters = document.getElementById('resetFilters');
+    
+    // Toggle advanced filters
+    if (filtersToggle && advancedFilters) {
+      filtersToggle.addEventListener('click', () => {
+        advancedFilters.classList.toggle('active');
+      });
+    }
+    
+    // Perform search on button click
+    if (searchButton) {
+      searchButton.addEventListener('click', () => {
+        this.performSearch();
+      });
+    }
+    
+    // Perform search on Enter key
+    if (searchInput) {
+      searchInput.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+          this.performSearch();
+        } else {
+          // Show search suggestions as user types
+          this.showSearchSuggestions();
+        }
+      });
+      
+      // Hide search results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchResultsContainer.contains(e.target)) {
+          searchResultsContainer.classList.remove('active');
+        }
+      });
+    }
+    
+    // Reset filters
+    if (resetFilters) {
+      resetFilters.addEventListener('click', () => {
+        this.resetSearchFilters();
+      });
+    }
+    
+    // Update filters when they change
+    const filterSelects = document.querySelectorAll('.filter-select');
+    filterSelects.forEach(select => {
+      select.addEventListener('change', () => {
+        this.updateSearchFilters();
+      });
+    });
+  }
+
+  updateSearchFilters() {
+    this.state.searchFilters = {
+      sport: document.getElementById('sportFilter').value,
+      category: document.getElementById('categoryFilter').value,
+      duration: document.getElementById('durationFilter').value,
+      date: document.getElementById('dateFilter').value,
+      sort: document.getElementById('sortFilter').value
+    };
+  }
+
+  resetSearchFilters() {
+    document.getElementById('sportFilter').value = 'all';
+    document.getElementById('categoryFilter').value = 'all';
+    document.getElementById('durationFilter').value = 'all';
+    document.getElementById('dateFilter').value = 'all';
+    document.getElementById('sortFilter').value = 'relevance';
+    
+    this.updateSearchFilters();
+    this.performSearch();
+  }
+
+  performSearch() {
+    const searchInput = document.getElementById('videoSearchInput');
+    const searchResultsContainer = document.getElementById('searchResultsContainer');
+    
+    if (searchInput) {
+      this.state.searchQuery = searchInput.value.trim();
+      
+      // Hide search results
+      searchResultsContainer.classList.remove('active');
+      
+      // Update the videos and streams based on search
+      this.renderVideos();
+      this.renderLiveStreams();
+      
+      // Show search stats
+      this.showSearchStats();
+    }
+  }
+
+  showSearchSuggestions() {
+    const searchInput = document.getElementById('videoSearchInput');
+    const searchResultsContainer = document.getElementById('searchResultsContainer');
+    
+    if (!searchInput || !searchResultsContainer) return;
+    
+    const query = searchInput.value.trim().toLowerCase();
+    
+    if (query.length < 2) {
+      searchResultsContainer.classList.remove('active');
+      return;
+    }
+    
+    // Find matching videos and streams
+    const videoResults = this.state.videos.filter(video => 
+      video.title.toLowerCase().includes(query) ||
+      video.description.toLowerCase().includes(query) ||
+      video.category.toLowerCase().includes(query) ||
+      video.tags.some(tag => tag.toLowerCase().includes(query))
+    );
+    
+    const streamResults = this.state.liveStreams.filter(stream => 
+      stream.title.toLowerCase().includes(query) ||
+      stream.description.toLowerCase().includes(query) ||
+      stream.sport.toLowerCase().includes(query)
+    );
+    
+    const allResults = [...videoResults, ...streamResults];
+    
+    if (allResults.length === 0) {
+      searchResultsContainer.innerHTML = `
+        <div class="no-results">
+          <p>No results found for "${query}"</p>
+        </div>
+      `;
+    } else {
+      let resultsHTML = `
+        <div class="search-stats">
+          Found ${allResults.length} results for "${query}"
+        </div>
+      `;
+      
+      allResults.slice(0, 8).forEach(result => {
+        const isStream = result.hasOwnProperty('viewers');
+        const type = isStream ? 'Live Stream' : 'Video';
+        const icon = isStream ? '🔴' : '📹';
+        
+        resultsHTML += `
+          <div class="search-result-item" data-id="${result.id}" data-type="${isStream ? 'stream' : 'video'}">
+            <div class="search-result-thumbnail">
+              <img src="${result.thumbnail}" alt="${result.title}">
+            </div>
+            <div class="search-result-content">
+              <div class="search-result-title">${result.title}</div>
+              <div class="search-result-meta">
+                ${icon} ${type} • ${isStream ? result.viewers + ' viewers' : result.views}
+              </div>
+            </div>
+            <div class="search-result-type">${type}</div>
+          </div>
+        `;
+      });
+      
+      searchResultsContainer.innerHTML = resultsHTML;
+      
+      // Add click handlers to search results
+      const resultItems = searchResultsContainer.querySelectorAll('.search-result-item');
+      resultItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const id = item.dataset.id;
+          const type = item.dataset.type;
+          
+          if (type === 'video') {
+            const video = this.state.videos.find(v => v.id === id);
+            if (video) {
+              this.playVideo(video);
+            }
+          } else {
+            const stream = this.state.liveStreams.find(s => s.id === id);
+            if (stream) {
+              this.watchLiveStream(stream);
+            }
+          }
+          
+          searchResultsContainer.classList.remove('active');
+          searchInput.value = '';
+        });
+      });
+    }
+    
+    searchResultsContainer.classList.add('active');
+  }
+
+  showSearchStats() {
+    const videoCount = document.querySelectorAll('#videosGrid .video-card').length;
+    const streamCount = document.querySelectorAll('#liveStreamsGrid .live-stream-card').length;
+    
+    if (this.state.searchQuery) {
+      const searchStats = document.createElement('div');
+      searchStats.className = 'search-stats';
+      searchStats.innerHTML = `Showing ${videoCount} videos and ${streamCount} live streams for "${this.state.searchQuery}"`;
+      
+      // Insert at the top of the videos section
+      const videosSection = document.querySelector('.videos-section');
+      if (videosSection) {
+        const existingStats = videosSection.querySelector('.search-stats');
+        if (existingStats) {
+          existingStats.remove();
+        }
+        videosSection.insertBefore(searchStats, videosSection.firstChild);
+      }
+    } else {
+      // Remove search stats if no query
+      const existingStats = document.querySelector('.search-stats');
+      if (existingStats) {
+        existingStats.remove();
+      }
+    }
+  }
+
+  setupEventListeners() {
+    // Featured video play button
+    const featuredVideoPlayer = document.getElementById('featuredVideoPlayer');
+    if (featuredVideoPlayer) {
+      featuredVideoPlayer.addEventListener('click', () => {
+        const videoId = featuredVideoPlayer.dataset.videoId;
+        const video = {
+          id: 'featured',
+          title: 'Portugal vs Sweden - World Cup Qualifiers',
+          videoId: videoId
+        };
+        this.playVideo(video);
+      });
+    }
+    
+    // Video category filters
+    const videoCategories = document.querySelectorAll('.video-category');
+    videoCategories.forEach(category => {
+      category.addEventListener('click', () => {
+        // Update active state
+        videoCategories.forEach(c => c.classList.remove('active'));
+        category.classList.add('active');
+        
+        // Update current category
+        this.state.currentCategory = category.dataset.category;
+        this.renderVideos();
+      });
+    });
+    
+    // Video sort buttons
+    const sortButtons = document.querySelectorAll('.section-actions .btn');
+    sortButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Update active state
+        sortButtons.forEach(b => {
+          b.classList.remove('active');
+          b.classList.add('ghost');
+        });
+        button.classList.remove('ghost');
+        button.classList.add('active');
+        
+        // Update current sort
+        this.state.currentSort = button.dataset.sort;
+        this.renderVideos();
+      });
+    });
+    
+    // Video modal close
+    const videoModal = document.getElementById('videoModal');
+    const videoModalClose = document.getElementById('videoModalClose');
+    const videoModalBackdrop = document.getElementById('videoModalBackdrop');
+    
+    if (videoModalClose) {
+      videoModalClose.addEventListener('click', () => {
+        this.closeVideoModal();
+      });
+    }
+    
+    if (videoModalBackdrop) {
+      videoModalBackdrop.addEventListener('click', () => {
+        this.closeVideoModal();
+      });
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && videoModal.style.display === 'flex') {
+        this.closeVideoModal();
+      }
+    });
+    
+    // Header search functionality
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', this.debounce(() => {
+        this.handleHeaderSearch(searchInput.value);
+      }, 300));
+    }
+  }
+
+  handleHeaderSearch(query) {
+    // This handles the search in the header (small search box)
+    if (query.trim() === '') {
+      this.state.searchQuery = '';
+      this.renderVideos();
+      this.renderLiveStreams();
+      return;
+    }
+    
+    this.state.searchQuery = query;
+    this.renderVideos();
+    this.renderLiveStreams();
+  }
+
+  closeVideoModal() {
+    const videoModal = document.getElementById('videoModal');
+    const videoContainer = document.getElementById('videoContainer');
+    
+    if (videoModal && videoContainer) {
+      videoModal.setAttribute('aria-hidden', 'true');
+      videoModal.style.display = 'none';
+      videoContainer.innerHTML = '';
+    }
+  }
+
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  showToast(message) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+}
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Watch page loaded");
+  window.watchApp = new WatchApp();
+});
+</script>
+</body>
+</html>

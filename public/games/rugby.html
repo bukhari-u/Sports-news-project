@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rugby - Sky Sports Style</title>
+   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="games.css">
+   
+
+    <meta name="description" content="AllSports — latest sports news, live scores, highlights and analysis.">
+    <meta property="og:title" content="AllSports">
+    <meta property="og:description" content="Live coverage, scores, and match highlights.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+  <!-- Top Color Strip -->
+  <div class="top-strip" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header" role="banner" id="siteHeader">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="AllSports home">
+        <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+      </div>
+      <div class="brand-text">
+        <h1>SportSphereX</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+      </a>
+
+      <!-- Main Navigation -->
+      <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+        <ul class="nav-list" role="menubar">
+          <li role="none">
+            <a role="menuitem" href="/" class="nav-link">Home</a>
+          </li>
+          
+          <!-- Sports Dropdown -->
+          <li role="none" class="has-dropdown" aria-haspopup="true" aria-expanded="false">
+            <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+              Sports <span class="caret">▾</span>
+            </button>
+            <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+              <div class="dropdown-grid" role="group" aria-label="Sports list">
+                <a role="menuitem" href="football.html" class="dropdown-item">
+                  <span class="sport-icon">⚽</span> Football
+                </a>
+
+                <a role="menuitem" href="cricket.html" class="dropdown-item">
+                  <span class="sport-icon">🏏</span> Cricket
+                </a>
+
+                <a role="menuitem" href="basketball.html" class="dropdown-item">
+                  <span class="sport-icon">🏀</span> Basketball
+                </a>
+
+                <a role="menuitem" href="tennis.html" class="dropdown-item">
+                  <span class="sport-icon">🎾</span> Tennis
+                </a>
+
+                <a role="menuitem" href="baseball.html" class="dropdown-item">
+                  <span class="sport-icon">⚾</span> Baseball
+                </a>
+
+                <a role="menuitem" href="hockey.html" class="dropdown-item">
+                  <span class="sport-icon">🏒</span> Hockey
+                </a>
+
+                <a role="menuitem" href="golf.html" class="dropdown-item">
+                  <span class="sport-icon">⛳</span> Golf
+                </a>
+
+                <a role="menuitem" href="rugby.html" class="dropdown-item">
+                  <span class="sport-icon">🏉</span> Rugby
+                </a>
+
+                <a role="menuitem" href="formula1.html" class="dropdown-item">
+                  <span class="sport-icon">🏎️</span> Formula 1
+                </a>
+
+                <a role="menuitem" href="boxing.html" class="dropdown-item">
+                  <span class="sport-icon">🥊</span> Boxing
+                </a>
+
+                <a role="menuitem" href="mma.html" class="dropdown-item">
+                  <span class="sport-icon">🥋</span> MMA
+                </a>
+
+                <a role="menuitem" href="olympics.html" class="dropdown-item">
+                  <span class="sport-icon">🏅</span> Olympics
+                </a>
+              </div>
+            </div>
+          </li>
+
+          <li role="none">
+            <a role="menuitem" href="../scores.html" class="nav-link">Scores</a>
+          </li>
+
+          <li role="none">
+            <a role="menuitem" href="../watch.html" class="nav-link">Watch</a>
+          </li>
+
+          <li role="none">
+            <a role="menuitem" href="../teams.html" class="nav-link">Teams</a>
+          </li>
+
+          <li role="none">
+          <a role="menuitem" href="../players.html" class="nav-link">Players</a>
+          </li>
+
+          <li role="none">
+            <a role="menuitem" href="../fixtures.html" class="nav-link">Fixtures</a>
+          </li>
+
+          <!-- More Dropdown -->
+           <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="../more/podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="../more/highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="../more/news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="../more/statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="../more/transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="../more/injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+        </ul>
+      </nav>
+
+      <!-- Search and User Area -->
+      <div class="header-actions">
+        <div class="search" role="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <input id="searchInput" placeholder="Search players, teams, articles..." aria-label="Search articles">
+        </div>
+
+       <!-- Updated Login/User Area -->
+        <div id="userArea">
+          <div id="loginBtn">
+            <!-- This will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Hamburger -->
+      <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Panel -->
+    <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+      <div class="mobile-panel-header">
+        <div class="brand">
+          <div class="logo">AS</div>
+          <div class="brand-text">
+            <h2>AllSports</h2>
+          </div>
+        </div>
+        <button class="mobile-close" aria-label="Close menu" onclick="closeMobileMenu()">✕</button>
+      </div>
+      
+      <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+        <ul class="mobile-nav-list">
+          <li><a href="index.html" class="mobile-nav-link" onclick="closeMobileMenu();">Home</a></li>
+          
+          <li class="mobile-dropdown">
+            <button class="mobile-nav-link mobile-nav-button" aria-expanded="false" onclick="toggleMobileDropdown(this)">
+              Sports <span class="mobile-caret">▾</span>
+            </button>
+            <div class="mobile-dropdown-menu" aria-hidden="true">
+              <a href="football.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">⚽ Football</a>
+              <a href="cricket.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🏏 Cricket</a>
+              <a href="basketball.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🏀 Basketball</a>
+              <a href="tennis.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🎾 Tennis</a>
+              <a href="baseball.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">⚾ Baseball</a>
+              <a href="hockey.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🏒 Hockey</a>
+              <a href="golf.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">⛳ Golf</a>
+              <a href="rugby.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🏉 Rugby</a>
+              <a href="formula1.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🏎️ Formula 1</a>
+              <a href="boxing.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🥊 Boxing</a>
+              <a href="mma.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🥋 MMA</a>
+              <a href="olympics.html" class="mobile-dropdown-item" onclick="closeMobileMenu();">🏅 Olympics</a>
+            </div>
+          </li>
+          
+          <li><a href="#scores" class="mobile-nav-link" onclick="closeMobileMenu();">Scores</a></li>
+          <li><a href="#watch" class="mobile-nav-link" onclick="closeMobileMenu();">Watch</a></li>
+          <li><a href="#teams" class="mobile-nav-link" onclick="closeMobileMenu();">Teams</a></li>
+          <li><a href="#fixtures" class="mobile-nav-link" onclick="closeMobileMenu();">Fixtures</a></li>
+        </ul>
+      </nav>
+
+      <div class="mobile-actions">
+        <div class="search mobile-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <input placeholder="Search..." aria-label="Search articles">
+        </div>
+        <button class="btn btn-login mobile-login" onclick="openLogin(); closeMobileMenu();">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          Login
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Live Ticker -->
+  <div class="ticker" role="region" aria-label="Live scores and updates">
+    <div class="label">LIVE</div>
+    <div class="marquee" id="liveTicker" aria-live="polite">
+      <div class="marquee-inner" id="marqueeInner">
+        Loading live scores...
+      </div>
+    </div>
+    <div class="meta">Updated: <strong id="tickerTime">now</strong></div>
+  </div>
+
+    <main>
+    <!-- Hero Carousel with Follow Button -->
+    <section class="hero-carousel">
+      <div class="hero-item active">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/20110903-eng-rugby.jpg" alt="Football Action" class="hero-image">
+        <div class="hero-badge">LIVE</div>
+        <div class="hero-content">
+          <h2>Six Nations: England vs Ireland</h2>
+          <p>Live from Twickenham Stadium</p>
+          <div class="hero-actions">
+            <a href="https://www.youtube.com/watch?v=RUGBY_HERO_VIDEO" target="_blank" class="youtube-indicator">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000">
+                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+              </svg>
+              Watch on YouTube
+            </a>
+            <!-- NEW: Follow Button on Hero Section -->
+            <button class="sport-follow-btn-hero" id="footballFollowBtn" data-sport-id="rugby" data-sport-name="Rugby" data-sport-icon="🏉">
+              <span class="follow-text">Follow</span>
+              <span class="follow-icon-hero">🤍</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="content-wrapper">
+      <div class="left-column">
+        <section class="card-grid">
+          <h2>Match Highlights</h2>
+          <div class="cards">
+            <a href="https://www.youtube.com/watch?v=RUGBY_HIGHLIGHT_1" target="_blank" class="card">
+              <div class="card-image">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/20110903-eng-rugby.jpg" alt="Six Nations" loading="lazy">
+                <div class="card-badge">12:45</div>
+                <div class="youtube-overlay">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="card-content">
+                <h3>England vs Ireland: Six Nations Highlights</h3>
+                <div class="card-meta">
+                  <span>Six Nations</span>
+                  <span>3h ago</span>
+                </div>
+              </div>
+            </a>
+
+            <a href="https://www.youtube.com/watch?v=RUGBY_HIGHLIGHT_2" target="_blank" class="card">
+              <div class="card-image">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/20110903-eng-rugby.jpg" alt="Super Rugby" loading="lazy">
+                <div class="card-badge">9:30</div>
+                <div class="youtube-overlay">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="card-content">
+                <h3>Crusaders vs Blues: Super Rugby Pacific</h3>
+                <div class="card-meta">
+                  <span>Super Rugby</span>
+                  <span>1d ago</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <section class="card-grid">
+          <h2>Features & Analysis</h2>
+          <div class="cards">
+            <a href="https://www.youtube.com/watch?v=RUGBY_FEATURE_1" target="_blank" class="card">
+              <div class="card-image">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/20110903-eng-rugby.jpg" alt="Player Feature" loading="lazy">
+                <div class="card-badge">15:20</div>
+                <div class="youtube-overlay">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="card-content">
+                <h3>Johnny Sexton: Career tribute and legacy</h3>
+                <div class="card-meta">
+                  <span>Feature</span>
+                  <span>2d ago</span>
+                </div>
+              </div>
+            </a>
+
+            <a href="https://www.youtube.com/watch?v=RUGBY_FEATURE_2" target="_blank" class="card">
+              <div class="card-image">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/20110903-eng-rugby.jpg" alt="Tactical" loading="lazy">
+                <div class="card-badge">11:15</div>
+                <div class="youtube-overlay">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="card-content">
+                <h3>Tactical analysis: Ireland's attacking structure</h3>
+                <div class="card-meta">
+                  <span>Analysis</span>
+                  <span>3d ago</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <div class="right-column">
+        <div class="widget">
+          <h3>Live Scores</h3>
+          <div class="live-score">
+            <div class="teams">England vs Ireland</div>
+            <div class="score">24-21</div>
+            <div class="live-indicator">LIVE</div>
+          </div>
+          <div class="live-score">
+            <div class="teams">Wales vs France</div>
+            <div class="score">18-16</div>
+            <div>75'</div>
+          </div>
+          <div class="live-score">
+            <div class="teams">Scotland vs Italy</div>
+            <div class="score">Starts 14:15</div>
+            <div>Tomorrow</div>
+          </div>
+        </div>
+
+        <div class="widget">
+          <h3>Six Nations Table</h3>
+          <div style="font-size: 14px;">
+            <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
+              <span>Team</span>
+              <span>Pts</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+              <span>1. Ireland</span>
+              <span>16</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+              <span>2. France</span>
+              <span>12</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+              <span>3. England</span>
+              <span>10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="widget">
+          <h3>Top Try Scorers</h3>
+          <div class="top-pick">
+            <div class="top-pick-content">
+              <h4>Damian Penaud (FRA)</h4>
+              <div class="top-pick-meta">5 tries</div>
+            </div>
+          </div>
+          <div class="top-pick">
+            <div class="top-pick-content">
+              <h4>Mack Hansen (IRE)</h4>
+              <div class="top-pick-meta">4 tries</div>
+            </div>
+          </div>
+          <div class="top-pick">
+            <div class="top-pick-content">
+              <h4>Josh Adams (WAL)</h4>
+              <div class="top-pick-meta">3 tries</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; <span id="year">2024</span> AllSports. All rights reserved.</p>
+  </footer>
+
+  <script src="games.js"></script>
+<script>var yel = document.getElementById('year'); if(yel) yel.textContent=new Date().getFullYear();</script>
+</body>
+</html>

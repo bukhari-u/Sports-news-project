@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Podcasts — SportSphereX</title>
+  <meta name="description" content="Listen to the latest sports podcasts, interviews, and analysis on SportSphereX."/>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../games.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="SportSphereX home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="SportSphereX Logo">
+      </div>
+      <div class="brand-text">
+        <h1>SportSphereX</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="../index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="../games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="../games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="../games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="../games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="../games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="../games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="../games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="../games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="../games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="../games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="../games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="../games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../teams.html" class="nav-link">Teams</a>
+        </li>
+
+         <li role="none">
+          <a role="menuitem" href="../players.html" class="nav-link">Players</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="podcasts.html" class="dropdown-item nav-active">Podcasts</a>
+            <a role="menuitem" href="highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and User Area -->
+    <div class="header-actions">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          id="searchInput" 
+          placeholder="Search podcasts..." 
+          aria-label="Search podcasts"
+          type="text"
+        >
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown" style="display: none;">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="SportSphereX Logo">
+        </div>
+        <div class="brand-text">
+          <h2>SportSphereX</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="../index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="../games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="../games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="../games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="../games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="../games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="../games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="../games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="../games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="../games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="../games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="../games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="../games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="../scores.html" class="mobile-nav-link">Scores</a></li>
+        <li><a href="../watch.html" class="mobile-nav-link">Watch</a></li>
+        <li><a href="../teams.html" class="mobile-nav-link">Teams</a></li>
+        <li><a href="../fixtures.html" class="mobile-nav-link">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item mobile-nav-active">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search podcasts..." aria-label="Search podcasts" id="mobileSearchInput">
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown" style="display: none;">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Sports Podcasts</h1>
+    <p class="page-subtitle">Listen to expert analysis, interviews, and in-depth discussions about your favorite sports</p>
+  </div>
+
+  <!-- Podcast Categories -->
+  <div class="filter-chips" id="podcastCategories">
+    <button class="filter-chip active">All Podcasts</button>
+    <button class="filter-chip">⚽ Football</button>
+    <button class="filter-chip">🏀 Basketball</button>
+    <button class="filter-chip">🏏 Cricket</button>
+    <button class="filter-chip">🎾 Tennis</button>
+    <button class="filter-chip">🏎️ F1</button>
+  </div>
+
+  <main class="main-grid">
+    <!-- Left: Podcast Content -->
+    <section>
+      <!-- Featured Podcast -->
+      <div class="featured">
+        <div class="hero" aria-labelledby="featuredPodcastTitle">
+          <div class="hero-img" style="background-image: url('https://images.unsplash.com/photo-1478737270239-2f02b77fc618?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')">
+            <div class="hero-overlay">
+              <button class="play-btn" aria-label="Play podcast">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="hero-body">
+            <div class="tag">FEATURED PODCAST</div>
+            <h2 id="featuredPodcastTitle">The Champions League Breakdown</h2>
+            <div class="meta">By <strong>The Football Analysis Team</strong> • <span>2 hours ago</span></div>
+            <p>Deep dive into the quarter-final matches, tactical analysis, and predictions for the semi-finals. Featuring special guest Michael Cox.</p>
+            
+            <div class="podcast-meta">
+              <div class="podcast-duration">🕒 58:24</div>
+              <div class="podcast-listeners">👥 45.2K listens</div>
+            </div>
+            
+            <div class="actions">
+              <button class="btn" id="playFeaturedBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                Play Now
+              </button>
+              <button class="btn ghost">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Episodes -->
+      <section id="latestEpisodes" aria-label="Latest podcast episodes">
+        <div class="section-header">
+          <h3 class="section-title">Latest Episodes</h3>
+          <div class="filter-info">
+            Showing: <span id="currentCategory">All Podcasts</span>
+          </div>
+        </div>
+
+        <div class="podcast-grid">
+          <!-- Podcast Episode 1 -->
+          <div class="podcast-card" data-podcast-id="1">
+            <div class="podcast-image" style="background-image: url('https://images.unsplash.com/photo-1593696954577-ab3d39317b3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+              <button class="podcast-play-btn" aria-label="Play episode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="podcast-body">
+              <div class="podcast-meta-header">
+                <span class="podcast-category">🏀 Basketball</span>
+                <span class="podcast-duration">42:18</span>
+              </div>
+              <h4>NBA Playoffs: Eastern Conference Preview</h4>
+              <p>Breaking down the key matchups, X-factors, and predictions for the Eastern Conference playoffs.</p>
+              
+              <div class="podcast-info">
+                <div class="podcast-host">
+                  <strong>Hosted by:</strong> The NBA Today Team
+                </div>
+                <div class="podcast-stats">
+                  <span>👥 28.7K</span>
+                  <span>📅 1 day ago</span>
+                </div>
+              </div>
+              
+              <div class="podcast-actions">
+                <button class="btn btn-small">Play</button>
+                <button class="btn btn-small ghost">Save</button>
+                <button class="btn btn-small ghost">Share</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Podcast Episode 2 -->
+          <div class="podcast-card" data-podcast-id="2">
+            <div class="podcast-image" style="background-image: url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+              <button class="podcast-play-btn" aria-label="Play episode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="podcast-body">
+              <div class="podcast-meta-header">
+                <span class="podcast-category">🏏 Cricket</span>
+                <span class="podcast-duration">51:12</span>
+              </div>
+              <h4>IPL 2024: Mid-season Review</h4>
+              <p>Analyzing team performances, standout players, and what to expect in the second half of the tournament.</p>
+              
+              <div class="podcast-info">
+                <div class="podcast-host">
+                  <strong>Hosted by:</strong> Cricket Unlimited
+                </div>
+                <div class="podcast-stats">
+                  <span>👥 34.2K</span>
+                  <span>📅 2 days ago</span>
+                </div>
+              </div>
+              
+              <div class="podcast-actions">
+                <button class="btn btn-small">Play</button>
+                <button class="btn btn-small ghost">Save</button>
+                <button class="btn btn-small ghost">Share</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Podcast Episode 3 -->
+          <div class="podcast-card" data-podcast-id="3">
+            <div class="podcast-image" style="background-image: url('https://images.unsplash.com/photo-1592924687770-bcc2e86bd68d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+              <button class="podcast-play-btn" aria-label="Play episode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="podcast-body">
+              <div class="podcast-meta-header">
+                <span class="podcast-category">🎾 Tennis</span>
+                <span class="podcast-duration">38:45</span>
+              </div>
+              <h4>Clay Court Season Preview</h4>
+              <p>Looking ahead to the European clay court swing, from Monte Carlo to Roland Garros.</p>
+              
+              <div class="podcast-info">
+                <div class="podcast-host">
+                  <strong>Hosted by:</strong> The Tennis Podcast
+                </div>
+                <div class="podcast-stats">
+                  <span>👥 19.8K</span>
+                  <span>📅 3 days ago</span>
+                </div>
+              </div>
+              
+              <div class="podcast-actions">
+                <button class="btn btn-small">Play</button>
+                <button class="btn btn-small ghost">Save</button>
+                <button class="btn btn-small ghost">Share</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Popular Podcast Shows -->
+      <section id="popularShows" aria-label="Popular podcast shows">
+        <div class="section-header">
+          <h3 class="section-title">Popular Shows</h3>
+        </div>
+
+        <div class="shows-grid">
+          <!-- Show 1 -->
+          <div class="show-card">
+            <div class="show-image" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+            <div class="show-body">
+              <h4>The Football Analysis</h4>
+              <div class="show-meta">
+                <span class="show-category">⚽ Football</span>
+                <span class="show-episodes">48 episodes</span>
+              </div>
+              <p>Tactical analysis, match previews, and in-depth football discussions.</p>
+              <div class="show-stats">
+                <span>⭐ 4.8</span>
+                <span>👥 125K followers</span>
+              </div>
+              <button class="btn btn-small follow-btn">Follow Show</button>
+            </div>
+          </div>
+
+          <!-- Show 2 -->
+          <div class="show-card">
+            <div class="show-image" style="background-image: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+            <div class="show-body">
+              <h4>NBA Today</h4>
+              <div class="show-meta">
+                <span class="show-category">🏀 Basketball</span>
+                <span class="show-episodes">52 episodes</span>
+              </div>
+              <p>Daily NBA news, analysis, and interviews with players and coaches.</p>
+              <div class="show-stats">
+                <span>⭐ 4.9</span>
+                <span>👥 98K followers</span>
+              </div>
+              <button class="btn btn-small follow-btn">Follow Show</button>
+            </div>
+          </div>
+
+          <!-- Show 3 -->
+          <div class="show-card">
+            <div class="show-image" style="background-image: url('https://images.unsplash.com/photo-1552667466-07770ae1107d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+            <div class="show-body">
+              <h4>Cricket Unlimited</h4>
+              <div class="show-meta">
+                <span class="show-category">🏏 Cricket</span>
+                <span class="show-episodes">36 episodes</span>
+              </div>
+              <p>Comprehensive cricket coverage from Test matches to T20 leagues worldwide.</p>
+              <div class="show-stats">
+                <span>⭐ 4.7</span>
+                <span>👥 87K followers</span>
+              </div>
+              <button class="btn btn-small follow-btn">Follow Show</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Right: Sidebar -->
+    <aside class="sidebar" aria-label="Podcasts sidebar">
+      <!-- Now Playing -->
+      <div class="panel now-playing-panel">
+        <h4>Now Playing</h4>
+        <div class="now-playing">
+          <div class="playing-image" style="background-image: url('https://images.unsplash.com/photo-1478737270239-2f02b77fc618?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+          <div class="playing-info">
+            <h5>The Champions League Breakdown</h5>
+            <div class="playing-meta">The Football Analysis Team</div>
+            <div class="progress-bar">
+              <div class="progress" style="width: 35%"></div>
+            </div>
+            <div class="time-display">
+              <span>20:15</span>
+              <span>58:24</span>
+            </div>
+            <div class="player-controls">
+              <button class="control-btn">⏮️</button>
+              <button class="control-btn">⏸️</button>
+              <button class="control-btn">⏭️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Podcasts -->
+      <div class="panel">
+        <h4>Top Podcasts This Week</h4>
+        <div class="top-podcasts-list">
+          <div class="top-podcast-item">
+            <div class="podcast-rank">1</div>
+            <div class="podcast-info">
+              <strong>Premier League Weekly</strong>
+              <div class="muted">⚽ Football • 156K listens</div>
+            </div>
+          </div>
+          <div class="top-podcast-item">
+            <div class="podcast-rank">2</div>
+            <div class="podcast-info">
+              <strong>NBA Insider</strong>
+              <div class="muted">🏀 Basketball • 142K listens</div>
+            </div>
+          </div>
+          <div class="top-podcast-item">
+            <div class="podcast-rank">3</div>
+            <div class="podcast-info">
+              <strong>Cricket World Cup Daily</strong>
+              <div class="muted">🏏 Cricket • 128K listens</div>
+            </div>
+          </div>
+          <div class="top-podcast-item">
+            <div class="podcast-rank">4</div>
+            <div class="podcast-info">
+              <strong>F1 Debrief</strong>
+              <div class="muted">🏎️ Formula 1 • 98K listens</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscribe Panel -->
+      <div class="panel">
+        <h4>Subscribe & Listen</h4>
+        <p class="muted">Available on all major podcast platforms</p>
+        <div class="platform-buttons">
+          <button class="btn btn-small platform-btn">
+            <i class="fab fa-spotify"></i> Spotify
+          </button>
+          <button class="btn btn-small platform-btn">
+            <i class="fab fa-apple"></i> Apple Podcasts
+          </button>
+          <button class="btn btn-small platform-btn">
+            <i class="fab fa-google"></i> Google Podcasts
+          </button>
+        </div>
+      </div>
+
+      <!-- Upcoming Recordings -->
+      <div class="panel">
+        <h4>Live Recordings</h4>
+        <div class="live-recordings">
+          <div class="recording-item">
+            <div class="recording-time">Today, 18:00</div>
+            <div class="recording-title">Transfer Window Special</div>
+            <div class="recording-sport">⚽ Football</div>
+          </div>
+          <div class="recording-item">
+            <div class="recording-time">Tomorrow, 15:30</div>
+            <div class="recording-title">NBA Playoff Preview</div>
+            <div class="recording-sport">🏀 Basketball</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h5>SportSphereX</h5>
+        <p>Your premier destination for sports news, live scores, and video highlights.</p>
+      </div>
+      <div class="footer-section">
+        <h5>Sports</h5>
+        <a href="../games/football.html">Football</a>
+        <a href="../games/cricket.html">Cricket</a>
+        <a href="../games/basketball.html">Basketball</a>
+        <a href="../games/tennis.html">Tennis</a>
+      </div>
+      <div class="footer-section">
+        <h5>Company</h5>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2024 SportSphereX — Built with ❤️ for sports fans worldwide
+    </div>
+  </footer>
+</div>
+
+<!-- Audio Player Modal -->
+<div class="modal" id="audioPlayerModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="audioModalBackdrop"></div>
+  <div class="modal-content audio-modal-content" role="document">
+    <div class="modal-header">
+      <h3 id="audioModalTitle">Now Playing</h3>
+      <button class="modal-close" aria-label="Close" id="audioModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="audioPlayerContainer">
+        <!-- Audio player content injected by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Authentication state management
+class AuthManager {
+  constructor() {
+    this.state = {
+      user: JSON.parse(localStorage.getItem('user')) || null
+    };
+    this.init();
+  }
+
+  init() {
+    this.updateLoginUI();
+    this.setupEventListeners();
+  }
+
+  updateLoginUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+
+    if (this.state.user) {
+      if (loginText) loginText.textContent = 'Logged';
+      if (mobileLoginText) mobileLoginText.textContent = 'Logged';
+      if (loginBtn) loginBtn.classList.add('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.add('logged-in');
+      if (userDropdown) userDropdown.style.display = 'block';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'block';
+    } else {
+      if (loginText) loginText.textContent = 'Login';
+      if (mobileLoginText) mobileLoginText.textContent = 'Login';
+      if (loginBtn) loginBtn.classList.remove('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.remove('logged-in');
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'none';
+    }
+  }
+
+  setupEventListeners() {
+    // Login buttons
+    document.getElementById('loginBtn')?.addEventListener('click', () => this.handleLoginClick());
+    document.getElementById('mobileLoginBtn')?.addEventListener('click', () => this.handleLoginClick());
+
+    // Logout buttons
+    document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+  }
+
+  handleLoginClick() {
+    if (this.state.user) {
+      // User is logged in, do nothing (dropdown will handle logout)
+      return;
+    } else {
+      // Simulate login for demo purposes
+      this.state.user = { 
+        name: 'John Doe', 
+        email: 'john@example.com',
+        id: 'user123'
+      };
+      localStorage.setItem('user', JSON.stringify(this.state.user));
+      this.updateLoginUI();
+      this.showToast('Successfully logged in!');
+    }
+  }
+
+  logout() {
+    this.state.user = null;
+    localStorage.removeItem('user');
+    this.updateLoginUI();
+    this.showToast('Successfully logged out!');
+  }
+
+  showToast(message) {
+    // Create toast element if it doesn't exist
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-weight: 500;
+        pointer-events: none;
+      `;
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 3000);
+  }
+}
+
+// Initialize auth manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  window.authManager = new AuthManager();
+  
+  // Podcast player functionality
+  const audioModal = document.getElementById('audioPlayerModal');
+  const audioModalClose = document.getElementById('audioModalClose');
+  const audioModalBackdrop = document.getElementById('audioModalBackdrop');
+
+  // Play podcast buttons
+  document.addEventListener('click', function(e) {
+    const playBtn = e.target.closest('.play-btn, .podcast-play-btn, .btn-small');
+    if (playBtn && (playBtn.textContent.includes('Play') || playBtn.classList.contains('play-btn') || playBtn.classList.contains('podcast-play-btn'))) {
+      const podcastCard = playBtn.closest('.hero, .podcast-card');
+      const podcastTitle = podcastCard?.querySelector('h2, h4')?.textContent || 'Podcast Episode';
+      openAudioPlayer(podcastTitle);
+    }
+
+    // Follow show buttons
+    const followBtn = e.target.closest('.follow-btn');
+    if (followBtn) {
+      const showCard = followBtn.closest('.show-card');
+      const showName = showCard?.querySelector('h4')?.textContent || 'this show';
+      if (followBtn.textContent.includes('Follow')) {
+        followBtn.textContent = 'Following';
+        window.authManager.showToast(`Now following ${showName}`);
+      } else {
+        followBtn.textContent = 'Follow Show';
+        window.authManager.showToast(`Unfollowed ${showName}`);
+      }
+    }
+
+    // Platform buttons
+    const platformBtn = e.target.closest('.platform-btn');
+    if (platformBtn) {
+      const platform = platformBtn.textContent.trim();
+      window.authManager.showToast(`Opening ${platform}...`);
+    }
+  });
+
+  // Close modal events
+  if (audioModalClose) {
+    audioModalClose.addEventListener('click', closeAudioModal);
+  }
+  if (audioModalBackdrop) {
+    audioModalBackdrop.addEventListener('click', closeAudioModal);
+  }
+
+  function openAudioPlayer(title) {
+    if (!audioModal) return;
+
+    const audioPlayerContainer = document.getElementById('audioPlayerContainer');
+    const audioModalTitle = document.getElementById('audioModalTitle');
+    
+    if (audioModalTitle) audioModalTitle.textContent = title;
+    
+    if (audioPlayerContainer) {
+      audioPlayerContainer.innerHTML = `
+        <div class="audio-player">
+          <div class="audio-player-image" style="background-image: url('https://images.unsplash.com/photo-1478737270239-2f02b77fc618?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')"></div>
+          <div class="audio-player-info">
+            <h4>${title}</h4>
+            <div class="audio-player-meta">The Football Analysis Team • 58:24</div>
+            <div class="audio-progress">
+              <div class="progress-bar">
+                <div class="progress" style="width: 0%"></div>
+              </div>
+              <div class="time-display">
+                <span>0:00</span>
+                <span>58:24</span>
+              </div>
+            </div>
+            <div class="audio-controls">
+              <button class="control-btn">⏮️</button>
+              <button class="control-btn play-pause">▶️</button>
+              <button class="control-btn">⏭️</button>
+            </div>
+            <div class="audio-actions">
+              <button class="btn btn-small">Save</button>
+              <button class="btn btn-small ghost">Share</button>
+              <button class="btn btn-small ghost">Download</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Add play/pause functionality
+      const playPauseBtn = audioPlayerContainer.querySelector('.play-pause');
+      const progressBar = audioPlayerContainer.querySelector('.progress');
+      const currentTime = audioPlayerContainer.querySelector('.time-display span:first-child');
+      
+      let isPlaying = false;
+      let progress = 0;
+      
+      if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', function() {
+          isPlaying = !isPlaying;
+          this.textContent = isPlaying ? '⏸️' : '▶️';
+          
+          if (isPlaying) {
+            // Simulate playback progress
+            const interval = setInterval(() => {
+              if (isPlaying && progress < 100) {
+                progress += 0.5;
+                progressBar.style.width = progress + '%';
+                
+                // Update time display (simulated)
+                const minutes = Math.floor((progress / 100) * 58);
+                const seconds = Math.floor((progress / 100) * 24);
+                if (currentTime) {
+                  currentTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+              } else {
+                clearInterval(interval);
+              }
+            }, 100);
+          }
+        });
+      }
+    }
+
+    audioModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAudioModal() {
+    if (!audioModal) return;
+    
+    audioModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Filter chips functionality
+  const filterChips = document.querySelectorAll('.filter-chip');
+  const currentCategory = document.getElementById('currentCategory');
+
+  filterChips.forEach(chip => {
+    chip.addEventListener('click', function() {
+      // Remove active class from all chips
+      filterChips.forEach(c => c.classList.remove('active'));
+      // Add active class to clicked chip
+      this.classList.add('active');
+      
+      // Update current category display
+      if (currentCategory) {
+        currentCategory.textContent = this.textContent;
+      }
+    });
+  });
+
+  // Mobile menu functionality
+  const mobileToggle = document.getElementById('mobileToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileClose = document.querySelector('.mobile-close');
+
+  if (mobileToggle && mobileMenu) {
+    mobileToggle.addEventListener('click', function() {
+      mobileMenu.classList.add('open');
+      this.setAttribute('aria-expanded', 'true');
+    });
+  }
+
+  if (mobileClose) {
+    mobileClose.addEventListener('click', function() {
+      mobileMenu.classList.remove('open');
+      mobileToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  // Mobile dropdown functionality
+  const mobileDropdownButtons = document.querySelectorAll('.mobile-nav-button');
+  
+  mobileDropdownButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      
+      const dropdownMenu = this.nextElementSibling;
+      if (dropdownMenu) {
+        dropdownMenu.setAttribute('aria-hidden', isExpanded);
+        dropdownMenu.style.maxHeight = isExpanded ? '0' : '500px';
+      }
+    });
+  });
+
+  // Now playing controls
+  const nowPlayingControls = document.querySelectorAll('.control-btn');
+  nowPlayingControls.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const action = this.textContent;
+      if (action === '⏸️') {
+        this.textContent = '▶️';
+        window.authManager.showToast('Playback paused');
+      } else if (action === '▶️') {
+        this.textContent = '⏸️';
+        window.authManager.showToast('Playback started');
+      } else {
+        window.authManager.showToast(`Control: ${action}`);
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

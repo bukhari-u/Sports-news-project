@@ -1,0 +1,2879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AllSports — Legendary Players & Athletes</title>
+  <meta name="description" content="AllSports — Discover the greatest players across all sports. Stats, achievements, and profiles of legendary athletes."/>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Additional styles specific to players page */
+    .player-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+    }
+    
+    .player-hero-image {
+      height: 750px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    
+    .player-hero-info {
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .player-hero-info .player-name {
+      font-size: 48px;
+      margin-bottom: var(--space-2);
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+    
+    .player-hero-info .player-sport {
+      font-size: 20px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-3);
+    }
+    
+    .player-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+      margin: var(--space-3) 0;
+    }
+    
+    .player-stat-card {
+      background: rgba(255,255,255,0.05);
+      padding: var(--space-3);
+      border-radius: var(--radius);
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .player-stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: var(--space-1);
+    }
+    
+    .player-stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .player-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin: var(--space-3) 0;
+    }
+    
+    .player-info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .player-info-label {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .player-info-value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .players-filter {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-3);
+    }
+    
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    
+    .player-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .player-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    
+    .player-card-image {
+    background-repeat: no-repeat;
+    background-size: 370px auto;   /* width = 150px */
+    background-position: center;
+    height: 200px;
+    }
+    
+    .player-card-info {
+      padding: var(--space-3);
+    }
+    
+    .player-card-name {
+      font-size: 20px;
+      margin-bottom: var(--space-1);
+      color: var(--text-primary);
+    }
+    
+    .player-card-sport {
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+    
+    .player-card-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+    
+    .player-card-country, .player-card-club {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .player-card-stats {
+      display: flex;
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+    }
+    
+    .player-card-stat {
+      flex: 1;
+      text-align: center;
+      padding: var(--space-1);
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius);
+    }
+    
+    .player-card-stat-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent);
+    }
+    
+    .player-card-stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .player-follow-btn {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-2);
+      background: rgba(0,0,0,0.7);
+      border: none;
+      color: white;
+      padding: var(--space-1) var(--space-2);
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+    
+    .player-follow-btn:hover {
+      background: var(--accent);
+      transform: scale(1.05);
+    }
+    
+    .player-follow-btn.following {
+      background: var(--accent);
+    }
+    
+    .player-pin-btn {
+      position: absolute;
+      top: var(--space-2);
+      left: var(--space-2);
+      background: rgba(0,0,0,0.7);
+      border: none;
+      color: white;
+      padding: var(--space-1) var(--space-2);
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .player-pin-btn:hover {
+      background: #ffd700;
+      color: #000;
+      transform: scale(1.05);
+    }
+    
+    .player-pin-btn.pinned {
+      background: #ffd700;
+      color: #000;
+    }
+    
+    .player-pin-btn.pinned i {
+      transform: rotate(45deg);
+    }
+    
+    .player-modal-content {
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .player-modal-header {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .player-modal-image {
+      width: 200px;
+      height: 200px;
+      border-radius: var(--radius);
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+    
+    .player-modal-info {
+      flex: 1;
+    }
+    
+    .player-modal-name {
+      font-size: 36px;
+      margin-bottom: var(--space-1);
+      color: var(--text-primary);
+    }
+    
+    .player-modal-sport {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+    
+    .player-modal-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-2);
+    }
+    
+    .player-modal-detail {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-1) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .player-modal-body {
+      padding: var(--space-3);
+    }
+    
+    .player-modal-section {
+      margin-bottom: var(--space-3);
+    }
+    
+    .player-modal-section h4 {
+      font-size: 20px;
+      margin-bottom: var(--space-2);
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: var(--space-1);
+    }
+    
+    .player-modal-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: var(--space-2);
+    }
+    
+    .player-modal-stat {
+      background: rgba(255,255,255,0.05);
+      padding: var(--space-2);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    
+    .player-modal-stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: var(--space-1);
+    }
+    
+    .player-modal-stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .player-modal-trophies {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-2);
+    }
+    
+    .player-modal-trophy {
+      background: rgba(255,255,255,0.05);
+      padding: var(--space-2);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    
+    .player-modal-trophy-icon {
+      font-size: 32px;
+      margin-bottom: var(--space-1);
+    }
+    
+    .player-modal-trophy-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: var(--space-1);
+    }
+    
+    .player-modal-trophy-count {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent);
+    }
+    
+    /* Search Results Styles */
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      z-index: 1000;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .search-results.active {
+      display: block;
+    }
+    
+    .search-result-item {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .search-result-item:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    
+    .search-result-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    
+    .search-result-content {
+      flex: 1;
+    }
+    
+    .search-result-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    
+    .search-result-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .search-result-type {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: var(--accent);
+      color: white;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+    
+    .no-results {
+      padding: var(--space-3);
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    @media (max-width: 768px) {
+      .player-hero {
+        grid-template-columns: 1fr;
+      }
+      
+      .player-hero-image {
+        height: 300px;
+      }
+      
+      .player-hero-info .player-name {
+        font-size: 36px;
+      }
+      
+      .player-stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .player-info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .player-modal-header {
+        flex-direction: column;
+      }
+      
+      .player-modal-image {
+        width: 100%;
+        height: 200px;
+      }
+      
+      .player-modal-details {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .players-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .player-stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .player-modal-stats, .player-modal-trophies {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="index.html" aria-label="AllSports home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+      </div>
+      <div class="brand-text">
+        <h1>SportSphereX</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="teams.html" class="nav-link">Teams</a>
+        </li>
+ 
+        <li role="none">
+          <a role="menuitem" href="players.html" class="nav-link nav-active">Players</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+        
+        <!-- More Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="more/podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="more/highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="more/news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="more/statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="more/transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="more/injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and User Area -->
+    <div class="header-actions">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          id="searchInput" 
+          placeholder="Search players, teams, articles..." 
+          aria-label="Search articles"
+          type="text"
+        >
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+        </div>
+        <div class="brand-text">
+          <h2>AllSports</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="scores.html" class="mobile-nav-link">Scores</a></li>
+        <li><a href="watch.html" class="mobile-nav-link">Watch</a></li>
+        <li><a href="teams.html" class="mobile-nav-link">Teams</a></li>
+        <li><a href="fixtures.html" class="mobile-nav-link">Fixtures</a></li>
+        <li><a href="players.html" class="mobile-nav-link mobile-nav-active">Players</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search..." aria-label="Search articles" id="mobileSearchInput">
+        <div class="search-results" id="mobileSearchResults"></div>
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Players</h1>
+    <p class="page-subtitle">Discover the greatest athletes across all sports - their achievements, stats, and legacy</p>
+  </div>
+
+  <!-- Featured Player - Initially Cristiano Ronaldo -->
+  <div id="pinned-player-hero" class="player-hero">
+    <!-- Content will be dynamically generated -->
+  </div>
+
+  <!-- Players Filter -->
+  <div class="players-filter">
+    <button class="filter-chip active">All Sports</button>
+    <button class="filter-chip" data-sport="football">⚽ Football</button>
+    <button class="filter-chip" data-sport="basketball">🏀 Basketball</button>
+    <button class="filter-chip" data-sport="cricket">🏏 Cricket</button>
+    <button class="filter-chip" data-sport="tennis">🎾 Tennis</button>
+    <button class="filter-chip" data-sport="boxing">🥊 Boxing</button>
+    <button class="filter-chip" data-sport="formula1">🏎️ Formula 1</button>
+    <button class="filter-chip" data-sport="golf">⛳ Golf</button>
+    <button class="filter-chip" data-sport="athletics">🏃 Athletics</button>
+    <button class="filter-chip" data-sport="mma">🥋 MMA</button>
+  </div>
+
+  <!-- Players Grid -->
+  <div class="players-grid" id="playersGrid">
+    <!-- Cristiano Ronaldo -->
+    <div class="player-card" data-player-id="cristiano-ronaldo" data-sport="football">
+      <button class="player-follow-btn" data-player="cristiano-ronaldo" data-player-name="Cristiano Ronaldo" data-sport="Football" data-position="Forward" data-team="Al Nassr" data-nationality="Portugal" data-image="https://i.pinimg.com/736x/2e/b8/83/2eb883d1d16f293bcb5b0e745da4e883.jpg">Follow</button>
+      <button class="player-pin-btn" data-player="cristiano-ronaldo"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/736x/4d/31/c2/4d31c23e3637fcdcf25ffcbc514f8c5c.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Cristiano Ronaldo</h3>
+        <div class="player-card-sport">⚽ Football • Forward</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇵🇹 Portugal</div>
+          <div class="player-card-club">Al Nassr</div>
+        </div>
+        <p>Widely regarded as one of the greatest players of all time, Ronaldo has won five Ballon d'Or awards and four European Golden Shoes.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">5</div>
+            <div class="player-card-stat-label">Ballon d'Or</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">850+</div>
+            <div class="player-card-stat-label">Goals</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">34</div>
+            <div class="player-card-stat-label">Trophies</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lionel Messi -->
+    <div class="player-card" data-player-id="lionel-messi" data-sport="football">
+      <button class="player-follow-btn" data-player="lionel-messi" data-player-name="Lionel Messi" data-sport="Football" data-position="Forward" data-team="Inter Miami" data-nationality="Argentina" data-image="https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="lionel-messi"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/736x/06/d6/a8/06d6a831a4eff7082d0be847f7254325.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Lionel Messi</h3>
+        <div class="player-card-sport">⚽ Football • Forward</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇦🇷 Argentina</div>
+          <div class="player-card-club">Inter Miami</div>
+        </div>
+        <p>Considered one of the greatest players of all time, Messi has won a record eight Ballon d'Or awards.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">8</div>
+            <div class="player-card-stat-label">Ballon d'Or</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">800+</div>
+            <div class="player-card-stat-label">Goals</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">38</div>
+            <div class="player-card-stat-label">Trophies</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Imran Khan -->
+    <div class="player-card" data-player-id="imran-khan" data-sport="cricket">
+      <button class="player-follow-btn" data-player="imran-khan" data-player-name="Imran Khan" data-sport="Cricket" data-position="All-rounder" data-team="Pakistan" data-nationality="Pakistan" data-image="https://i.pinimg.com/736x/9f/5f/8b/9f5f8b5a0a8c2a5d5a5e5c5a5a5e5c5a.jpg">Follow</button>
+      <button class="player-pin-btn" data-player="imran-khan"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://media.gettyimages.com/id/79649595/photo/july-1987-4th-cornhill-test-match-at-edgbaston-england-v-pakistan-imran-khan-pakistan-imran.jpg?s=612x612&w=gi&k=20&c=_pTus-bMeA0ZqB8o6PwIby7sHlmWivYQWp8ktaJXBNg=')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Imran Khan</h3>
+        <div class="player-card-sport">🏏 Cricket • All-rounder</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇵🇰 Pakistan</div>
+          <div class="player-card-club">Pakistan</div>
+        </div>
+        <p>Legendary cricketer who captained Pakistan to their first World Cup victory in 1992. Later became Prime Minister of Pakistan.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">1992</div>
+            <div class="player-card-stat-label">World Cup</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">3807</div>
+            <div class="player-card-stat-label">Test Runs</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">362</div>
+            <div class="player-card-stat-label">Wickets</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LeBron James -->
+    <div class="player-card" data-player-id="lebron-james" data-sport="basketball">
+      <button class="player-follow-btn" data-player="lebron-james" data-player-name="LeBron James" data-sport="Basketball" data-position="Forward" data-team="Los Angeles Lakers" data-nationality="USA" data-image="https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="lebron-james"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/df/1b/8b/df1b8b1cecf4f8462348775a9954ba9e.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">LeBron James</h3>
+        <div class="player-card-sport">🏀 Basketball • Forward</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇺🇸 USA</div>
+          <div class="player-card-club">Los Angeles Lakers</div>
+        </div>
+        <p>Widely considered one of the greatest basketball players of all time, often compared to Michael Jordan.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">4</div>
+            <div class="player-card-stat-label">NBA Titles</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">4</div>
+            <div class="player-card-stat-label">MVP Awards</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">40K+</div>
+            <div class="player-card-stat-label">Points</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Virat Kohli -->
+    <div class="player-card" data-player-id="virat-kohli" data-sport="cricket">
+      <button class="player-follow-btn" data-player="virat-kohli" data-player-name="Virat Kohli" data-sport="Cricket" data-position="Batsman" data-team="Royal Challengers" data-nationality="India" data-image="https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="virat-kohli"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/6e/e5/c7/6ee5c799d76bf37fc35d26e55acc8cf0.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Virat Kohli</h3>
+        <div class="player-card-sport">🏏 Cricket • Batsman</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇮🇳 India</div>
+          <div class="player-card-club">Royal Challengers</div>
+        </div>
+        <p>Considered one of the best batsmen in the world, known for his aggressive batting style and consistency.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">80</div>
+            <div class="player-card-stat-label">Int'l 100s</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">13K+</div>
+            <div class="player-card-stat-label">ODI Runs</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">50+</div>
+            <div class="player-card-stat-label">Avg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Novak Djokovic -->
+    <div class="player-card" data-player-id="novak-djokovic" data-sport="tennis">
+      <button class="player-follow-btn" data-player="novak-djokovic" data-player-name="Novak Djokovic" data-sport="Tennis" data-position="Professional" data-team="ATP Tour" data-nationality="Serbia" data-image="https://images.unsplash.com/photo-1595341888016-a392ef81b7de?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="novak-djokovic"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/02/1b/20/021b207a88e4a565c0124737d7c839b2.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Novak Djokovic</h3>
+        <div class="player-card-sport">🎾 Tennis</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇷🇸 Serbia</div>
+          <div class="player-card-club">ATP Tour</div>
+        </div>
+        <p>Regarded as one of the greatest tennis players of all time, holds numerous records including most Grand Slam titles.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">24</div>
+            <div class="player-card-stat-label">Grand Slams</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">389</div>
+            <div class="player-card-stat-label">Weeks #1</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">94</div>
+            <div class="player-card-stat-label">Titles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Muhammad Ali -->
+    <div class="player-card" data-player-id="muhammad-ali" data-sport="boxing">
+      <button class="player-follow-btn" data-player="muhammad-ali" data-player-name="Muhammad Ali" data-sport="Boxing" data-position="Heavyweight" data-team="Retired" data-nationality="USA" data-image="https://images.unsplash.com/photo-1541258344051-3e5c6f8b7e7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="muhammad-ali"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/d1/3e/b2/d13eb2c1b376a861438b8ca0c0884a1c.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Muhammad Ali</h3>
+        <div class="player-card-sport">🥊 Boxing • Heavyweight</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇺🇸 USA</div>
+          <div class="player-card-club">Retired</div>
+        </div>
+        <p>Widely regarded as one of the most significant and celebrated sports figures of the 20th century.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">56</div>
+            <div class="player-card-stat-label">Wins</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">37</div>
+            <div class="player-card-stat-label">KOs</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">3</div>
+            <div class="player-card-stat-label">World Titles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lewis Hamilton -->
+    <div class="player-card" data-player-id="lewis-hamilton" data-sport="formula1">
+      <button class="player-follow-btn" data-player="lewis-hamilton" data-player-name="Lewis Hamilton" data-sport="Formula 1" data-position="Driver" data-team="Mercedes" data-nationality="Great Britain" data-image="https://images.unsplash.com/photo-1583391737656-2c53ef6e6c1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="lewis-hamilton"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/d3/ca/2e/d3ca2e3e794508c0835ae6066d0c13db.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Lewis Hamilton</h3>
+        <div class="player-card-sport">🏎️ Formula 1 • Driver</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇬🇧 Great Britain</div>
+          <div class="player-card-club">Mercedes</div>
+        </div>
+        <p>One of the most successful drivers in the history of Formula One, holding the records for most wins and pole positions.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">7</div>
+            <div class="player-card-stat-label">World Titles</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">103</div>
+            <div class="player-card-stat-label">Wins</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">104</div>
+            <div class="player-card-stat-label">Pole Positions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roger Federer -->
+    <div class="player-card" data-player-id="roger-federer" data-sport="tennis">
+      <button class="player-follow-btn" data-player="roger-federer" data-player-name="Roger Federer" data-sport="Tennis" data-position="Professional" data-team="ATP Tour" data-nationality="Switzerland" data-image="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="roger-federer"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/56/23/14/562314e91ee627a7e6962740bda156cc.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Roger Federer</h3>
+        <div class="player-card-sport">🎾 Tennis</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇨🇭 Switzerland</div>
+          <div class="player-card-club">ATP Tour</div>
+        </div>
+        <p>Regarded as one of the greatest tennis players of all time, known for his elegant playing style and sportsmanship.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">20</div>
+            <div class="player-card-stat-label">Grand Slams</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">310</div>
+            <div class="player-card-stat-label">Weeks #1</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">103</div>
+            <div class="player-card-stat-label">Titles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tiger Woods -->
+    <div class="player-card" data-player-id="tiger-woods" data-sport="golf">
+      <button class="player-follow-btn" data-player="tiger-woods" data-player-name="Tiger Woods" data-sport="Golf" data-position="Professional" data-team="PGA Tour" data-nationality="USA" data-image="https://images.unsplash.com/photo-1592923569853-3c8b6f9b4c0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="tiger-woods"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/736x/89/3d/64/893d64b092de3b4f2bb8ef592ff13025.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Tiger Woods</h3>
+        <div class="player-card-sport">⛳ Golf</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇺🇸 USA</div>
+          <div class="player-card-club">PGA Tour</div>
+        </div>
+        <p>Widely regarded as one of the greatest golfers of all time and one of the most famous athletes in modern history.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">15</div>
+            <div class="player-card-stat-label">Majors</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">82</div>
+            <div class="player-card-stat-label">PGA Wins</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">683</div>
+            <div class="player-card-stat-label">Weeks #1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Usain Bolt -->
+    <div class="player-card" data-player-id="usain-bolt" data-sport="athletics">
+      <button class="player-follow-btn" data-player="usain-bolt" data-player-name="Usain Bolt" data-sport="Athletics" data-position="Sprinter" data-team="Retired" data-nationality="Jamaica" data-image="https://images.unsplash.com/photo-1589994965851-a8f479c573a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="usain-bolt"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/736x/bb/ae/46/bbae46f251c7c52ea0c377e6f02deb2c.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Usain Bolt</h3>
+        <div class="player-card-sport">🏃 Athletics • Sprinter</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇯🇲 Jamaica</div>
+          <div class="player-card-club">Retired</div>
+        </div>
+        <p>Widely considered the greatest sprinter of all time, holding world records in the 100m, 200m and 4×100m relay.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">8</div>
+            <div class="player-card-stat-label">Olympic Gold</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">11</div>
+            <div class="player-card-stat-label">World Titles</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">9.58</div>
+            <div class="player-card-stat-label">100m WR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Michael Phelps -->
+    <div class="player-card" data-player-id="michael-phelps" data-sport="swimming">
+      <button class="player-follow-btn" data-player="michael-phelps" data-player-name="Michael Phelps" data-sport="Swimming" data-position="Swimmer" data-team="Retired" data-nationality="USA" data-image="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="michael-phelps"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/9f/59/29/9f592979e12ea1576fff9c135293fd08.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Michael Phelps</h3>
+        <div class="player-card-sport">🏊 Swimming</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇺🇸 USA</div>
+          <div class="player-card-club">Retired</div>
+        </div>
+        <p>The most successful and most decorated Olympian of all time, with a total of 28 medals, 23 of them gold.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">23</div>
+            <div class="player-card-stat-label">Olympic Gold</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">28</div>
+            <div class="player-card-stat-label">Olympic Medals</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">39</div>
+            <div class="player-card-stat-label">World Records</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Serena Williams -->
+    <div class="player-card" data-player-id="serena-williams" data-sport="tennis">
+      <button class="player-follow-btn" data-player="serena-williams" data-player-name="Serena Williams" data-sport="Tennis" data-position="Professional" data-team="WTA Tour" data-nationality="USA" data-image="https://images.unsplash.com/photo-1595341888016-a392ef81b7de?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="serena-williams"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/95/78/10/957810425f9c92383336e21af1dd1409.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Serena Williams</h3>
+        <div class="player-card-sport">🎾 Tennis</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇺🇸 USA</div>
+          <div class="player-card-club">WTA Tour</div>
+        </div>
+        <p>Regarded as one of the greatest tennis players of all time, holding the most Grand Slam titles in the Open Era.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">23</div>
+            <div class="player-card-stat-label">Grand Slams</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">319</div>
+            <div class="player-card-stat-label">Weeks #1</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">73</div>
+            <div class="player-card-stat-label">Titles</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tom Brady -->
+    <div class="player-card" data-player-id="tom-brady" data-sport="football">
+      <button class="player-follow-btn" data-player="tom-brady" data-player-name="Tom Brady" data-sport="American Football" data-position="Quarterback" data-team="Retired" data-nationality="USA" data-image="https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80">Follow</button>
+      <button class="player-pin-btn" data-player="tom-brady"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/1200x/41/54/fc/4154fcb14a326d98445ab0c6e202fa62.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Tom Brady</h3>
+        <div class="player-card-sport">🏈 American Football • QB</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇺🇸 USA</div>
+          <div class="player-card-club">Retired</div>
+        </div>
+        <p>Widely regarded as the greatest quarterback of all time, holding numerous NFL records including most Super Bowl wins.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">7</div>
+            <div class="player-card-stat-label">Super Bowls</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">5</div>
+            <div class="player-card-stat-label">MVP Awards</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">89K+</div>
+            <div class="player-card-stat-label">Passing Yards</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Islam Makhachev -->
+    <div class="player-card" data-player-id="islam-makhachev" data-sport="mma">
+      <button class="player-follow-btn" data-player="islam-makhachev" data-player-name="Islam Makhachev" data-sport="MMA" data-position="Lightweight" data-team="American Kickboxing Academy" data-nationality="Russia" data-image="https://i.pinimg.com/736x/4d/31/c2/4d31c23e3637fcdcf25ffcbc514f8c5c.jpg">Follow</button>
+      <button class="player-pin-btn" data-player="islam-makhachev"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://pbs.twimg.com/media/G54a06EaQAAE040.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Islam Makhachev</h3>
+        <div class="player-card-sport">🥋 MMA • Lightweight</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇷🇺 Russia</div>
+          <div class="player-card-club">American Kickboxing Academy</div>
+        </div>
+        <p>Current UFC Lightweight Champion and one of the most dominant fighters in the division, known for his elite grappling skills.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">28</div>
+            <div class="player-card-stat-label">Wins</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">18</div>
+            <div class="player-card-stat-label">Finishes</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">1</div>
+            <div class="player-card-stat-label">Loss</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Khabib Nurmagomedov -->
+    <div class="player-card" data-player-id="khabib-nurmagomedov" data-sport="mma">
+      <button class="player-follow-btn" data-player="khabib-nurmagomedov" data-player-name="Khabib Nurmagomedov" data-sport="MMA" data-position="Lightweight" data-team="Retired" data-nationality="Russia" data-image="https://i.pinimg.com/736x/4d/31/c2/4d31c23e3637fcdcf25ffcbc514f8c5c.jpg">Follow</button>
+      <button class="player-pin-btn" data-player="khabib-nurmagomedov"><i class="fas fa-thumbtack"></i> Pin</button>
+      <div class="player-card-image" style="background-image: url('https://i.pinimg.com/736x/38/f2/e7/38f2e720e446e79fd20cc1ea14dd4473.jpg')"></div>
+      <div class="player-card-info">
+        <h3 class="player-card-name">Khabib Nurmagomedov</h3>
+        <div class="player-card-sport">🥋 MMA • Lightweight</div>
+        <div class="player-card-meta">
+          <div class="player-card-country">🇷🇺 Russia</div>
+          <div class="player-card-club">Retired</div>
+        </div>
+        <p>Former UFC Lightweight Champion, widely considered one of the greatest MMA fighters of all time with an undefeated record.</p>
+        <div class="player-card-stats">
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">29</div>
+            <div class="player-card-stat-label">Wins</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">0</div>
+            <div class="player-card-stat-label">Losses</div>
+          </div>
+          <div class="player-card-stat">
+            <div class="player-card-stat-value">8</div>
+            <div class="player-card-stat-label">Submissions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load More -->
+  <div class="load-more-wrap">
+    <button class="btn ghost" id="loadMorePlayers">
+      Load more players
+    </button>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer role="contentinfo">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h5>AllSports</h5>
+      <p>Your premier destination for sports news, live scores, and video highlights.</p>
+    </div>
+    <div class="footer-section">
+      <h5>Sports</h5>
+      <a href="games/football.html">Football</a>
+      <a href="games/cricket.html">Cricket</a>
+      <a href="games/basketball.html">Basketball</a>
+      <a href="games/tennis.html">Tennis</a>
+    </div>
+    <div class="footer-section">
+      <h5>Company</h5>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#terms">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2024 AllSports — Built with ❤️ for sports fans worldwide
+  </div>
+</footer>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<!-- Confirmation Modal -->
+<div class="modal" id="pinConfirmationModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="pinModalBackdrop"></div>
+  <div class="modal-content" role="document" style="max-width: 500px;">
+    <div class="modal-header">
+      <h3>Confirm Player Pin</h3>
+      <button class="modal-close" aria-label="Close" id="pinModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <p>You already have a pinned player. Pinning a new player will replace the currently pinned player. Are you sure you want to continue?</p>
+      <div class="actions" style="margin-top: var(--space-3); display: flex; gap: var(--space-2); justify-content: flex-end;">
+        <button class="btn ghost" id="cancelPinBtn">Cancel</button>
+        <button class="btn" id="confirmPinBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Player Modal -->
+<div class="modal" id="playerModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="playerModalBackdrop"></div>
+  <div class="modal-content player-modal-content" role="document">
+    <div class="modal-header">
+      <h3 id="playerModalTitle">Player Profile</h3>
+      <button class="modal-close" aria-label="Close" id="playerModalClose">✕</button>
+    </div>
+    <div class="modal-body" id="playerModalContent">
+      <!-- Player content injected by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+// Players App with Enhanced Player Following and Pinning
+class PlayersApp {
+  constructor() {
+    this.state = {
+      user: null,
+      followedPlayers: new Set(),
+      players: [],
+      pinnedPlayerId: 'cristiano-ronaldo' // Default pinned player
+    };
+    
+    this.pendingPinPlayerId = null;
+    
+    // Search data
+    this.searchData = [];
+    
+    this.init();
+  }
+
+  async init() {
+    console.log('Players App Initializing...');
+    await this.checkAuthStatus();
+    await this.loadFollowedPlayers();
+    this.loadPinnedPlayer();
+    this.setupEventListeners();
+    this.setupPlayerFunctionality();
+    this.updateFollowButtons();
+    this.updatePinButtons();
+    this.loadPlayersData();
+    this.renderPinnedPlayer();
+    this.setupSearch();
+  }
+
+  // ========== SEARCH FUNCTIONALITY ==========
+  setupSearch() {
+    // Initialize search data from playersData
+    this.prepareSearchData();
+    
+    // Desktop search
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        this.handleSearch(query, searchResults);
+      });
+      
+      // Close search results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+          searchResults.classList.remove('active');
+        }
+      });
+    }
+    
+    // Mobile search
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    const mobileSearchResults = document.getElementById('mobileSearchResults');
+    
+    if (mobileSearchInput) {
+      mobileSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        this.handleSearch(query, mobileSearchResults);
+      });
+      
+      // Close mobile search results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mobileSearchInput.contains(e.target) && !mobileSearchResults.contains(e.target)) {
+          mobileSearchResults.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  prepareSearchData() {
+    this.searchData = [];
+    
+    // Add players
+    Object.values(this.playersData).forEach(player => {
+      this.searchData.push({
+        id: `player-${player.name.toLowerCase().replace(/\s+/g, '-')}`,
+        title: player.name,
+        subtitle: `${player.sport} • ${player.position}`,
+        type: 'Player',
+        icon: this.getSportIcon(player.sport),
+        data: player,
+        category: 'players'
+      });
+    });
+    
+    // Add sports categories
+    const sports = [
+      { name: 'Football', icon: '⚽' },
+      { name: 'Basketball', icon: '🏀' },
+      { name: 'Cricket', icon: '🏏' },
+      { name: 'Tennis', icon: '🎾' },
+      { name: 'Boxing', icon: '🥊' },
+      { name: 'MMA', icon: '🥋' },
+      { name: 'Formula 1', icon: '🏎️' },
+      { name: 'Golf', icon: '⛳' },
+      { name: 'Athletics', icon: '🏃' },
+      { name: 'Swimming', icon: '🏊' }
+    ];
+    
+    sports.forEach(sport => {
+      this.searchData.push({
+        id: `sport-${sport.name.toLowerCase()}`,
+        title: sport.name,
+        subtitle: 'Sports Category',
+        type: 'Sport',
+        icon: sport.icon,
+        category: 'sports'
+      });
+    });
+    
+    // Add teams/clubs
+    const teams = [
+      { name: 'Al Nassr', sport: 'Football' },
+      { name: 'Inter Miami', sport: 'Football' },
+      { name: 'Los Angeles Lakers', sport: 'Basketball' },
+      { name: 'Pakistan Cricket', sport: 'Cricket' },
+      { name: 'Royal Challengers', sport: 'Cricket' },
+      { name: 'Mercedes', sport: 'Formula 1' },
+      { name: 'American Kickboxing Academy', sport: 'MMA' }
+    ];
+    
+    teams.forEach(team => {
+      this.searchData.push({
+        id: `team-${team.name.toLowerCase().replace(/\s+/g, '-')}`,
+        title: team.name,
+        subtitle: `${team.sport} Team`,
+        type: 'Team',
+        icon: this.getSportIcon(team.sport),
+        category: 'teams'
+      });
+    });
+  }
+
+  handleSearch(query, resultsContainer) {
+    if (!query) {
+      resultsContainer.classList.remove('active');
+      return;
+    }
+    
+    const searchWords = query.split(/\s+/).filter(word => word.length > 0);
+    
+    if (searchWords.length === 0) {
+      resultsContainer.classList.remove('active');
+      return;
+    }
+    
+    const results = this.searchData.filter(item => {
+      // Check if every search word matches in title, subtitle, or type
+      return searchWords.every(word => {
+        const searchableText = `${item.title} ${item.subtitle} ${item.type} ${item.category}`.toLowerCase();
+        return searchableText.includes(word);
+      });
+    });
+    
+    this.displaySearchResults(results, resultsContainer, query);
+  }
+
+  displaySearchResults(results, container, query) {
+    if (results.length === 0) {
+      container.innerHTML = `
+        <div class="no-results">
+          <p>No results found for "<strong>${query}</strong>"</p>
+          <p style="font-size: 12px; margin-top: 8px;">Try searching for players, sports, or teams</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = results.map(result => `
+        <div class="search-result-item" data-id="${result.id}" data-type="${result.category}">
+          <div class="search-result-icon">${result.icon}</div>
+          <div class="search-result-content">
+            <div class="search-result-title">${this.highlightText(result.title, query)}</div>
+            <div class="search-result-subtitle">${result.subtitle}</div>
+          </div>
+          <div class="search-result-type">${result.type}</div>
+        </div>
+      `).join('');
+      
+      // Add click handlers
+      container.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', () => {
+          this.handleSearchResultClick(item.dataset.id, item.dataset.type);
+          container.classList.remove('active');
+        });
+      });
+    }
+    
+    container.classList.add('active');
+  }
+
+  highlightText(text, query) {
+    const words = query.split(/\s+/).filter(word => word.length > 0);
+    let highlighted = text;
+    
+    words.forEach(word => {
+      const regex = new RegExp(`(${word})`, 'gi');
+      highlighted = highlighted.replace(regex, '<mark>$1</mark>');
+    });
+    
+    return highlighted;
+  }
+
+  handleSearchResultClick(id, type) {
+    const searchInput = document.getElementById('searchInput');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    
+    // Clear search inputs
+    if (searchInput) searchInput.value = '';
+    if (mobileSearchInput) mobileSearchInput.value = '';
+    
+    // Handle based on type
+    switch (type) {
+      case 'players':
+        const playerName = id.replace('player-', '').replace(/-/g, ' ');
+        this.openPlayerModal(playerName);
+        break;
+      case 'sports':
+        const sportName = id.replace('sport-', '');
+        this.filterBySport(sportName);
+        break;
+      case 'teams':
+        const teamName = id.replace('team-', '').replace(/-/g, ' ');
+        this.filterByTeam(teamName);
+        break;
+    }
+  }
+
+  filterBySport(sportName) {
+    const filterChips = document.querySelectorAll('.players-filter .filter-chip');
+    filterChips.forEach(chip => {
+      if (chip.textContent.includes(sportName)) {
+        chip.click();
+      }
+    });
+  }
+
+  filterByTeam(teamName) {
+    // Show all players first
+    const filterChips = document.querySelectorAll('.players-filter .filter-chip');
+    filterChips[0].click(); // Click "All Sports"
+    
+    // Then filter player cards by team
+    const playerCards = document.querySelectorAll('.player-card');
+    playerCards.forEach(card => {
+      const clubElement = card.querySelector('.player-card-club');
+      if (clubElement && clubElement.textContent.includes(teamName)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    
+    this.showToast(`Showing players from ${teamName}`);
+  }
+
+  // ========== PINNING FUNCTIONALITY ==========
+  loadPinnedPlayer() {
+    // Try to load from localStorage, otherwise use default
+    const storedPinned = localStorage.getItem('pinnedPlayer');
+    if (storedPinned) {
+      this.state.pinnedPlayerId = storedPinned;
+    }
+  }
+
+  savePinnedPlayer() {
+    localStorage.setItem('pinnedPlayer', this.state.pinnedPlayerId);
+  }
+
+  updatePinButtons() {
+    const pinButtons = document.querySelectorAll('.player-pin-btn');
+    
+    pinButtons.forEach(button => {
+      const playerId = button.dataset.player;
+      const isPinned = this.state.pinnedPlayerId === playerId;
+      
+      if (isPinned) {
+        button.classList.add('pinned');
+        button.innerHTML = '<i class="fas fa-thumbtack"></i> Pinned';
+      } else {
+        button.classList.remove('pinned');
+        button.innerHTML = '<i class="fas fa-thumbtack"></i> Pin';
+      }
+    });
+  }
+
+  pinPlayer(playerId) {
+    // If no player is currently pinned, just pin the new one
+    if (!this.state.pinnedPlayerId) {
+      this.state.pinnedPlayerId = playerId;
+      this.savePinnedPlayer();
+      this.updatePinButtons();
+      this.renderPinnedPlayer();
+      this.showToast(`${this.getPlayerName(playerId)} is now pinned`);
+      return;
+    }
+    
+    // If trying to pin the already pinned player, unpin it
+    if (this.state.pinnedPlayerId === playerId) {
+      this.state.pinnedPlayerId = null;
+      this.savePinnedPlayer();
+      this.updatePinButtons();
+      this.renderPinnedPlayer();
+      this.showToast(`${this.getPlayerName(playerId)} has been unpinned`);
+      return;
+    }
+    
+    // If another player is already pinned, show confirmation
+    this.pendingPinPlayerId = playerId;
+    this.showPinConfirmation();
+  }
+
+  getPlayerName(playerId) {
+    const player = this.playersData[playerId];
+    return player ? player.name : playerId;
+  }
+
+  showPinConfirmation() {
+    const modal = document.getElementById('pinConfirmationModal');
+    const currentPlayerName = this.getPlayerName(this.state.pinnedPlayerId);
+    const newPlayerName = this.getPlayerName(this.pendingPinPlayerId);
+    
+    const modalBody = modal.querySelector('.modal-body p');
+    modalBody.textContent = `You already have ${currentPlayerName} pinned. Pinning ${newPlayerName} will replace ${currentPlayerName}. Are you sure you want to continue?`;
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  confirmPinSwap() {
+    if (this.pendingPinPlayerId) {
+      const oldPlayerName = this.getPlayerName(this.state.pinnedPlayerId);
+      this.state.pinnedPlayerId = this.pendingPinPlayerId;
+      this.savePinnedPlayer();
+      this.updatePinButtons();
+      this.renderPinnedPlayer();
+      this.showToast(`${this.getPlayerName(this.pendingPinPlayerId)} is now pinned (replaced ${oldPlayerName})`);
+      this.pendingPinPlayerId = null;
+    }
+    this.closePinConfirmation();
+  }
+
+  closePinConfirmation() {
+    const modal = document.getElementById('pinConfirmationModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    this.pendingPinPlayerId = null;
+  }
+
+  renderPinnedPlayer() {
+    const heroContainer = document.getElementById('pinned-player-hero');
+    
+    if (!this.state.pinnedPlayerId) {
+      heroContainer.style.display = 'none';
+      return;
+    }
+    
+    const player = this.playersData[this.state.pinnedPlayerId];
+    if (!player) {
+      console.error('Pinned player not found:', this.state.pinnedPlayerId);
+      return;
+    }
+    
+    heroContainer.style.display = 'grid';
+    heroContainer.innerHTML = `
+      <div class="player-hero-image" style="background-image: url('${player.image}')">
+        <button class="player-pin-btn pinned" data-player="${this.state.pinnedPlayerId}">
+          <i class="fas fa-thumbtack"></i> Pinned
+        </button>
+      </div>
+      <div class="player-hero-info">
+        <div class="player-name">${player.name}</div>
+        <div class="player-sport">${player.sportIcon || '⭐'} ${player.sport} • ${player.position}</div>
+        <p>${player.description}</p>
+        
+        <div class="player-stats-grid">
+          ${Object.entries(player.stats).slice(0, 3).map(([key, value]) => `
+            <div class="player-stat-card">
+              <div class="player-stat-number">${value}</div>
+              <div class="player-stat-label">${key}</div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="player-info-grid">
+          <div class="player-info-item">
+            <span class="player-info-label">Nationality:</span>
+            <span class="player-info-value">${player.nationalityFlag || '🏴'} ${player.nationality}</span>
+          </div>
+          <div class="player-info-item">
+            <span class="player-info-label">Current Club:</span>
+            <span class="player-info-value">${player.currentClub}</span>
+          </div>
+          <div class="player-info-item">
+            <span class="player-info-label">Age:</span>
+            <span class="player-info-value">${player.age}</span>
+          </div>
+          <div class="player-info-item">
+            <span class="player-info-label">Height:</span>
+            <span class="player-info-value">${player.height}</span>
+          </div>
+        </div>
+        
+        <div class="actions">
+          <button class="btn" id="viewPinnedPlayerDetails">View Full Profile</button>
+          <button class="btn ghost follow-btn" data-player="${this.state.pinnedPlayerId}" data-player-name="${player.name}" data-sport="${player.sport}" data-position="${player.position}" data-team="${player.currentClub}" data-nationality="${player.nationality}" data-image="${player.image}">Follow Player</button>
+        </div>
+      </div>
+    `;
+    
+    // Add event listeners to the new buttons
+    const viewDetailsBtn = document.getElementById('viewPinnedPlayerDetails');
+    if (viewDetailsBtn) {
+      viewDetailsBtn.addEventListener('click', () => {
+        this.openPlayerModal(this.state.pinnedPlayerId);
+      });
+    }
+    
+    // Update follow button state
+    this.updateFollowButtons();
+  }
+
+  // ========== AUTHENTICATION METHODS ==========
+  async checkAuthStatus() {
+    try {
+      const response = await fetch('/api/user');
+      const data = await response.json();
+      
+      if (data.success && data.user) {
+        this.state.user = data.user;
+        this.updateAuthUI();
+        console.log('User authenticated:', this.state.user.username);
+      } else {
+        this.state.user = null;
+        this.updateAuthUI();
+        console.log('User not authenticated');
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      this.state.user = null;
+      this.updateAuthUI();
+    }
+  }
+
+  async loadFollowedPlayers() {
+    try {
+      if (!this.state.user) {
+        console.log('No user logged in, skipping followed players load');
+        return;
+      }
+
+      const response = await fetch('/api/user/followed-players');
+      const data = await response.json();
+      
+      if (data.success) {
+        const playerIds = data.followedPlayers.map(player => player.playerId);
+        this.state.followedPlayers = new Set(playerIds);
+        console.log('Loaded followed players:', playerIds);
+      } else {
+        console.log('No followed players found');
+      }
+    } catch (error) {
+      console.error('Error loading followed players:', error);
+    }
+  }
+
+  updateAuthUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+
+    if (this.state.user) {
+      if (loginText) loginText.textContent = this.state.user.username;
+      if (mobileLoginText) mobileLoginText.textContent = this.state.user.username;
+      if (loginBtn) loginBtn.classList.add('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.add('logged-in');
+      if (userDropdown) userDropdown.style.display = 'block';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'block';
+    } else {
+      if (loginText) loginText.textContent = 'Login';
+      if (mobileLoginText) mobileLoginText.textContent = 'Login';
+      if (loginBtn) loginBtn.classList.remove('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.remove('logged-in');
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'none';
+    }
+  }
+
+  updateFollowButtons() {
+    const followButtons = document.querySelectorAll('.follow-btn, .player-follow-btn');
+    
+    followButtons.forEach(button => {
+      const playerId = button.dataset.player;
+      const isFollowing = this.state.followedPlayers.has(playerId);
+      
+      if (isFollowing) {
+        button.classList.remove('ghost');
+        button.classList.add('following');
+        button.textContent = 'Following';
+        button.style.background = 'var(--accent)';
+      } else {
+        button.classList.add('ghost');
+        button.classList.remove('following');
+        button.textContent = 'Follow Player';
+        button.style.background = '';
+      }
+    });
+  }
+
+  async toggleFollowPlayer(playerId, playerData) {
+    // Check if user is logged in
+    if (!this.state.user) {
+      this.showToast('Please log in to follow players');
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        window.location.href = 'login.html';
+      }, 1500);
+      return;
+    }
+
+    const isCurrentlyFollowing = this.state.followedPlayers.has(playerId);
+    const action = isCurrentlyFollowing ? 'unfollow' : 'follow';
+
+    console.log('Toggle follow player:', {
+      playerId,
+      currentState: isCurrentlyFollowing ? 'following' : 'not following',
+      action
+    });
+
+    try {
+      const response = await fetch('/api/user/follow-player', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          playerId,
+          playerName: playerData.playerName,
+          sport: playerData.sport,
+          position: playerData.position,
+          team: playerData.team,
+          nationality: playerData.nationality,
+          image: playerData.image,
+          action: action
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update local state
+        if (data.action === 'followed') {
+          this.state.followedPlayers.add(playerId);
+        } else if (data.action === 'unfollowed') {
+          this.state.followedPlayers.delete(playerId);
+        }
+
+        // Update UI
+        this.updateFollowButtons();
+        
+        // Show confirmation message
+        this.showToast(data.message);
+        
+        console.log(`Player ${playerId} ${data.action} successfully`);
+      } else {
+        this.showToast(data.message || 'Error updating follow status');
+      }
+    } catch (error) {
+      console.error('Error toggling player follow:', error);
+      this.showToast('Server error. Please try again.');
+    }
+  }
+
+  setupEventListeners() {
+    // Follow buttons - using event delegation for dynamically created buttons
+    document.addEventListener('click', (e) => {
+      const followBtn = e.target.closest('.follow-btn, .player-follow-btn');
+      if (followBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const playerId = followBtn.dataset.player;
+        const playerData = {
+          playerName: followBtn.dataset.playerName,
+          sport: followBtn.dataset.sport,
+          position: followBtn.dataset.position,
+          team: followBtn.dataset.team,
+          nationality: followBtn.dataset.nationality,
+          image: followBtn.dataset.image
+        };
+        
+        this.toggleFollowPlayer(playerId, playerData);
+      }
+    });
+
+    // Pin buttons - using event delegation for dynamically created buttons
+    document.addEventListener('click', (e) => {
+      const pinBtn = e.target.closest('.player-pin-btn');
+      if (pinBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const playerId = pinBtn.dataset.player;
+        this.pinPlayer(playerId);
+      }
+    });
+
+    // Pin confirmation modal
+    const confirmPinBtn = document.getElementById('confirmPinBtn');
+    const cancelPinBtn = document.getElementById('cancelPinBtn');
+    const pinModalClose = document.getElementById('pinModalClose');
+    const pinModalBackdrop = document.getElementById('pinModalBackdrop');
+    
+    if (confirmPinBtn) {
+      confirmPinBtn.addEventListener('click', () => this.confirmPinSwap());
+    }
+    
+    if (cancelPinBtn) {
+      cancelPinBtn.addEventListener('click', () => this.closePinConfirmation());
+    }
+    
+    if (pinModalClose) {
+      pinModalClose.addEventListener('click', () => this.closePinConfirmation());
+    }
+    
+    if (pinModalBackdrop) {
+      pinModalBackdrop.addEventListener('click', () => this.closePinConfirmation());
+    }
+
+    // Login/Logout handling
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+
+    // Login buttons
+    if (loginBtn) {
+      loginBtn.addEventListener('click', (e) => {
+        if (!this.state.user) {
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    if (mobileLoginBtn) {
+      mobileLoginBtn.addEventListener('click', (e) => {
+        if (!this.state.user) {
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    // Logout buttons
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await this.handleLogout();
+      });
+    }
+
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        await this.handleLogout();
+      });
+    }
+  }
+
+  async handleLogout() {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        this.state.user = null;
+        this.state.followedPlayers = new Set();
+        this.updateAuthUI();
+        this.updateFollowButtons();
+        this.showToast('Successfully logged out');
+        
+        // Refresh the page to update UI completely
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+        
+        console.log('User logged out');
+      } else {
+        this.showToast('Error during logout');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      this.showToast('Error during logout');
+    }
+  }
+
+  // ========== PLAYER DATA AND FUNCTIONALITY ==========
+  loadPlayersData() {
+    this.playersData = {
+      'cristiano-ronaldo': {
+        name: 'Cristiano Ronaldo',
+        sport: 'Football',
+        sportIcon: '⚽',
+        position: 'Forward',
+        nationality: 'Portugal',
+        nationalityFlag: '🇵🇹',
+        currentClub: 'Al Nassr',
+        age: 39,
+        height: '6\'2" (187 cm)',
+        weight: '183 lbs (83 kg)',
+        image: 'https://i.pinimg.com/736x/f0/59/8d/f0598d0b83dd2bff878ee24fc43abcc8.jpg',
+        description: 'Widely regarded as one of the greatest players of all time, Ronaldo has won five Ballon d\'Or awards and four European Golden Shoes, the most by a European player. He has won 34 trophies in his career, including seven league titles, five UEFA Champions Leagues, and the UEFA European Championship.',
+        stats: {
+          'Career Goals': '850+',
+          'Ballon d\'Or': '5',
+          'UCL Titles': '5',
+          'Int\'l Caps': '205',
+          'Int\'l Goals': '128',
+          'Assists': '250+'
+        },
+        trophies: {
+          '🏆 Ballon d\'Or': 5,
+          '🏆 Champions League': 5,
+          '🏆 European Championship': 1,
+          '🏆 League Titles': 7,
+          '🏆 Domestic Cups': 14,
+          '🏆 FIFA Club World Cup': 4
+        },
+        career: [
+          { year: '2002-2003', club: 'Sporting CP', apps: 31, goals: 5 },
+          { year: '2003-2009', club: 'Manchester United', apps: 292, goals: 118 },
+          { year: '2009-2018', club: 'Real Madrid', apps: 438, goals: 450 },
+          { year: '2018-2021', club: 'Juventus', apps: 134, goals: 101 },
+          { year: '2021-2022', club: 'Manchester United', apps: 54, goals: 27 },
+          { year: '2023-Present', club: 'Al Nassr', apps: 50, goals: 44 }
+        ]
+      },
+      'lionel-messi': {
+        name: 'Lionel Messi',
+        sport: 'Football',
+        sportIcon: '⚽',
+        position: 'Forward',
+        nationality: 'Argentina',
+        nationalityFlag: '🇦🇷',
+        currentClub: 'Inter Miami',
+        age: 36,
+        height: '5\'7" (170 cm)',
+        weight: '148 lbs (67 kg)',
+        image: 'https://i.pinimg.com/736x/28/bf/e1/28bfe11c73731a62204a48d70649fb65.jpg',
+        description: 'Considered one of the greatest players of all time, Messi has won a record eight Ballon d\'Or awards, a record six European Golden Shoes, and in 2020 was named to the Ballon d\'Or Dream Team. He has spent his entire professional career with Barcelona, where he has won a club-record 35 trophies.',
+        stats: {
+          'Career Goals': '800+',
+          'Ballon d\'Or': '8',
+          'UCL Titles': '4',
+          'Int\'l Caps': '180',
+          'Int\'l Goals': '106',
+          'Assists': '350+'
+        },
+        trophies: {
+          '🏆 Ballon d\'Or': 8,
+          '🏆 Champions League': 4,
+          '🏆 World Cup': 1,
+          '🏆 League Titles': 12,
+          '🏆 Domestic Cups': 7,
+          '🏆 Copa América': 1
+        },
+        career: [
+          { year: '2004-2021', club: 'Barcelona', apps: 778, goals: 672 },
+          { year: '2021-2023', club: 'PSG', apps: 75, goals: 32 },
+          { year: '2023-Present', club: 'Inter Miami', apps: 41, goals: 25 }
+        ]
+      },
+      'imran-khan': {
+        name: 'Imran Khan',
+        sport: 'Cricket',
+        sportIcon: '🏏',
+        position: 'All-rounder',
+        nationality: 'Pakistan',
+        nationalityFlag: '🇵🇰',
+        currentClub: 'Pakistan (Retired)',
+        age: 71,
+        height: '6\'0" (183 cm)',
+        weight: '176 lbs (80 kg)',
+        image: 'https://i.pinimg.com/736x/bc/4e/0d/bc4e0dbbfb967b24a798865b4df320ba.jpg',
+        description: 'Legendary cricketer who captained Pakistan to their first-ever Cricket World Cup victory in 1992. Known for his charismatic leadership and exceptional all-round abilities. After retirement, he transitioned into politics and served as the 22nd Prime Minister of Pakistan.',
+        stats: {
+          'Test Runs': '3,807',
+          'Test Wickets': '362',
+          'ODI Runs': '3,709',
+          'ODI Wickets': '182',
+          'World Cup': '1992',
+          'Captaincy Record': '14 Wins, 8 Losses'
+        },
+        trophies: {
+          '🏆 Cricket World Cup': 1,
+          '🏆 Test Series Wins': 6,
+          '🏆 Wisden Cricketer': 1,
+          '🏆 Man of the Match': 13,
+          '🏆 ICC Hall of Fame (2004):': 1,
+          '🏆 Hilal-i-Imtiaz': 1
+        },
+        career: [
+          { year: '1971-1982', club: 'Pakistan', achievement: 'Early Career', details: 'Test debut, Rising star' },
+          { year: '1982-1992', club: 'Pakistan', achievement: 'Captaincy Era', details: 'Team leadership, World Cup 1992' },
+          { year: '1992', club: 'Pakistan', achievement: 'World Cup Victory', details: 'Captain, Historic win' },
+          { year: '1996-2018', achievement: 'Political Career', details: 'Founder of PTI, Social work' },
+          { year: '2018-2022', achievement: 'Prime Minister', details: '22nd PM of Pakistan' }
+        ]
+      },
+      'lebron-james': {
+        name: 'LeBron James',
+        sport: 'Basketball',
+        sportIcon: '🏀',
+        position: 'Forward',
+        nationality: 'USA',
+        nationalityFlag: '🇺🇸',
+        currentClub: 'Los Angeles Lakers',
+        age: 39,
+        height: '6\'9" (206 cm)',
+        weight: '250 lbs (113 kg)',
+        image: 'https://i.pinimg.com/1200x/bc/7c/c0/bc7cc0a239e8ed8b441ce6b3a253bf53.jpg',
+        description: 'Widely considered one of the greatest basketball players of all time, James has won four NBA championships, four NBA MVP awards, four Finals MVP awards, and two Olympic gold medals.',
+        stats: {
+          'Points': '40,000+',
+          'Assists': '11,000+',
+          'Rebounds': '11,000+',
+          'NBA Titles': '4',
+          'MVP Awards': '4',
+          'All-Star': '20'
+        },
+        trophies: {
+          '🏆 NBA Championships': 4,
+          '🏆 MVP Awards': 4,
+          '🏆 Finals MVP': 4,
+          '🏆 Olympic Gold': 2,
+          '🏆 Scoring Titles': 1,
+          '🏆 All-Star MVP': 3
+        },
+        career: [
+          { year: '2003-2010', club: 'Cleveland Cavaliers', points: 15251 },
+          { year: '2010-2014', club: 'Miami Heat', points: 7919 },
+          { year: '2014-2018', club: 'Cleveland Cavaliers', points: 7867 },
+          { year: '2018-Present', club: 'Los Angeles Lakers', points: 9000 }
+        ]
+      },
+      'virat-kohli': {
+        name: 'Virat Kohli',
+        sport: 'Cricket',
+        sportIcon: '🏏',
+        position: 'Batsman',
+        nationality: 'India',
+        nationalityFlag: '🇮🇳',
+        currentClub: 'Royal Challengers Bangalore',
+        age: 35,
+        height: '5\'9" (175 cm)',
+        weight: '154 lbs (70 kg)',
+        image: 'https://i.pinimg.com/736x/30/1d/62/301d62577229184fefd3804d714c3bcb.jpg',
+        description: 'Considered one of the best batsmen in the world, known for his aggressive batting style and consistency across all formats of the game.',
+        stats: {
+          'International Centuries': '80',
+          'ODI Runs': '13,000+',
+          'Test Runs': '8,500+',
+          'Batting Average': '50+',
+          'IPL Runs': '7,000+',
+          'Captaincy Wins': '65%'
+        },
+        trophies: {
+          '🏆 World Cup': 1,
+          '🏆 Champions Trophy': 1,
+          '🏆 Test Mace': 2,
+          '🏆 IPL Orange Cap': 1,
+          '🏆 ICC Awards': 3,
+          '🏆 National Awards': 2
+        },
+        career: [
+          { year: '2008-2013', achievement: 'Emerging Star', details: 'ODI debut, First century' },
+          { year: '2013-2017', achievement: 'Rise to Captaincy', details: 'Test captain, Multiple records' },
+          { year: '2017-2021', achievement: 'Peak Performance', details: 'Consistent centuries, Leadership' },
+          { year: '2021-Present', achievement: 'Veteran Phase', details: 'Experience, Mentor role' }
+        ]
+      },
+      'novak-djokovic': {
+        name: 'Novak Djokovic',
+        sport: 'Tennis',
+        sportIcon: '🎾',
+        position: 'Professional',
+        nationality: 'Serbia',
+        nationalityFlag: '🇷🇸',
+        currentClub: 'ATP Tour',
+        age: 36,
+        height: '6\'2" (188 cm)',
+        weight: '170 lbs (77 kg)',
+        image: 'https://i.pinimg.com/736x/62/72/36/6272369d11340338d7893be4bbd4760a.jpg',
+        description: 'Regarded as one of the greatest tennis players of all time, holds numerous records including most Grand Slam titles and most weeks at world No. 1.',
+        stats: {
+          'Grand Slam Titles': '24',
+          'Weeks at No. 1': '400+',
+          'ATP Titles': '98',
+          'Prize Money': '$180M+',
+          'Win Percentage': '83%',
+          'Masters Titles': '40'
+        },
+        trophies: {
+          '🏆 Grand Slams': 24,
+          '🏆 ATP Finals': 7,
+          '🏆 Masters 1000': 40,
+          '🏆 Olympic Medals': 1,
+          '🏆 Davis Cup': 1,
+          '🏆 Year-End No. 1': 8
+        },
+        career: [
+          { year: '2003-2007', achievement: 'Early Career', details: 'First ATP title, Top 3 ranking' },
+          { year: '2008-2010', achievement: 'Grand Slam Breakthrough', details: 'First Australian Open, No. 3 ranking' },
+          { year: '2011-2016', achievement: 'Dominance Begins', details: 'Multiple Slams, No. 1 ranking' },
+          { year: '2017-Present', achievement: 'Historic Achievements', details: 'Record Slams, Longest No. 1' }
+        ]
+      },
+      'muhammad-ali': {
+        name: 'Muhammad Ali',
+        sport: 'Boxing',
+        sportIcon: '🥊',
+        position: 'Heavyweight',
+        nationality: 'USA',
+        nationalityFlag: '🇺🇸',
+        currentClub: 'Retired',
+        age: '74 (1942-2016)',
+        height: '6\'3" (191 cm)',
+        weight: '236 lbs (107 kg)',
+        image: 'https://i.pinimg.com/736x/c5/53/de/c553de69f8e47c477c835b50e1af0e9c.jpg',
+        description: 'Widely regarded as one of the most significant and celebrated sports figures of the 20th century. Nicknamed "The Greatest", he is considered one of the most important and celebrated figures in boxing history.',
+        stats: {
+          'Total Fights': '61',
+          'Wins': '56',
+          'Wins by KO': '37',
+          'Losses': '5',
+          'World Titles': '3',
+          'Olympic Gold': '1'
+        },
+        trophies: {
+          '🥊 Heavyweight Titles': 3,
+          '🥊 Olympic Gold': 1,
+          '🏆 Ring Magazine': 6,
+          '🏆 Fighter of the Year': 6,
+          '🏆 Sportsman of the Century': 1,
+          '🏆 Presidential Medal': 1
+        },
+        career: [
+          { year: '1960-1964', achievement: 'Early Career', details: 'Olympic Gold, First Title' },
+          { year: '1964-1967', achievement: 'First Reign', details: 'Title defenses, Controversy' },
+          { year: '1970-1974', achievement: 'Comeback', details: 'Fight of the Century, Rumble in the Jungle' },
+          { year: '1974-1981', achievement: 'Later Career', details: 'Thrilla in Manila, Retirement' }
+        ]
+      },
+      'lewis-hamilton': {
+        name: 'Lewis Hamilton',
+        sport: 'Formula 1',
+        sportIcon: '🏎️',
+        position: 'Driver',
+        nationality: 'Great Britain',
+        nationalityFlag: '🇬🇧',
+        currentClub: 'Mercedes',
+        age: 39,
+        height: '5\'9" (175 cm)',
+        weight: '150 lbs (68 kg)',
+        image: 'https://i.pinimg.com/736x/b2/94/16/b29416839342c9ebb5e49094c80dfcd5.jpg',
+        description: 'One of the most successful drivers in the history of Formula One, holding the records for most wins, pole positions, and podium finishes. He has won seven World Drivers\' Championship titles.',
+        stats: {
+          'World Titles': '7',
+          'Race Wins': '103',
+          'Pole Positions': '104',
+          'Podium Finishes': '197',
+          'Fastest Laps': '65',
+          'Points': '4700+'
+        },
+        trophies: {
+          '🏆 World Championships': 7,
+          '🏆 Race Wins': 103,
+          '🏆 Pole Positions': 104,
+          '🏆 Podiums': 197,
+          '🏆 Fastest Laps': 65,
+          '🏆 Hat-tricks': 19
+        },
+        career: [
+          { year: '2007-2012', club: 'McLaren', wins: 21, championships: 1 },
+          { year: '2013-2021', club: 'Mercedes', wins: 82, championships: 6 },
+          { year: '2022-Present', club: 'Mercedes', wins: 0, championships: 0 }
+        ]
+      },
+      'roger-federer': {
+        name: 'Roger Federer',
+        sport: 'Tennis',
+        sportIcon: '🎾',
+        position: 'Professional',
+        nationality: 'Switzerland',
+        nationalityFlag: '🇨🇭',
+        currentClub: 'Retired',
+        age: 42,
+        height: '6\'1" (185 cm)',
+        weight: '187 lbs (85 kg)',
+        image: 'https://i.pinimg.com/736x/2e/4b/8c/2e4b8c8d59fea26ceb01141487e03797.jpg',
+        description: 'Regarded as one of the greatest tennis players of all time, Federer was ranked world No. 1 by the ATP for 310 weeks, including a record 237 consecutive weeks.',
+        stats: {
+          'Grand Slam Titles': '20',
+          'Weeks at No. 1': '310',
+          'ATP Titles': '103',
+          'Prize Money': '$130M+',
+          'Win Percentage': '82%',
+          'Olympic Medals': '2'
+        },
+        trophies: {
+          '🏆 Grand Slams': 20,
+          '🏆 ATP Finals': 6,
+          '🏆 Masters 1000': 28,
+          '🏆 Olympic Medals': 2,
+          '🏆 Davis Cup': 1,
+          '🏆 Year-End No. 1': 5
+        },
+        career: [
+          { year: '1998-2002', achievement: 'Early Career', details: 'First ATP title, Top 10 ranking' },
+          { year: '2003-2007', achievement: 'Dominance Begins', details: 'Multiple Slams, No. 1 ranking' },
+          { year: '2008-2012', achievement: 'Rivalry Era', details: 'Competition with Nadal, Djokovic' },
+          { year: '2013-2022', achievement: 'Later Career', details: 'Injury comebacks, Final titles' }
+        ]
+      },
+      'tiger-woods': {
+        name: 'Tiger Woods',
+        sport: 'Golf',
+        sportIcon: '⛳',
+        position: 'Professional',
+        nationality: 'USA',
+        nationalityFlag: '🇺🇸',
+        currentClub: 'PGA Tour',
+        age: 48,
+        height: '6\'1" (185 cm)',
+        weight: '185 lbs (84 kg)',
+        image: 'https://i.pinimg.com/736x/52/cf/0f/52cf0f749d7b674bfff6430c6c8c1a25.jpg',
+        description: 'Widely regarded as one of the greatest golfers of all time and one of the most famous athletes in modern history. He was the dominant force in golf from the late 1990s to the late 2000s.',
+        stats: {
+          'Major Championships': '15',
+          'PGA Tour Wins': '82',
+          'European Tour Wins': '41',
+          'Weeks at No. 1': '683',
+          'Career Earnings': '$120M+',
+          'Player of the Year': '11'
+        },
+        trophies: {
+          '🏆 Major Championships': 15,
+          '🏆 PGA Tour Wins': 82,
+          '🏆 European Tour': 41,
+          '🏆 Vardon Trophy': 9,
+          '🏆 Player of the Year': 11,
+          '🏆 Money Title': 10
+        },
+        career: [
+          { year: '1996-1999', achievement: 'Rookie Sensation', details: 'First Major, Record breaking' },
+          { year: '2000-2008', achievement: 'Tiger Slam', details: 'Dominance, Multiple records' },
+          { year: '2009-2013', achievement: 'Injury & Scandal', details: 'Personal issues, Comeback' },
+          { year: '2014-2019', achievement: 'Later Career', details: '2019 Masters, Final major' }
+        ]
+      },
+      'usain-bolt': {
+        name: 'Usain Bolt',
+        sport: 'Athletics',
+        sportIcon: '🏃',
+        position: 'Sprinter',
+        nationality: 'Jamaica',
+        nationalityFlag: '🇯🇲',
+        currentClub: 'Retired',
+        age: 37,
+        height: '6\'5" (195 cm)',
+        weight: '207 lbs (94 kg)',
+        image: 'https://i.pinimg.com/1200x/e1/f0/65/e1f065325ab188f2588fbbbcdffa7e4f.jpg',
+        description: 'Widely considered the greatest sprinter of all time, holding world records in the 100m, 200m and 4×100m relay. He is an eight-time Olympic gold medalist and eleven-time World Champion.',
+        stats: {
+          'Olympic Gold': '8',
+          'World Titles': '11',
+          'World Records': '3',
+          '100m Personal Best': '9.58',
+          '200m Personal Best': '19.19',
+          'Undefeated in Finals': '45'
+        },
+        trophies: {
+          '🏅 Olympic Gold': 8,
+          '🏅 World Championships': 11,
+          '🏅 World Records': 3,
+          '🏅 Diamond League': 2,
+          '🏅 IAAF Athlete': 6,
+          '🏅 Laureus Award': 4
+        },
+        career: [
+          { year: '2002-2007', achievement: 'Junior Career', details: 'World Junior records, Early success' },
+          { year: '2008-2009', achievement: 'Breakthrough', details: 'Beijing Olympics, World records' },
+          { year: '2010-2016', achievement: 'Dominance', details: 'London, Rio Olympics, Continued success' },
+          { year: '2017', achievement: 'Retirement', details: 'Final World Championships, Legacy' }
+        ]
+      },
+      'michael-phelps': {
+        name: 'Michael Phelps',
+        sport: 'Swimming',
+        sportIcon: '🏊',
+        position: 'Swimmer',
+        nationality: 'USA',
+        nationalityFlag: '🇺🇸',
+        currentClub: 'Retired',
+        age: 38,
+        height: '6\'4" (193 cm)',
+        weight: '194 lbs (88 kg)',
+        image: 'https://i.pinimg.com/736x/33/c0/73/33c07326800475a8037573e3dcac06fe.jpg',
+        description: 'The most successful and most decorated Olympian of all time, with a total of 28 medals, 23 of them gold. Phelps also holds the all-time records for Olympic gold medals, Olympic gold medals in individual events, and Olympic medals in individual events.',
+        stats: {
+          'Olympic Gold': '23',
+          'Olympic Medals': '28',
+          'World Records': '39',
+          'World Titles': '26',
+          'Years Active': '16',
+          'Career Earnings': '$55M+'
+        },
+        trophies: {
+          '🏅 Olympic Gold': 23,
+          '🏅 Olympic Medals': 28,
+          '🏅 World Records': 39,
+          '🏅 World Championships': 26,
+          '🏅 US Championships': 48,
+          '🏅 Swimmer of the Year': 8
+        },
+        career: [
+          { year: '2000-2004', achievement: 'Early Career', details: 'Sydney debut, Athens breakthrough' },
+          { year: '2004-2008', achievement: 'Dominance', details: 'Beijing record 8 gold medals' },
+          { year: '2009-2012', achievement: 'Continued Success', details: 'London Olympics, More records' },
+          { year: '2014-2016', achievement: 'Comeback & Retirement', details: 'Rio finale, Final medals' }
+        ]
+      },
+      'serena-williams': {
+        name: 'Serena Williams',
+        sport: 'Tennis',
+        sportIcon: '🎾',
+        position: 'Professional',
+        nationality: 'USA',
+        nationalityFlag: '🇺🇸',
+        currentClub: 'Retired',
+        age: 42,
+        height: '5\'9" (175 cm)',
+        weight: '155 lbs (70 kg)',
+        image: 'https://i.pinimg.com/1200x/e6/40/f8/e640f8a557ab03614b21134f07593b64.jpg',
+        description: 'Regarded as one of the greatest tennis players of all time, holding the most Grand Slam titles in the Open Era with 23 singles titles. She was ranked world No. 1 in singles by the WTA on eight separate occasions.',
+        stats: {
+          'Grand Slam Titles': '23',
+          'Weeks at No. 1': '319',
+          'WTA Titles': '73',
+          'Prize Money': '$94M+',
+          'Win Percentage': '85%',
+          'Olympic Gold': '4'
+        },
+        trophies: {
+          '🏆 Grand Slams': 23,
+          '🏆 Olympic Gold': 4,
+          '🏆 WTA Titles': 73,
+          '🏆 Year-End No. 1': 5,
+          '🏆 WTA Finals': 5,
+          '🏆 Fed Cup': 4
+        },
+        career: [
+          { year: '1995-1999', achievement: 'Early Career', details: 'First titles, US Open breakthrough' },
+          { year: '2000-2007', achievement: 'Serena Slam', details: 'Dominance, Multiple Slams' },
+          { year: '2008-2016', achievement: 'Comeback & Dominance', details: 'Injury return, More titles' },
+          { year: '2017-2022', achievement: 'Later Career', details: 'Motherhood, Final titles' }
+        ]
+      },
+      'tom-brady': {
+        name: 'Tom Brady',
+        sport: 'American Football',
+        sportIcon: '🏈',
+        position: 'Quarterback',
+        nationality: 'USA',
+        nationalityFlag: '🇺🇸',
+        currentClub: 'Retired',
+        age: 46,
+        height: '6\'4" (193 cm)',
+        weight: '225 lbs (102 kg)',
+        image: 'https://i.pinimg.com/736x/ae/de/1a/aede1a8538ba7a5d79ede5d1fdafa57d.jpg',
+        description: 'Widely regarded as the greatest quarterback of all time, holding numerous NFL records including most Super Bowl wins, appearances, and MVP awards. He played 23 seasons in the NFL, primarily with the New England Patriots.',
+        stats: {
+          'Super Bowl Wins': '7',
+          'Super Bowl MVPs': '5',
+          'Passing Yards': '89,000+',
+          'Touchdown Passes': '649',
+          'Pro Bowl Selections': '15',
+          'MVP Awards': '3'
+        },
+        trophies: {
+          '🏆 Super Bowls': 7,
+          '🏆 Super Bowl MVP': 5,
+          '🏆 MVP Awards': 3,
+          '🏆 Pro Bowl': 15,
+          '🏆 All-Pro': 6,
+          '🏆 Comeback Player': 1
+        },
+        career: [
+          { year: '2000-2006', club: 'New England Patriots', superBowls: 3, mvps: 1 },
+          { year: '2007-2019', club: 'New England Patriots', superBowls: 3, mvps: 2 },
+          { year: '2020-2022', club: 'Tampa Bay Buccaneers', superBowls: 1, mvps: 0 }
+        ]
+      },
+      'islam-makhachev': {
+        name: 'Islam Makhachev',
+        sport: 'MMA',
+        sportIcon: '🥋',
+        position: 'Lightweight/Welterweight',
+        nationality: 'Russia',
+        nationalityFlag: '🇷🇺',
+        currentClub: 'American Kickboxing Academy',
+        age: 32,
+        height: '5\'10" (178 cm)',
+        weight: '155 lbs (70 kg)',
+        image: 'https://i.dailymail.co.uk/1s/2025/11/16/06/103918343-15295445-image-a-41_1763273407522.jpg',
+        description: 'Current UFC Lightweight Champion and one of the most dominant fighters in the division, known for his elite grappling skills. A protege of Khabib Nurmagomedov, Makhachev has established himself as one of the best pound-for-pound fighters in the world.',
+        stats: {
+          'Wins': '28',
+          'Losses': '1',
+          'Finishes': '18',
+          'UFC Wins': '18',
+          'Title Defenses': '3',
+          'Win Streak': '13'
+        },
+        trophies: {
+          '🥋 UFC Lightweight': 1,
+          '🥋 P4P Ranking': 1,
+          '🥋 UFC Welterweight': 1,
+          '🥋 Fight of the Night': 2,
+          '🥋 Submission of the Night': 3,
+          '🥋 Undisputed Champion': 1
+        },
+        career: [
+          { year: '2010-2014', achievement: 'Early Career', details: 'Regional promotions, Building record' },
+          { year: '2015-2021', achievement: 'UFC Rise', details: 'Debut, Climbing rankings' },
+          { year: '2022', achievement: 'Championship', details: 'Title win vs Oliveira' },
+          { year: '2022-2024', achievement: 'Reign', details: 'Title defenses, P4P #1' }
+        ]
+      },
+      'khabib-nurmagomedov': {
+        name: 'Khabib Nurmagomedov',
+        sport: 'MMA',
+        sportIcon: '🥋',
+        position: 'Lightweight',
+        nationality: 'Russia',
+        nationalityFlag: '🇷🇺',
+        currentClub: 'Retired',
+        age: 35,
+        height: '5\'10" (178 cm)',
+        weight: '155 lbs (70 kg)',
+        image: 'https://i.pinimg.com/736x/81/e5/58/81e5580bc1a23930f9ca613f0fb107aa.jpg',
+        description: 'Former UFC Lightweight Champion, widely considered one of the greatest MMA fighters of all time with an undefeated record. Known for his dominant grappling and relentless pressure, Khabib retired with a perfect 29-0 record.',
+        stats: {
+          'Wins': '29',
+          'Losses': '0',
+          'Finishes': '19',
+          'UFC Wins': '16',
+          'Title Defenses': '3',
+          'Win Streak': '29'
+        },
+        trophies: {
+          '🥋 UFC Lightweight': 1,
+          '🥋 Undefeated Record': 1,
+          '🥋 Performance Bonus': 6,
+          '🥋 Fight of the Night': 2,
+          '🥋 Submission of the Night': 4,
+          '🥋 P4P Ranking': 1
+        },
+        career: [
+          { year: '2008-2011', achievement: 'Early Career', details: 'Regional dominance, Undefeated' },
+          { year: '2012-2017', achievement: 'UCF Rise', details: 'Debut, Title contention' },
+          { year: '2018-2020', achievement: 'Championship Era', details: 'Title win, Defenses' },
+          { year: '2020', achievement: 'Retirement', details: 'Final fight, Perfect record' }
+        ]
+      }
+    };
+  }
+
+  setupPlayerFunctionality() {
+    // Filter players by sport
+    const filterChips = document.querySelectorAll('.players-filter .filter-chip');
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        // Remove active class from all chips
+        filterChips.forEach(c => c.classList.remove('active'));
+        // Add active class to clicked chip
+        chip.classList.add('active');
+        
+        const sport = chip.getAttribute('data-sport');
+        this.filterPlayers(sport);
+      });
+    });
+
+    // Player card click event
+    document.addEventListener('click', (e) => {
+      const playerCard = e.target.closest('.player-card');
+      if (playerCard && !e.target.closest('.player-follow-btn') && !e.target.closest('.player-pin-btn')) {
+        const playerId = playerCard.getAttribute('data-player-id');
+        this.openPlayerModal(playerId);
+      }
+    });
+
+    // Close modal
+    const playerModalClose = document.getElementById('playerModalClose');
+    const playerModalBackdrop = document.getElementById('playerModalBackdrop');
+    
+    if (playerModalClose) {
+      playerModalClose.addEventListener('click', () => this.closePlayerModal());
+    }
+    if (playerModalBackdrop) {
+      playerModalBackdrop.addEventListener('click', () => this.closePlayerModal());
+    }
+    
+    // Load more players
+    const loadMoreBtn = document.getElementById('loadMorePlayers');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', function() {
+        this.textContent = 'Loading...';
+        this.disabled = true;
+        
+        // Simulate loading
+        setTimeout(() => {
+          this.textContent = 'No more players to load';
+          this.disabled = true;
+        }, 1500);
+      });
+    }
+  }
+
+  filterPlayers(sport) {
+    const playerCards = document.querySelectorAll('.player-card');
+    
+    playerCards.forEach(card => {
+      if (!sport || sport === 'all' || card.getAttribute('data-sport') === sport) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  openPlayerModal(playerId) {
+    const player = this.playersData[playerId];
+    if (!player) {
+      console.error('Player not found:', playerId);
+      return;
+    }
+    
+    const modal = document.getElementById('playerModal');
+    const modalTitle = document.getElementById('playerModalTitle');
+    const modalContent = document.getElementById('playerModalContent');
+    
+    if (!modal || !modalTitle || !modalContent) {
+      console.error('Modal elements not found');
+      return;
+    }
+    
+    modalTitle.textContent = player.name;
+    
+    // Generate player content
+    let content = `
+      <div class="player-modal-header">
+        <div class="player-modal-image" style="background-image: url('${player.image}')"></div>
+        <div class="player-modal-info">
+          <h2 class="player-modal-name">${player.name}</h2>
+          <div class="player-modal-sport">${player.sport} • ${player.position}</div>
+          <div class="player-modal-details">
+            <div class="player-modal-detail">
+              <span>Nationality:</span>
+              <span>${player.nationality}</span>
+            </div>
+            <div class="player-modal-detail">
+              <span>Current Club:</span>
+              <span>${player.currentClub}</span>
+            </div>
+            <div class="player-modal-detail">
+              <span>Age:</span>
+              <span>${player.age}</span>
+            </div>
+            <div class="player-modal-detail">
+              <span>Height:</span>
+              <span>${player.height}</span>
+            </div>
+            <div class="player-modal-detail">
+              <span>Weight:</span>
+              <span>${player.weight}</span>
+            </div>
+          </div>
+          <div class="actions" style="margin-top: var(--space-3); display: flex; gap: var(--space-2);">
+            <button class="btn follow-btn" data-player="${playerId}" data-player-name="${player.name}" data-sport="${player.sport}" data-position="${player.position}" data-team="${player.currentClub}" data-nationality="${player.nationality}" data-image="${player.image}">
+              ${this.state.followedPlayers.has(playerId) ? 'Following' : 'Follow Player'}
+            </button>
+            <button class="btn ghost player-pin-btn" data-player="${playerId}">
+              <i class="fas fa-thumbtack"></i> ${this.state.pinnedPlayerId === playerId ? 'Pinned' : 'Pin'}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="player-modal-body">
+        <div class="player-modal-section">
+          <h4>About</h4>
+          <p>${player.description}</p>
+        </div>
+        
+        <div class="player-modal-section">
+          <h4>Career Statistics</h4>
+          <div class="player-modal-stats">
+    `;
+    
+    // Add stats
+    for (const [stat, value] of Object.entries(player.stats)) {
+      content += `
+        <div class="player-modal-stat">
+          <div class="player-modal-stat-value">${value}</div>
+          <div class="player-modal-stat-label">${stat}</div>
+        </div>
+      `;
+    }
+    
+    content += `
+          </div>
+        </div>
+        
+        <div class="player-modal-section">
+          <h4>Trophies & Achievements</h4>
+          <div class="player-modal-trophies">
+    `;
+    
+    // Add trophies
+    for (const [trophy, count] of Object.entries(player.trophies)) {
+      content += `
+        <div class="player-modal-trophy">
+          <div class="player-modal-trophy-icon">${trophy.split(' ')[0]}</div>
+          <div class="player-modal-trophy-name">${trophy.split(' ').slice(1).join(' ')}</div>
+          <div class="player-modal-trophy-count">${count}</div>
+        </div>
+      `;
+    }
+    
+    content += `
+          </div>
+        </div>
+        
+        <div class="player-modal-section">
+          <h4>Career Timeline</h4>
+          <div class="player-modal-timeline">
+    `;
+    
+    // Add career timeline
+    player.career.forEach(entry => {
+      content += `
+        <div class="player-modal-career-item" style="padding: var(--space-2); border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-weight: bold; color: var(--accent);">${entry.year}</div>
+          <div style="font-weight: 600;">${entry.club || entry.achievement}</div>
+          <div style="color: var(--text-secondary); font-size: 14px;">
+            ${entry.apps ? `Apps: ${entry.apps}` : ''}
+            ${entry.goals ? ` | Goals: ${entry.goals}` : ''}
+            ${entry.points ? ` | Points: ${entry.points}` : ''}
+            ${entry.wins ? ` | Wins: ${entry.wins}` : ''}
+            ${entry.championships ? ` | Championships: ${entry.championships}` : ''}
+            ${entry.superBowls ? ` | Super Bowls: ${entry.superBowls}` : ''}
+            ${entry.mvps ? ` | MVPs: ${entry.mvps}` : ''}
+            ${entry.details ? ` | ${entry.details}` : ''}
+          </div>
+        </div>
+      `;
+    });
+    
+    content += `
+          </div>
+        </div>
+      </div>
+    `;
+    
+    modalContent.innerHTML = content;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Update follow and pin buttons in modal after it's been added to DOM
+    setTimeout(() => {
+      this.updateFollowButtons();
+      this.updatePinButtons();
+    }, 100);
+  }
+
+  closePlayerModal() {
+    const modal = document.getElementById('playerModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  showToast(message) {
+    // Create toast if it doesn't exist
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-weight: 500;
+        pointer-events: none;
+      `;
+      document.body.appendChild(toast);
+    }
+    
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 3000);
+  }
+
+  getSportIcon(sport) {
+    const icons = {
+      'Football': '⚽',
+      'Cricket': '🏏',
+      'Basketball': '🏀',
+      'Tennis': '🎾',
+      'Baseball': '⚾',
+      'Hockey': '🏒',
+      'Rugby': '🏉',
+      'Boxing': '🥊',
+      'Formula1': '🏎️',
+      'Golf': '⛳',
+      'MMA': '🥋',
+      'Olympics': '🏅',
+      'Athletics': '🏃',
+      'Swimming': '🏊',
+      'American Football': '🏈'
+    };
+    
+    return icons[sport] || '🏆';
+  }
+}
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Players page loaded");
+  window.playersApp = new PlayersApp();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Injury News — SportSphereX</title>
+  <meta name="description" content="Latest player injury updates, recovery timelines, and team news from all major sports on SportSphereX."/>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../games.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="SportSphereX home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="SportSphereX Logo">
+      </div>
+      <div class="brand-text">
+        <h1>SportSphereX</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="../index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="../games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="../games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="../games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="../games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="../games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="../games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="../games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="../games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="../games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="../games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="../games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="../games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../teams.html" class="nav-link">Teams</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../players.html" class="nav-link">Players</a>
+        </li>
+
+
+        <li role="none">
+          <a role="menuitem" href="../fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="injury-news.html" class="dropdown-item nav-active">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and User Area -->
+    <div class="header-actions">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          id="searchInput" 
+          placeholder="Search injuries..." 
+          aria-label="Search injury news"
+          type="text"
+        >
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown" style="display: none;">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="SportSphereX Logo">
+        </div>
+        <div class="brand-text">
+          <h2>SportSphereX</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="../index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="../games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="../games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="../games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="../games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="../games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="../games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="../games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="../games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="../games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="../games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="../games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="../games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="../scores.html" class="mobile-nav-link">Scores</a></li>
+        <li><a href="../watch.html" class="mobile-nav-link">Watch</a></li>
+        <li><a href="../teams.html" class="mobile-nav-link">Teams</a></li>
+        <li><a href="../fixtures.html" class="mobile-nav-link">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item mobile-nav-active">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search injuries..." aria-label="Search injury news" id="mobileSearchInput">
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown" style="display: none;">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Injury News</h1>
+    <p class="page-subtitle">Latest player injury updates, recovery timelines, and team news from all major sports</p>
+  </div>
+
+  <!-- Injury Filters -->
+  <div class="filter-chips" id="injuryCategories">
+    <button class="filter-chip active">All Injuries</button>
+    <button class="filter-chip">⚽ Football</button>
+    <button class="filter-chip">🏀 Basketball</button>
+    <button class="filter-chip">🏏 Cricket</button>
+    <button class="filter-chip">🎾 Tennis</button>
+    <button class="filter-chip">🏈 NFL</button>
+  </div>
+
+  <main class="main-grid">
+    <!-- Left: Injury Content -->
+    <section>
+      <!-- Critical Injury Alert -->
+      <div class="featured">
+        <div class="hero critical-injury" aria-labelledby="criticalInjuryTitle">
+          <div class="hero-img" style="background-image: url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')">
+            <div class="hero-overlay">
+              <div class="injury-badge critical">CRITICAL</div>
+            </div>
+          </div>
+          <div class="hero-body">
+            <div class="tag">INJURY UPDATE</div>
+            <h2 id="criticalInjuryTitle">Kevin De Bruyne Suffers Hamstring Injury</h2>
+            <div class="meta">Update: <strong>2 hours ago</strong> • <span>Expected Return: 4-6 weeks</span></div>
+            <p>Manchester City confirm their star midfielder sustained a significant hamstring strain during Champions League match. Player expected to miss crucial Premier League fixtures.</p>
+            
+            <div class="injury-details">
+              <div class="injury-info">
+                <div class="injury-type">Hamstring Strain</div>
+                <div class="injury-severity high">High Severity</div>
+                <div class="recovery-time">4-6 weeks</div>
+              </div>
+              
+              <div class="player-info">
+                <div class="player-team">
+                  <div class="team-logo">MCI</div>
+                  <div class="team-name">Manchester City</div>
+                </div>
+                <div class="player-position">Midfielder</div>
+              </div>
+            </div>
+            
+            <div class="actions">
+              <button class="btn" id="readInjuryBtn">Full Medical Report</button>
+              <button class="btn ghost">Follow Player</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Injury Updates -->
+      <section id="latestInjuries" aria-label="Latest injury updates">
+        <div class="section-header">
+          <h3 class="section-title">Latest Injury Updates</h3>
+          <div class="injury-filters">
+            <select class="filter-select small">
+              <option>All Teams</option>
+              <option>Premier League</option>
+              <option>NBA Teams</option>
+              <option>International</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="injuries-list">
+          <!-- Injury 1 -->
+          <div class="injury-card moderate">
+            <div class="injury-severity-indicator moderate"></div>
+            <div class="injury-content">
+              <div class="player-header">
+                <div class="player-photo-small" style="background-image: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+                <div class="player-details">
+                  <h4>Rafael Leão</h4>
+                  <div class="player-team">AC Milan • Forward</div>
+                </div>
+              </div>
+              
+              <div class="injury-info-compact">
+                <div class="injury-type">Thigh Strain</div>
+                <div class="recovery-timeline">2-3 weeks</div>
+                <div class="injury-date">Injured: Mar 28</div>
+              </div>
+              
+              <div class="injury-update">
+                <p>Missed last match against Napoli. Expected return for Champions League quarter-final.</p>
+              </div>
+              
+              <div class="injury-meta">
+                <span>Update: 5 hours ago</span>
+                <span>•</span>
+                <span>Source: Team Doctor</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Injury 2 -->
+          <div class="injury-card minor">
+            <div class="injury-severity-indicator minor"></div>
+            <div class="injury-content">
+              <div class="player-header">
+                <div class="player-photo-small" style="background-image: url('https://images.unsplash.com/photo-1547949003-9792a18a2601?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+                <div class="player-details">
+                  <h4>LeBron James</h4>
+                  <div class="player-team">LA Lakers • Forward</div>
+                </div>
+              </div>
+              
+              <div class="injury-info-compact">
+                <div class="injury-type">Ankle Sprain</div>
+                <div class="recovery-timeline">1-2 weeks</div>
+                <div class="injury-date">Injured: Mar 26</div>
+              </div>
+              
+              <div class="injury-update">
+                <p>Day-to-day evaluation. Likely to miss 2-3 regular season games before playoffs.</p>
+              </div>
+              
+              <div class="injury-meta">
+                <span>Update: 8 hours ago</span>
+                <span>•</span>
+                <span>Source: Team Report</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Injury 3 -->
+          <div class="injury-card high">
+            <div class="injury-severity-indicator high"></div>
+            <div class="injury-content">
+              <div class="player-header">
+                <div class="player-photo-small" style="background-image: url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+                <div class="player-details">
+                  <h4>Virat Kohli</h4>
+                  <div class="player-team">India • Batsman</div>
+                </div>
+              </div>
+              
+              <div class="injury-info-compact">
+                <div class="injury-type">Back Stress Fracture</div>
+                <div class="recovery-timeline">6-8 weeks</div>
+                <div class="injury-date">Injured: Mar 24</div>
+              </div>
+              
+              <div class="injury-update">
+                <p>Ruled out of IPL 2024. Undergoing rehabilitation at NCA. Return for World T20 uncertain.</p>
+              </div>
+              
+              <div class="injury-meta">
+                <span>Update: 1 day ago</span>
+                <span>•</span>
+                <span>Source: BCCI Medical Team</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Return to Play Timeline -->
+      <section id="returnTimeline" aria-label="Return to play timeline">
+        <div class="section-header">
+          <h3 class="section-title">Return to Play Timeline</h3>
+        </div>
+
+        <div class="timeline-grid">
+          <!-- Timeline Item 1 -->
+          <div class="timeline-card">
+            <div class="timeline-date">Apr 1-7</div>
+            <div class="timeline-players">
+              <div class="timeline-player">
+                <div class="player-name">R. Leão</div>
+                <div class="return-probability high">85%</div>
+              </div>
+              <div class="timeline-player">
+                <div class="player-name">L. James</div>
+                <div class="return-probability medium">65%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline Item 2 -->
+          <div class="timeline-card">
+            <div class="timeline-date">Apr 8-14</div>
+            <div class="timeline-players">
+              <div class="timeline-player">
+                <div class="player-name">K. De Bruyne</div>
+                <div class="return-probability low">25%</div>
+              </div>
+              <div class="timeline-player">
+                <div class="player-name">N. Kanté</div>
+                <div class="return-probability high">90%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline Item 3 -->
+          <div class="timeline-card">
+            <div class="timeline-date">Apr 15-21</div>
+            <div class="timeline-players">
+              <div class="timeline-player">
+                <div class="player-name">K. De Bruyne</div>
+                <div class="return-probability medium">70%</div>
+              </div>
+              <div class="timeline-player">
+                <div class="player-name">V. Kohli</div>
+                <div class="return-probability low">15%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Right: Sidebar -->
+    <aside class="sidebar" aria-label="Injury news sidebar">
+      <!-- Injury Stats -->
+      <div class="panel">
+        <h4>Injury Statistics</h4>
+        <div class="injury-stats">
+          <div class="injury-stat">
+            <div class="stat-value">42</div>
+            <div class="stat-label">Active Injuries</div>
+          </div>
+          <div class="injury-stat">
+            <div class="stat-value">18</div>
+            <div class="stat-label">Returns This Week</div>
+          </div>
+          <div class="injury-stat">
+            <div class="stat-value">7</div>
+            <div class="stat-label">Season-Ending</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Most Affected Teams -->
+      <div class="panel">
+        <h4>Most Affected Teams</h4>
+        <div class="affected-teams">
+          <div class="team-injury">
+            <div class="team-name">Newcastle United</div>
+            <div class="injury-count">6 players</div>
+          </div>
+          <div class="team-injury">
+            <div class="team-name">LA Clippers</div>
+            <div class="injury-count">5 players</div>
+          </div>
+          <div class="team-injury">
+            <div class="team-name">Chelsea</div>
+            <div class="injury-count">4 players</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recovery Progress -->
+      <div class="panel">
+        <h4>Recovery Progress</h4>
+        <div class="recovery-progress">
+          <div class="recovery-player">
+            <div class="player-name">N'Golo Kanté</div>
+            <div class="recovery-bar">
+              <div class="progress" style="width: 85%"></div>
+            </div>
+            <div class="recovery-percent">85%</div>
+          </div>
+          <div class="recovery-player">
+            <div class="player-name">Christian Eriksen</div>
+            <div class="recovery-bar">
+              <div class="progress" style="width: 60%"></div>
+            </div>
+            <div class="recovery-percent">60%</div>
+          </div>
+          <div class="recovery-player">
+            <div class="player-name">Zlatan Ibrahimović</div>
+            <div class="recovery-bar">
+              <div class="progress" style="width: 45%"></div>
+            </div>
+            <div class="recovery-percent">45%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical News -->
+      <div class="panel">
+        <h4>Medical News</h4>
+        <div class="medical-news">
+          <div class="medical-item">
+            <div class="medical-title">ACL Recovery Breakthrough</div>
+            <div class="medical-date">Mar 28, 2024</div>
+          </div>
+          <div class="medical-item">
+            <div class="medical-title">New Hamstring Protocol</div>
+            <div class="medical-date">Mar 25, 2024</div>
+          </div>
+          <div class="medical-item">
+            <div class="medical-title">Concussion Guidelines Update</div>
+            <div class="medical-date">Mar 22, 2024</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h5>SportSphereX</h5>
+        <p>Your premier destination for sports news, live scores, and video highlights.</p>
+      </div>
+      <div class="footer-section">
+        <h5>Sports</h5>
+        <a href="../games/football.html">Football</a>
+        <a href="../games/cricket.html">Cricket</a>
+        <a href="../games/basketball.html">Basketball</a>
+        <a href="../games/tennis.html">Tennis</a>
+      </div>
+      <div class="footer-section">
+        <h5>Company</h5>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2024 SportSphereX — Built with ❤️ for sports fans worldwide
+    </div>
+  </footer>
+</div>
+
+<!-- Injury Details Modal -->
+<div class="modal" id="injuryModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="injuryModalBackdrop"></div>
+  <div class="modal-content" role="document">
+    <div class="modal-header">
+      <h3 id="injuryModalTitle">Injury Details</h3>
+      <button class="modal-close" aria-label="Close" id="injuryModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="injuryModalContainer">
+        <!-- Injury details content injected by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Authentication state management
+class AuthManager {
+  constructor() {
+    this.state = {
+      user: JSON.parse(localStorage.getItem('user')) || null
+    };
+    this.init();
+  }
+
+  init() {
+    this.updateLoginUI();
+    this.setupEventListeners();
+  }
+
+  updateLoginUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+
+    if (this.state.user) {
+      if (loginText) loginText.textContent = 'Logged';
+      if (mobileLoginText) mobileLoginText.textContent = 'Logged';
+      if (loginBtn) loginBtn.classList.add('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.add('logged-in');
+      if (userDropdown) userDropdown.style.display = 'block';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'block';
+    } else {
+      if (loginText) loginText.textContent = 'Login';
+      if (mobileLoginText) mobileLoginText.textContent = 'Login';
+      if (loginBtn) loginBtn.classList.remove('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.remove('logged-in');
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'none';
+    }
+  }
+
+  setupEventListeners() {
+    // Login buttons
+    document.getElementById('loginBtn')?.addEventListener('click', () => this.handleLoginClick());
+    document.getElementById('mobileLoginBtn')?.addEventListener('click', () => this.handleLoginClick());
+
+    // Logout buttons
+    document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+  }
+
+  handleLoginClick() {
+    if (this.state.user) {
+      // User is logged in, do nothing (dropdown will handle logout)
+      return;
+    } else {
+      // Simulate login for demo purposes
+      this.state.user = { 
+        name: 'John Doe', 
+        email: 'john@example.com',
+        id: 'user123'
+      };
+      localStorage.setItem('user', JSON.stringify(this.state.user));
+      this.updateLoginUI();
+      this.showToast('Successfully logged in!');
+    }
+  }
+
+  logout() {
+    this.state.user = null;
+    localStorage.removeItem('user');
+    this.updateLoginUI();
+    this.showToast('Successfully logged out!');
+  }
+
+  showToast(message) {
+    // Create toast element if it doesn't exist
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-weight: 500;
+        pointer-events: none;
+      `;
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 3000);
+  }
+}
+
+// Initialize auth manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  window.authManager = new AuthManager();
+  
+  // Filter chips functionality
+  const filterChips = document.querySelectorAll('.filter-chip');
+  
+  filterChips.forEach(chip => {
+    chip.addEventListener('click', function() {
+      // Remove active class from all chips
+      filterChips.forEach(c => c.classList.remove('active'));
+      // Add active class to clicked chip
+      this.classList.add('active');
+    });
+  });
+
+  // Mobile menu functionality
+  const mobileToggle = document.getElementById('mobileToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileClose = document.querySelector('.mobile-close');
+
+  if (mobileToggle && mobileMenu) {
+    mobileToggle.addEventListener('click', function() {
+      mobileMenu.classList.add('open');
+      this.setAttribute('aria-expanded', 'true');
+    });
+  }
+
+  if (mobileClose) {
+    mobileClose.addEventListener('click', function() {
+      mobileMenu.classList.remove('open');
+      mobileToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  // Mobile dropdown functionality
+  const mobileDropdownButtons = document.querySelectorAll('.mobile-nav-button');
+  
+  mobileDropdownButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      
+      const dropdownMenu = this.nextElementSibling;
+      if (dropdownMenu) {
+        dropdownMenu.setAttribute('aria-hidden', isExpanded);
+        dropdownMenu.style.maxHeight = isExpanded ? '0' : '500px';
+      }
+    });
+  });
+
+  // Follow player buttons
+  const followButtons = document.querySelectorAll('.btn.ghost');
+  followButtons.forEach(button => {
+    if (button.textContent.includes('Follow')) {
+      button.addEventListener('click', function() {
+        const playerName = this.closest('.hero-body')?.querySelector('h2')?.textContent || 'this player';
+        if (this.textContent.includes('Follow')) {
+          this.textContent = 'Following';
+          window.authManager.showToast(`Now following ${playerName}`);
+        } else {
+          this.textContent = 'Follow Player';
+          window.authManager.showToast(`Unfollowed ${playerName}`);
+        }
+      });
+    }
+  });
+
+  // Full medical report button
+  document.getElementById('readInjuryBtn')?.addEventListener('click', function() {
+    const playerName = document.getElementById('criticalInjuryTitle')?.textContent || 'Kevin De Bruyne';
+    window.authManager.showToast(`Opening full medical report for ${playerName}`);
+  });
+});
+</script>
+</body>
+</html>

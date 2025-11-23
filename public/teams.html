@@ -1,0 +1,3794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sports Teams & Profiles - AllSports</title>
+  <meta name="description" content="Explore professional sports teams, player rosters, statistics, and team news."/>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Additional styles for teams page */
+    .teams-main {
+      padding: var(--space-4) 0;
+    }
+    
+    .sport-categories {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-4);
+      overflow-x: auto;
+      padding: var(--space-1) 0;
+    }
+    
+    .sport-category {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 10px 20px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+    
+    .sport-category:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-primary);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .sport-category.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 4px 12px rgba(232, 29, 47, 0.3);
+    }
+    
+    .league-filters {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    
+    .filter-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .filter-select {
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      min-width: 180px;
+    }
+    
+    .filter-select:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232, 29, 47, 0.2);
+    }
+    
+    .teams-section {
+      margin-bottom: var(--space-4);
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .section-title {
+      font-size: 28px;
+      margin: 0;
+      color: var(--text-primary);
+      position: relative;
+      padding-left: 12px;
+    }
+    
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    
+    .section-subtitle {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+    
+    .teams-count {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .featured-teams-grid,
+    .teams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-3);
+    }
+    
+    .team-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: var(--space-3);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .team-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    
+    .team-card.featured {
+      border-left: 4px solid var(--accent);
+    }
+    
+    .team-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+    
+    .team-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 12px;
+      color: white;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+    
+    .team-info {
+      flex: 1;
+    }
+    
+    .team-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .team-sport {
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .team-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-2);
+      margin: var(--space-2) 0;
+    }
+    
+    .stat {
+      text-align: center;
+      padding: var(--space-2);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .team-players {
+      margin-top: var(--space-2);
+    }
+    
+    .players-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-1);
+    }
+    
+    .players-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    
+    .player-tag {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .team-actions {
+      display: flex;
+      gap: var(--space-2);
+      margin-top: var(--space-2);
+    }
+    
+    .team-actions .btn-small {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+    
+    .stats-table-container {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+    
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .stats-table th {
+      background: rgba(255, 255, 255, 0.08);
+      padding: var(--space-2) var(--space-2);
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+    }
+    
+    .stats-table td {
+      padding: var(--space-2) var(--space-2);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    .stats-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .stats-table .team-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .stats-table .team-logo-small {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .stats-table .highlight {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    /* Enhanced Follow button hover transitions */
+    .follow-btn {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .follow-btn .btn-text {
+      display: block;
+      transition: all 0.3s ease;
+    }
+    
+    .follow-btn .hover-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(100%);
+      transition: all 0.3s ease;
+    }
+    
+    .follow-btn.followed {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    
+    .follow-btn.followed:hover {
+      background: #d32f2f;
+      border-color: #d32f2f;
+    }
+    
+    .follow-btn.followed:hover .btn-text {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    
+    .follow-btn.followed:hover .hover-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Toast notification styles */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    /* Modal styles */
+    .team-modal-content {
+      padding: 20px 0;
+    }
+    
+    .team-modal-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .team-logo-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      color: white;
+      border: 3px solid rgba(255,255,255,0.2);
+    }
+    
+    .team-modal-info h4 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: var(--text-primary);
+    }
+    
+    .team-modal-info p {
+      margin: 0;
+      color: var(--text-secondary);
+    }
+    
+    .team-modal-stats {
+      margin-bottom: var(--space-4);
+    }
+    
+    .team-modal-stats h5 {
+      margin-bottom: var(--space-2);
+      color: var(--text-primary);
+      font-size: 18px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--space-2);
+    }
+    
+    .stat-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius);
+      padding: var(--space-2);
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .team-modal-players {
+      margin-bottom: var(--space-4);
+    }
+    
+    .team-modal-players h5 {
+      margin-bottom: var(--space-2);
+      color: var(--text-primary);
+      font-size: 18px;
+    }
+    
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: var(--space-2);
+    }
+    
+    .player-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius);
+    }
+    
+    .player-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 12px;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .player-name {
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+    
+    .team-modal-actions {
+      display: flex;
+      gap: var(--space-2);
+      margin-top: var(--space-4);
+    }
+    
+    .team-modal-actions .btn {
+      flex: 1;
+    }
+    
+    /* Tabs for modal */
+    .team-modal-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: var(--space-3);
+    }
+    
+    .team-modal-tab {
+      padding: var(--space-2) var(--space-3);
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .team-modal-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    
+    .team-modal-tab-content {
+      min-height: 300px;
+    }
+    
+    .team-modal-tab-pane {
+      display: none;
+    }
+    
+    .team-modal-tab-pane.active {
+      display: block;
+    }
+    
+    /* Schedule and Roster styles */
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius);
+    }
+    
+    .schedule-date {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 60px;
+      padding: var(--space-1);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+    }
+    
+    .schedule-month {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+    
+    .schedule-day {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .schedule-match {
+      flex: 1;
+    }
+    
+    .schedule-teams {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    
+    .schedule-team {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+    
+    .schedule-team-logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .schedule-vs {
+      margin: 0 var(--space-2);
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+    
+    .schedule-info {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .schedule-time {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    .roster-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .roster-table th {
+      background: rgba(255, 255, 255, 0.08);
+      padding: var(--space-2) var(--space-2);
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      font-size: 14px;
+    }
+    
+    .roster-table td {
+      padding: var(--space-2) var(--space-2);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    .roster-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .roster-player {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .roster-player-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .league-table-container {
+      margin-bottom: var(--space-4);
+    }
+    
+    .league-table-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-2);
+    }
+    
+    .league-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 12px;
+      color: white;
+    }
+    
+    .league-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .league-sport {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    /* Advanced Search Styles */
+    .advanced-search-toggle {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      color: var(--text-primary);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .advanced-search-toggle:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .advanced-search-panel {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: var(--space-3);
+      margin-bottom: var(--space-4);
+      display: none;
+    }
+    
+    .advanced-search-panel.active {
+      display: block;
+    }
+    
+    .search-filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    
+    .search-results-count {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: var(--space-3);
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: var(--space-4);
+      color: var(--text-secondary);
+    }
+    
+    .no-results h3 {
+      margin-bottom: var(--space-2);
+      color: var(--text-primary);
+    }
+    
+    /* Enhanced Search Dropdown Styles */
+    .search {
+      position: relative;
+    }
+    
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      display: none;
+    }
+    
+    .search-results.active {
+      display: block;
+    }
+    
+    .search-result-item {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.2s ease;
+    }
+    
+    .search-result-item:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    
+    .search-result-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 10px;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .search-result-info {
+      flex: 1;
+    }
+    
+    .search-result-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    
+    .search-result-details {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .search-result-sport {
+      font-size: 10px;
+      background: rgba(255,255,255,0.1);
+      padding: 2px 6px;
+      border-radius: 10px;
+      color: var(--text-secondary);
+    }
+    
+    .search-no-results {
+      padding: 16px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      .featured-teams-grid,
+      .teams-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .league-filters {
+        flex-direction: column;
+      }
+      
+      .filter-select {
+        min-width: 100%;
+      }
+      
+      .stats-table {
+        font-size: 12px;
+      }
+      
+      .stats-table th,
+      .stats-table td {
+        padding: 8px 12px;
+      }
+      
+      .team-modal-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .team-modal-actions {
+        flex-direction: column;
+      }
+      
+      .schedule-item {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .schedule-teams {
+        flex-direction: column;
+        gap: var(--space-1);
+      }
+      
+      .search-filters {
+        grid-template-columns: 1fr;
+      }
+      
+      .search-results {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        max-height: calc(100vh - 120px);
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="AllSports home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+      </div>
+      <div class="brand-text">
+        <h1>AllSports</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="teams.html" class="nav-link nav-active" aria-current="page">Teams</a>
+        </li>
+
+         <li role="none">
+          <a role="menuitem" href="players.html" class="nav-link">Players</a>
+        </li>
+
+
+        <li role="none">
+          <a role="menuitem" href="fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and User Area -->
+    <div class="header-actions">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          id="searchInput" 
+          placeholder="Search teams..." 
+          aria-label="Search teams"
+          type="text"
+        >
+        <div class="search-results" id="searchResults">
+          <!-- Search results will be populated by JavaScript -->
+        </div>
+      </div>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+        </div>
+        <div class="brand-text">
+          <h2>AllSports</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="scores.html" class="mobile-nav-link">Scores</a></li>
+        <li><a href="watch.html" class="mobile-nav-link">Watch</a></li>
+        <li><a href="teams.html" class="mobile-nav-link mobile-nav-active">Teams</a></li>
+        <li><a href="fixtures.html" class="mobile-nav-link">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="more/podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="more/highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="more/highlights.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="more/highlights.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="more/highlights.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="more/highlights.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search teams..." aria-label="Search teams" id="mobileSearchInput">
+        <div class="search-results" id="mobileSearchResults">
+          <!-- Mobile search results will be populated by JavaScript -->
+        </div>
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Sports Teams</h1>
+    <p class="page-subtitle">Explore professional teams, rosters, stats and team news</p>
+  </div>
+
+  <!-- Advanced Search Panel -->
+  <div class="advanced-search-panel" id="advancedSearchPanel">
+    <div class="search-filters">
+      <div class="filter-group">
+        <label for="searchTeamName">Team Name</label>
+        <input type="text" id="searchTeamName" class="filter-select" placeholder="Enter team name...">
+      </div>
+      
+      <div class="filter-group">
+        <label for="searchSport">Sport</label>
+        <select id="searchSport" class="filter-select">
+          <option value="All">All Sports</option>
+          <option value="Football">⚽ Football</option>
+          <option value="Basketball">🏀 Basketball</option>
+          <option value="Cricket">🏏 Cricket</option>
+          <option value="Baseball">⚾ Baseball</option>
+          <option value="Hockey">🏒 Hockey</option>
+          <option value="Tennis">🎾 Tennis</option>
+          <option value="Formula1">🏎️ Formula 1</option>
+          <option value="Rugby">🏉 Rugby</option>
+          <option value="Golf">⛳ Golf</option>
+          <option value="Boxing">🥊 Boxing</option>
+          <option value="MMA">🥋 MMA</option>
+          <option value="Olympics">🏅 Olympics</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="searchLeague">League</label>
+        <select id="searchLeague" class="filter-select">
+          <option value="All">All Leagues</option>
+          <!-- Football Leagues -->
+          <option value="Premier League">Premier League</option>
+          <option value="La Liga">La Liga</option>
+          <option value="Serie A">Serie A</option>
+          <option value="Bundesliga">Bundesliga</option>
+          <option value="Ligue 1">Ligue 1</option>
+          <option value="Eredivisie">Eredivisie</option>
+          <option value="Primeira Liga">Primeira Liga</option>
+          <option value="Scottish Premiership">Scottish Premiership</option>
+          <option value="Süper Lig">Süper Lig</option>
+          <option value="Russian Premier League">Russian Premier League</option>
+          <option value="Belgian Pro League">Belgian Pro League</option>
+          <option value="EFL Championship">EFL Championship</option>
+          <option value="Serie B">Serie B</option>
+          <option value="2. Bundesliga">2. Bundesliga</option>
+          <option value="Liga MX">Liga MX</option>
+          <option value="MLS">MLS</option>
+          <option value="Brasileirão">Brasileirão</option>
+          <option value="Argentine Primera División">Argentine Primera División</option>
+          <option value="J-League">J-League</option>
+          <option value="K League">K League</option>
+          <option value="Chinese Super League">Chinese Super League</option>
+          <option value="UEFA Champions League">UEFA Champions League</option>
+          <option value="UEFA Europa League">UEFA Europa League</option>
+          <option value="UEFA Europa Conference League">UEFA Europa Conference League</option>
+          <!-- Other Sports Leagues -->
+          <option value="NBA">NBA</option>
+          <option value="MLB">MLB</option>
+          <option value="NHL">NHL</option>
+          <option value="IPL">IPL</option>
+          <option value="ICC">ICC</option>
+          <option value="Formula 1">Formula 1</option>
+          <option value="World Rugby">World Rugby</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="searchCountry">Country</label>
+        <select id="searchCountry" class="filter-select">
+          <option value="All">All Countries</option>
+          <option value="England">England</option>
+          <option value="USA">USA</option>
+          <option value="Spain">Spain</option>
+          <option value="Germany">Germany</option>
+          <option value="Italy">Italy</option>
+          <option value="France">France</option>
+          <option value="Netherlands">Netherlands</option>
+          <option value="Portugal">Portugal</option>
+          <option value="Scotland">Scotland</option>
+          <option value="Turkey">Turkey</option>
+          <option value="Russia">Russia</option>
+          <option value="Belgium">Belgium</option>
+          <option value="Mexico">Mexico</option>
+          <option value="Brazil">Brazil</option>
+          <option value="Argentina">Argentina</option>
+          <option value="Japan">Japan</option>
+          <option value="South Korea">South Korea</option>
+          <option value="China">China</option>
+          <option value="India">India</option>
+          <option value="Australia">Australia</option>
+          <option value="Canada">Canada</option>
+          <option value="South Africa">South Africa</option>
+          <option value="New Zealand">New Zealand</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="searchPlayer">Key Player</label>
+        <input type="text" id="searchPlayer" class="filter-select" placeholder="Enter player name...">
+      </div>
+    </div>
+    
+    <div class="search-results-count" id="searchResultsCount">Showing all teams</div>
+    
+    <div class="filter-group" style="display: flex; gap: var(--space-2);">
+      <button class="btn" id="applySearchBtn">Apply Filters</button>
+      <button class="btn ghost" id="clearSearchBtn">Clear All</button>
+    </div>
+  </div>
+
+  <!-- Sport Categories -->
+  <div class="sport-categories">
+    <button class="sport-category active" data-sport="all">All Teams</button>
+    <button class="sport-category" data-sport="football">⚽ Football</button>
+    <button class="sport-category" data-sport="basketball">🏀 Basketball</button>
+    <button class="sport-category" data-sport="cricket">🏏 Cricket</button>
+    <button class="sport-category" data-sport="baseball">⚾ Baseball</button>
+    <button class="sport-category" data-sport="hockey">🏒 Hockey</button>
+    <button class="sport-category" data-sport="tennis">🎾 Tennis</button>
+    <button class="sport-category" data-sport="formula1">🏎️ Formula 1</button>
+    <button class="sport-category" data-sport="rugby">🏉 Rugby</button>
+    <button class="sport-category" data-sport="golf">⛳ Golf</button>
+    <button class="sport-category" data-sport="boxing">🥊 Boxing</button>
+    <button class="sport-category" data-sport="mma">🥋 MMA</button>
+    <button class="sport-category" data-sport="olympics">🏅 Olympics</button>
+    <button class="advanced-search-toggle" id="advancedSearchToggle">
+      <i class="fas fa-sliders-h"></i> Advanced Search
+    </button>
+  </div>
+
+  <!-- League Filters -->
+  <div class="league-filters">
+    <div class="filter-group">
+      <label for="leagueFilter">League</label>
+      <select id="leagueFilter" class="filter-select">
+        <option value="All">All Leagues</option>
+        <!-- Football Leagues -->
+        <option value="Premier League">Premier League</option>
+        <option value="La Liga">La Liga</option>
+        <option value="Serie A">Serie A</option>
+        <option value="Bundesliga">Bundesliga</option>
+        <option value="Ligue 1">Ligue 1</option>
+        <option value="Eredivisie">Eredivisie</option>
+        <option value="Primeira Liga">Primeira Liga</option>
+        <option value="Scottish Premiership">Scottish Premiership</option>
+        <option value="Süper Lig">Süper Lig</option>
+        <option value="Russian Premier League">Russian Premier League</option>
+        <option value="Belgian Pro League">Belgian Pro League</option>
+        <option value="EFL Championship">EFL Championship</option>
+        <option value="Serie B">Serie B</option>
+        <option value="2. Bundesliga">2. Bundesliga</option>
+        <option value="Liga MX">Liga MX</option>
+        <option value="MLS">MLS</option>
+        <option value="Brasileirão">Brasileirão</option>
+        <option value="Argentine Primera División">Argentine Primera División</option>
+        <option value="J-League">J-League</option>
+        <option value="K League">K League</option>
+        <option value="Chinese Super League">Chinese Super League</option>
+        <option value="UEFA Champions League">UEFA Champions League</option>
+        <option value="UEFA Europa League">UEFA Europa League</option>
+        <option value="UEFA Europa Conference League">UEFA Europa Conference League</option>
+        <!-- Other Sports Leagues -->
+        <option value="NBA">NBA</option>
+        <option value="MLB">MLB</option>
+        <option value="NHL">NHL</option>
+        <option value="IPL">IPL</option>
+        <option value="ICC">ICC</option>
+        <option value="Formula 1">Formula 1</option>
+        <option value="World Rugby">World Rugby</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="countryFilter">Country</label>
+      <select id="countryFilter" class="filter-select">
+        <option value="All">All Countries</option>
+        <option value="England">England</option>
+        <option value="USA">USA</option>
+        <option value="Spain">Spain</option>
+        <option value="Germany">Germany</option>
+        <option value="Italy">Italy</option>
+        <option value="France">France</option>
+        <option value="Netherlands">Netherlands</option>
+        <option value="Portugal">Portugal</option>
+        <option value="Scotland">Scotland</option>
+        <option value="Turkey">Turkey</option>
+        <option value="Russia">Russia</option>
+        <option value="Belgium">Belgium</option>
+        <option value="Mexico">Mexico</option>
+        <option value="Brazil">Brazil</option>
+        <option value="Argentina">Argentina</option>
+        <option value="Japan">Japan</option>
+        <option value="South Korea">South Korea</option>
+        <option value="China">China</option>
+        <option value="India">India</option>
+        <option value="Australia">Australia</option>
+        <option value="Canada">Canada</option>
+        <option value="South Africa">South Africa</option>
+        <option value="New Zealand">New Zealand</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="teams-main">
+    <!-- Featured Teams -->
+    <section class="teams-section">
+      <div class="section-header">
+        <h2 class="section-title">Featured Teams</h2>
+        <div class="section-subtitle">Top teams from major leagues</div>
+      </div>
+      
+      <div class="featured-teams-grid" id="featuredTeamsGrid">
+        <!-- Featured teams will be populated by JavaScript -->
+      </div>
+    </section>
+
+    <!-- All Teams Grid -->
+    <section class="teams-section">
+      <div class="section-header">
+        <h2 class="section-title">All Teams</h2>
+        <div class="teams-count" id="teamsCount">124 teams</div>
+      </div>
+      
+      <div class="teams-grid" id="teamsGrid">
+        <!-- All teams will be populated by JavaScript -->
+      </div>
+      
+      <div class="no-results" id="noResults" style="display: none;">
+        <h3>No teams found</h3>
+        <p>Try adjusting your search criteria or filters</p>
+      </div>
+    </section>
+
+    <!-- Team Statistics -->
+    <section class="teams-section">
+      <div class="section-header">
+        <h2 class="section-title">Team Statistics</h2>
+        <div class="section-actions">
+          <button class="btn btn-small active" data-stats-filter="overall">Overall</button>
+          <button class="btn btn-small ghost" data-stats-filter="home">Home</button>
+          <button class="btn btn-small ghost" data-stats-filter="away">Away</button>
+        </div>
+      </div>
+      
+      <div class="stats-table-container">
+        <div class="stats-table" id="teamStatsTable">
+          <!-- Team statistics table will be populated by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- League Tables -->
+    <section class="teams-section">
+      <div class="section-header">
+        <h2 class="section-title">League Tables</h2>
+      </div>
+      
+      <div class="league-table-container" id="leagueTables">
+        <!-- League tables will be populated by JavaScript -->
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer role="contentinfo">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h5>AllSports</h5>
+      <p>Your premier destination for sports news, live scores, and video highlights.</p>
+    </div>
+    <div class="footer-section">
+      <h5>Sports</h5>
+      <a href="games/football.html">Football</a>
+      <a href="games/cricket.html">Cricket</a>
+      <a href="games/basketball.html">Basketball</a>
+      <a href="games/tennis.html">Tennis</a>
+    </div>
+    <div class="footer-section">
+      <h5>Company</h5>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#terms">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2024 AllSports — Built with ❤️ for sports fans worldwide
+  </div>
+</footer>
+
+<!-- Team Modal -->
+<div class="modal" id="teamModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="teamModalBackdrop"></div>
+  <div class="modal-content large" role="document">
+    <div class="modal-header">
+      <h3 id="teamModalTitle">Team Details</h3>
+      <button class="modal-close" aria-label="Close" id="teamModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="team-modal-tabs">
+        <button class="team-modal-tab active" data-tab="details">Details</button>
+        <button class="team-modal-tab" data-tab="schedule">Schedule</button>
+        <button class="team-modal-tab" data-tab="roster">Roster</button>
+      </div>
+      <div class="team-modal-tab-content">
+        <div id="teamModalContent">
+          <!-- Team details will be injected by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<script>
+// Team data for various sports
+const teamsData = {
+  football: [
+    {
+      id: 1,
+      name: "Arsenal",
+      sport: "Football",
+      league: "Premier League",
+      country: "England",
+      featured: true,
+      stats: {
+        overall: {
+          position: 1,
+          played: 11,
+          wins: 8,
+          draws: 2,
+          losses: 1,
+          points: 26,
+          trophies: 13
+        },
+        home: {
+          position: 1,
+          played: 6,
+          wins: 5,
+          draws: 1,
+          losses: 0,
+          points: 16
+        },
+        away: {
+          position: 2,
+          played: 5,
+          wins: 3,
+          draws: 1,
+          losses: 1,
+          points: 10
+        }
+      },
+      keyPlayers: ["Bukayo Saka", "Martin Ødegaard", "William Saliba"],
+      logo: "ARS",
+      schedule: [
+        { date: "2024-11-15", opponent: "Manchester City", location: "Home", time: "15:00" },
+        { date: "2024-11-22", opponent: "Chelsea", location: "Away", time: "17:30" },
+        { date: "2024-11-29", opponent: "Liverpool", location: "Home", time: "16:00" },
+        { date: "2024-12-06", opponent: "Tottenham", location: "Away", time: "12:30" }
+      ],
+      roster: [
+        { name: "Aaron Ramsdale", position: "Goalkeeper", number: 1 },
+        { name: "William Saliba", position: "Defender", number: 2 },
+        { name: "Kieran Tierney", position: "Defender", number: 3 },
+        { name: "Ben White", position: "Defender", number: 4 },
+        { name: "Thomas Partey", position: "Midfielder", number: 5 },
+        { name: "Gabriel Magalhães", position: "Defender", number: 6 },
+        { name: "Bukayo Saka", position: "Forward", number: 7 },
+        { name: "Martin Ødegaard", position: "Midfielder", number: 8 },
+        { name: "Gabriel Jesus", position: "Forward", number: 9 },
+        { name: "Emile Smith Rowe", position: "Midfielder", number: 10 }
+      ]
+    },
+    {
+      id: 2,
+      name: "Manchester City",
+      sport: "Football",
+      league: "Premier League",
+      country: "England",
+      featured: true,
+      stats: {
+        overall: {
+          position: 2,
+          played: 11,
+          wins: 7,
+          draws: 1,
+          losses: 3,
+          points: 22,
+          trophies: 9
+        },
+        home: {
+          position: 2,
+          played: 6,
+          wins: 4,
+          draws: 1,
+          losses: 1,
+          points: 13
+        },
+        away: {
+          position: 3,
+          played: 5,
+          wins: 3,
+          draws: 0,
+          losses: 2,
+          points: 9
+        }
+      },
+      keyPlayers: ["Erling Haaland", "Phil Foden", "Rodri"],
+      logo: "MCI",
+      schedule: [
+        { date: "2024-11-15", opponent: "Arsenal", location: "Away", time: "15:00" },
+        { date: "2024-11-22", opponent: "Manchester United", location: "Home", time: "15:00" },
+        { date: "2024-11-29", opponent: "Newcastle", location: "Away", time: "17:30" },
+        { date: "2024-12-06", opponent: "Aston Villa", location: "Home", time: "15:00" }
+      ],
+      roster: [
+        { name: "Ederson", position: "Goalkeeper", number: 31 },
+        { name: "Kyle Walker", position: "Defender", number: 2 },
+        { name: "Rúben Dias", position: "Defender", number: 3 },
+        { name: "John Stones", position: "Defender", number: 5 },
+        { name: "Rodri", position: "Midfielder", number: 16 },
+        { name: "Kevin De Bruyne", position: "Midfielder", number: 17 },
+        { name: "Bernardo Silva", position: "Midfielder", number: 20 },
+        { name: "Phil Foden", position: "Midfielder", number: 47 },
+        { name: "Erling Haaland", position: "Forward", number: 9 },
+        { name: "Julián Álvarez", position: "Forward", number: 19 }
+      ]
+    },
+    {
+      id: 3,
+      name: "Chelsea",
+      sport: "Football",
+      league: "Premier League",
+      country: "England",
+      featured: false,
+      stats: {
+        overall: {
+          position: 3,
+          played: 11,
+          wins: 6,
+          draws: 2,
+          losses: 3,
+          points: 20,
+          trophies: 6
+        },
+        home: {
+          position: 4,
+          played: 5,
+          wins: 3,
+          draws: 1,
+          losses: 1,
+          points: 10
+        },
+        away: {
+          position: 3,
+          played: 6,
+          wins: 3,
+          draws: 1,
+          losses: 2,
+          points: 10
+        }
+      },
+      keyPlayers: ["Cole Palmer", "Reece James", "Enzo Fernández"],
+      logo: "CHE",
+      schedule: [
+        { date: "2024-11-15", opponent: "Newcastle", location: "Home", time: "15:00" },
+        { date: "2024-11-22", opponent: "Arsenal", location: "Home", time: "17:30" },
+        { date: "2024-11-29", opponent: "Brighton", location: "Away", time: "15:00" },
+        { date: "2024-12-06", opponent: "Manchester United", location: "Away", time: "16:00" }
+      ],
+      roster: [
+        { name: "Robert Sánchez", position: "Goalkeeper", number: 1 },
+        { name: "Reece James", position: "Defender", number: 24 },
+        { name: "Thiago Silva", position: "Defender", number: 6 },
+        { name: "Levi Colwill", position: "Defender", number: 26 },
+        { name: "Enzo Fernández", position: "Midfielder", number: 8 },
+        { name: "Moises Caicedo", position: "Midfielder", number: 25 },
+        { name: "Conor Gallagher", position: "Midfielder", number: 23 },
+        { name: "Cole Palmer", position: "Midfielder", number: 20 },
+        { name: "Raheem Sterling", position: "Forward", number: 7 },
+        { name: "Nicolas Jackson", position: "Forward", number: 15 }
+      ]
+    },
+    {
+      id: 4,
+      name: "Real Madrid",
+      sport: "Football",
+      league: "La Liga",
+      country: "Spain",
+      featured: true,
+      stats: {
+        overall: {
+          position: 1,
+          played: 12,
+          wins: 9,
+          draws: 2,
+          losses: 1,
+          points: 29,
+          trophies: 35
+        },
+        home: {
+          position: 1,
+          played: 6,
+          wins: 5,
+          draws: 1,
+          losses: 0,
+          points: 16
+        },
+        away: {
+          position: 1,
+          played: 6,
+          wins: 4,
+          draws: 1,
+          losses: 1,
+          points: 13
+        }
+      },
+      keyPlayers: ["Vinicius Jr", "Jude Bellingham", "Thibaut Courtois"],
+      logo: "RMA",
+      schedule: [
+        { date: "2024-11-16", opponent: "Barcelona", location: "Home", time: "20:00" },
+        { date: "2024-11-23", opponent: "Atletico Madrid", location: "Away", time: "18:30" },
+        { date: "2024-11-30", opponent: "Sevilla", location: "Home", time: "16:15" },
+        { date: "2024-12-07", opponent: "Valencia", location: "Away", time: "21:00" }
+      ],
+      roster: [
+        { name: "Thibaut Courtois", position: "Goalkeeper", number: 1 },
+        { name: "Dani Carvajal", position: "Defender", number: 2 },
+        { name: "David Alaba", position: "Defender", number: 4 },
+        { name: "Antonio Rüdiger", position: "Defender", number: 22 },
+        { name: "Aurélien Tchouaméni", position: "Midfielder", number: 18 },
+        { name: "Federico Valverde", position: "Midfielder", number: 15 },
+        { name: "Jude Bellingham", position: "Midfielder", number: 5 },
+        { name: "Luka Modrić", position: "Midfielder", number: 10 },
+        { name: "Vinicius Jr", position: "Forward", number: 7 },
+        { name: "Rodrygo", position: "Forward", number: 11 }
+      ]
+    },
+    {
+      id: 5,
+      name: "Barcelona",
+      sport: "Football",
+      league: "La Liga",
+      country: "Spain",
+      featured: false,
+      stats: {
+        overall: {
+          position: 2,
+          played: 12,
+          wins: 8,
+          draws: 3,
+          losses: 1,
+          points: 27,
+          trophies: 26
+        },
+        home: {
+          position: 2,
+          played: 6,
+          wins: 5,
+          draws: 1,
+          losses: 0,
+          points: 16
+        },
+        away: {
+          position: 2,
+          played: 6,
+          wins: 3,
+          draws: 2,
+          losses: 1,
+          points: 11
+        }
+      },
+      keyPlayers: ["Robert Lewandowski", "Pedri", "Frenkie de Jong"],
+      logo: "BAR",
+      schedule: [
+        { date: "2024-11-16", opponent: "Real Madrid", location: "Away", time: "20:00" },
+        { date: "2024-11-23", opponent: "Real Sociedad", location: "Home", time: "18:30" },
+        { date: "2024-11-30", opponent: "Athletic Bilbao", location: "Away", time: "16:15" },
+        { date: "2024-12-07", opponent: "Atletico Madrid", location: "Home", time: "21:00" }
+      ],
+      roster: [
+        { name: "Marc-André ter Stegen", position: "Goalkeeper", number: 1 },
+        { name: "João Cancelo", position: "Defender", number: 2 },
+        { name: "Ronald Araújo", position: "Defender", number: 4 },
+        { name: "Jules Koundé", position: "Defender", number: 23 },
+        { name: "Frenkie de Jong", position: "Midfielder", number: 21 },
+        { name: "Pedri", position: "Midfielder", number: 8 },
+        { name: "Gavi", position: "Midfielder", number: 6 },
+        { name: "İlkay Gündoğan", position: "Midfielder", number: 22 },
+        { name: "Robert Lewandowski", position: "Forward", number: 9 },
+        { name: "Raphinha", position: "Forward", number: 11 }
+      ]
+    },
+    {
+      id: 6,
+      name: "Bayern Munich",
+      sport: "Football",
+      league: "Bundesliga",
+      country: "Germany",
+      featured: true,
+      stats: {
+        overall: {
+          position: 1,
+          played: 10,
+          wins: 8,
+          draws: 1,
+          losses: 1,
+          points: 25,
+          trophies: 32
+        },
+        home: {
+          position: 1,
+          played: 5,
+          wins: 4,
+          draws: 1,
+          losses: 0,
+          points: 13
+        },
+        away: {
+          position: 1,
+          played: 5,
+          wins: 4,
+          draws: 0,
+          losses: 1,
+          points: 12
+        }
+      },
+      keyPlayers: ["Harry Kane", "Jamal Musiala", "Manuel Neuer"],
+      logo: "BAY",
+      schedule: [
+        { date: "2024-11-15", opponent: "Borussia Dortmund", location: "Home", time: "18:30" },
+        { date: "2024-11-22", opponent: "Bayer Leverkusen", location: "Away", time: "17:30" },
+        { date: "2024-11-29", opponent: "Stuttgart", location: "Home", time: "15:30" },
+        { date: "2024-12-06", opponent: "Eintracht Frankfurt", location: "Away", time: "15:30" }
+      ],
+      roster: [
+        { name: "Manuel Neuer", position: "Goalkeeper", number: 1 },
+        { name: "Joshua Kimmich", position: "Defender", number: 6 },
+        { name: "Matthijs de Ligt", position: "Defender", number: 4 },
+        { name: "Dayot Upamecano", position: "Defender", number: 2 },
+        { name: "Leon Goretzka", position: "Midfielder", number: 8 },
+        { name: "Jamal Musiala", position: "Midfielder", number: 42 },
+        { name: "Thomas Müller", position: "Midfielder", number: 25 },
+        { name: "Leroy Sané", position: "Forward", number: 10 },
+        { name: "Serge Gnabry", position: "Forward", number: 7 },
+        { name: "Harry Kane", position: "Forward", number: 9 }
+      ]
+    },
+    {
+      id: 7,
+      name: "Paris Saint-Germain",
+      sport: "Football",
+      league: "Ligue 1",
+      country: "France",
+      featured: false,
+      stats: {
+        overall: {
+          position: 1,
+          played: 11,
+          wins: 9,
+          draws: 1,
+          losses: 1,
+          points: 28,
+          trophies: 11
+        },
+        home: {
+          position: 1,
+          played: 6,
+          wins: 5,
+          draws: 1,
+          losses: 0,
+          points: 16
+        },
+        away: {
+          position: 1,
+          played: 5,
+          wins: 4,
+          draws: 0,
+          losses: 1,
+          points: 12
+        }
+      },
+      keyPlayers: ["Kylian Mbappé", "Achraf Hakimi", "Marquinhos"],
+      logo: "PSG",
+      schedule: [
+        { date: "2024-11-15", opponent: "Marseille", location: "Home", time: "21:00" },
+        { date: "2024-11-22", opponent: "Lyon", location: "Away", time: "17:00" },
+        { date: "2024-11-29", opponent: "Lille", location: "Home", time: "20:00" },
+        { date: "2024-12-06", opponent: "Monaco", location: "Away", time: "20:00" }
+      ],
+      roster: [
+        { name: "Gianluigi Donnarumma", position: "Goalkeeper", number: 99 },
+        { name: "Achraf Hakimi", position: "Defender", number: 2 },
+        { name: "Marquinhos", position: "Defender", number: 5 },
+        { name: "Presnel Kimpembe", position: "Defender", number: 3 },
+        { name: "Marco Verratti", position: "Midfielder", number: 6 },
+        { name: "Vitinha", position: "Midfielder", number: 17 },
+        { name: "Fabian Ruiz", position: "Midfielder", number: 8 },
+        { name: "Ousmane Dembélé", position: "Forward", number: 10 },
+        { name: "Neymar Jr", position: "Forward", number: 10 },
+        { name: "Kylian Mbappé", position: "Forward", number: 7 }
+      ]
+    },
+    {
+      id: 8,
+      name: "Juventus",
+      sport: "Football",
+      league: "Serie A",
+      country: "Italy",
+      featured: false,
+      stats: {
+        overall: {
+          position: 2,
+          played: 11,
+          wins: 7,
+          draws: 3,
+          losses: 1,
+          points: 24,
+          trophies: 36
+        },
+        home: {
+          position: 2,
+          played: 6,
+          wins: 4,
+          draws: 2,
+          losses: 0,
+          points: 14
+        },
+        away: {
+          position: 3,
+          played: 5,
+          wins: 3,
+          draws: 1,
+          losses: 1,
+          points: 10
+        }
+      },
+      keyPlayers: ["Dusan Vlahovic", "Federico Chiesa", "Wojciech Szczęsny"],
+      logo: "JUV",
+      schedule: [
+        { date: "2024-11-16", opponent: "AC Milan", location: "Home", time: "20:45" },
+        { date: "2024-11-23", opponent: "Inter Milan", location: "Away", time: "18:00" },
+        { date: "2024-11-30", opponent: "Napoli", location: "Home", time: "20:45" },
+        { date: "2024-12-07", opponent: "Roma", location: "Away", time: "18:00" }
+      ],
+      roster: [
+        { name: "Wojciech Szczęsny", position: "Goalkeeper", number: 1 },
+        { name: "Danilo", position: "Defender", number: 6 },
+        { name: "Gleison Bremer", position: "Defender", number: 3 },
+        { name: "Alex Sandro", position: "Defender", number: 12 },
+        { name: "Manuel Locatelli", position: "Midfielder", number: 5 },
+        { name: "Adrien Rabiot", position: "Midfielder", number: 25 },
+        { name: "Weston McKennie", position: "Midfielder", number: 16 },
+        { name: "Federico Chiesa", position: "Forward", number: 7 },
+        { name: "Arkadiusz Milik", position: "Forward", number: 14 },
+        { name: "Dusan Vlahovic", position: "Forward", number: 9 }
+      ]
+    },
+    {
+      id: 9,
+      name: "AC Milan",
+      sport: "Football",
+      league: "Serie A",
+      country: "Italy",
+      featured: false,
+      stats: {
+        overall: {
+          position: 3,
+          played: 11,
+          wins: 7,
+          draws: 2,
+          losses: 2,
+          points: 23,
+          trophies: 19
+        },
+        home: {
+          position: 3,
+          played: 6,
+          wins: 4,
+          draws: 1,
+          losses: 1,
+          points: 13
+        },
+        away: {
+          position: 2,
+          played: 5,
+          wins: 3,
+          draws: 1,
+          losses: 1,
+          points: 10
+        }
+      },
+      keyPlayers: ["Rafael Leão", "Theo Hernandez", "Mike Maignan"],
+      logo: "MIL",
+      schedule: [
+        { date: "2024-11-16", opponent: "Juventus", location: "Away", time: "20:45" },
+        { date: "2024-11-23", opponent: "Fiorentina", location: "Home", time: "20:45" },
+        { date: "2024-11-30", opponent: "Lazio", location: "Away", time: "18:00" },
+        { date: "2024-12-07", opponent: "Atalanta", location: "Home", time: "20:45" }
+      ],
+      roster: [
+        { name: "Mike Maignan", position: "Goalkeeper", number: 16 },
+        { name: "Davide Calabria", position: "Defender", number: 2 },
+        { name: "Fikayo Tomori", position: "Defender", number: 23 },
+        { name: "Theo Hernandez", position: "Defender", number: 19 },
+        { name: "Ismaël Bennacer", position: "Midfielder", number: 4 },
+        { name: "Sandro Tonali", position: "Midfielder", number: 8 },
+        { name: "Brahim Díaz", position: "Midfielder", number: 10 },
+        { name: "Rafael Leão", position: "Forward", number: 17 },
+        { name: "Olivier Giroud", position: "Forward", number: 9 },
+        { name: "Zlatan Ibrahimović", position: "Forward", number: 11 }
+      ]
+    },
+    {
+      id: 10,
+      name: "Liverpool",
+      sport: "Football",
+      league: "Premier League",
+      country: "England",
+      featured: true,
+      stats: {
+        overall: {
+          position: 8,
+          played: 11,
+          wins: 5,
+          draws: 3,
+          losses: 3,
+          points: 18,
+          trophies: 19
+        },
+        home: {
+          position: 7,
+          played: 6,
+          wins: 3,
+          draws: 2,
+          losses: 1,
+          points: 11
+        },
+        away: {
+          position: 9,
+          played: 5,
+          wins: 2,
+          draws: 1,
+          losses: 2,
+          points: 7
+        }
+      },
+      keyPlayers: ["Mohamed Salah", "Trent Alexander-Arnold", "Virgil van Dijk"],
+      logo: "LIV",
+      schedule: [
+        { date: "2024-11-15", opponent: "Manchester United", location: "Home", time: "16:00" },
+        { date: "2024-11-22", opponent: "Tottenham", location: "Away", time: "15:00" },
+        { date: "2024-11-29", opponent: "Arsenal", location: "Away", time: "16:00" },
+        { date: "2024-12-06", opponent: "Everton", location: "Home", time: "12:30" }
+      ],
+      roster: [
+        { name: "Alisson Becker", position: "Goalkeeper", number: 1 },
+        { name: "Trent Alexander-Arnold", position: "Defender", number: 66 },
+        { name: "Virgil van Dijk", position: "Defender", number: 4 },
+        { name: "Ibrahima Konaté", position: "Defender", number: 5 },
+        { name: "Andrew Robertson", position: "Defender", number: 26 },
+        { name: "Fabinho", position: "Midfielder", number: 3 },
+        { name: "Jordan Henderson", position: "Midfielder", number: 14 },
+        { name: "Thiago Alcântara", position: "Midfielder", number: 6 },
+        { name: "Mohamed Salah", position: "Forward", number: 11 },
+        { name: "Darwin Núñez", position: "Forward", number: 27 }
+      ]
+    }
+  ],
+  basketball: [
+    {
+      id: 11,
+      name: "Detroit Pistons",
+      sport: "Basketball",
+      league: "NBA",
+      country: "USA",
+      featured: true,
+      stats: {
+        overall: {
+          wins: 12,
+          losses: 2,
+          championships: 3
+        },
+        home: {
+          wins: 8,
+          losses: 0
+        },
+        away: {
+          wins: 4,
+          losses: 2
+        }
+      },
+      keyPlayers: ["Cade Cunningham", "Jalen Duren"],
+      logo: "DET",
+      schedule: [
+        { date: "2024-11-15", opponent: "Boston Celtics", location: "Home", time: "19:00" },
+        { date: "2024-11-18", opponent: "Chicago Bulls", location: "Away", time: "20:00" },
+        { date: "2024-11-21", opponent: "Milwaukee Bucks", location: "Home", time: "19:30" },
+        { date: "2024-11-25", opponent: "Atlanta Hawks", location: "Away", time: "19:30" }
+      ],
+      roster: [
+        { name: "Cade Cunningham", position: "Point Guard", number: 2 },
+        { name: "Jaden Ivey", position: "Shooting Guard", number: 23 },
+        { name: "Bojan Bogdanović", position: "Small Forward", number: 44 },
+        { name: "Isaiah Stewart", position: "Power Forward", number: 28 },
+        { name: "Jalen Duren", position: "Center", number: 0 },
+        { name: "Alec Burks", position: "Guard", number: 5 },
+        { name: "Marvin Bagley III", position: "Forward", number: 35 },
+        { name: "James Wiseman", position: "Center", number: 13 }
+      ]
+    },
+    {
+      id: 12,
+      name: "Cleveland Cavaliers",
+      sport: "Basketball",
+      league: "NBA",
+      country: "USA",
+      featured: false,
+      stats: {
+        overall: {
+          wins: 10,
+          losses: 5,
+          championships: 1
+        },
+        home: {
+          wins: 6,
+          losses: 1
+        },
+        away: {
+          wins: 4,
+          losses: 4
+        }
+      },
+      keyPlayers: ["Donovan Mitchell", "Evan Mobley"],
+      logo: "CLE",
+      schedule: [
+        { date: "2024-11-16", opponent: "New York Knicks", location: "Home", time: "19:30" },
+        { date: "2024-11-19", opponent: "Philadelphia 76ers", location: "Away", time: "19:00" },
+        { date: "2024-11-22", opponent: "Indiana Pacers", location: "Home", time: "19:00" },
+        { date: "2024-11-26", opponent: "Toronto Raptors", location: "Away", time: "19:30" }
+      ],
+      roster: [
+        { name: "Darius Garland", position: "Point Guard", number: 10 },
+        { name: "Donovan Mitchell", position: "Shooting Guard", number: 45 },
+        { name: "Caris LeVert", position: "Small Forward", number: 3 },
+        { name: "Evan Mobley", position: "Power Forward", number: 4 },
+        { name: "Jarrett Allen", position: "Center", number: 31 },
+        { name: "Isaac Okoro", position: "Forward", number: 35 },
+        { name: "Ricky Rubio", position: "Guard", number: 13 },
+        { name: "Dean Wade", position: "Forward", number: 32 }
+      ]
+    }
+  ],
+  cricket: [
+    {
+      id: 16,
+      name: "India",
+      sport: "Cricket",
+      league: "ICC",
+      country: "India",
+      featured: true,
+      stats: {
+        overall: {
+          rating: 122,
+          worldCups: 2
+        },
+        home: {
+          rating: 125,
+          wins: 8
+        },
+        away: {
+          rating: 118,
+          wins: 6
+        }
+      },
+      keyPlayers: ["Rohit Sharma", "Virat Kohli", "Jasprit Bumrah"],
+      logo: "IND",
+      schedule: [
+        { date: "2024-11-20", opponent: "Australia", location: "Home", time: "14:30" },
+        { date: "2024-11-25", opponent: "England", location: "Home", time: "14:30" },
+        { date: "2024-12-02", opponent: "South Africa", location: "Away", time: "10:00" },
+        { date: "2024-12-10", opponent: "New Zealand", location: "Away", time: "11:00" }
+      ],
+      roster: [
+        { name: "Rohit Sharma", position: "Batsman", number: 45 },
+        { name: "Virat Kohli", position: "Batsman", number: 18 },
+        { name: "KL Rahul", position: "Wicket-Keeper", number: 1 },
+        { name: "Hardik Pandya", position: "All-rounder", number: 33 },
+        { name: "Ravindra Jadeja", position: "All-rounder", number: 8 },
+        { name: "Jasprit Bumrah", position: "Bowler", number: 93 },
+        { name: "Mohammed Shami", position: "Bowler", number: 11 },
+        { name: "Kuldeep Yadav", position: "Bowler", number: 23 }
+      ]
+    },
+    {
+      id: 17,
+      name: "New Zealand",
+      sport: "Cricket",
+      league: "ICC",
+      country: "New Zealand",
+      featured: false,
+      stats: {
+        overall: {
+          rating: 112,
+          worldCups: 0
+        },
+        home: {
+          rating: 115,
+          wins: 7
+        },
+        away: {
+          rating: 108,
+          wins: 5
+        }
+      },
+      keyPlayers: ["Kane Williamson", "Rachin Ravindra"],
+      logo: "NZ",
+      schedule: [
+        { date: "2024-11-18", opponent: "Pakistan", location: "Home", time: "11:00" },
+        { date: "2024-11-24", opponent: "Bangladesh", location: "Home", time: "11:00" },
+        { date: "2024-12-05", opponent: "Sri Lanka", location: "Away", time: "14:30" },
+        { date: "2024-12-12", opponent: "India", location: "Home", time: "11:00" }
+      ],
+      roster: [
+        { name: "Kane Williamson", position: "Batsman", number: 22 },
+        { name: "Trent Boult", position: "Bowler", number: 18 },
+        { name: "Tim Southee", position: "Bowler", number: 38 },
+        { name: "Devon Conway", position: "Batsman", number: 1 },
+        { name: "Glenn Phillips", position: "All-rounder", number: 72 },
+        { name: "Mitchell Santner", position: "All-rounder", number: 74 },
+        { name: "Lockie Ferguson", position: "Bowler", number: 11 },
+        { name: "Ish Sodhi", position: "Bowler", number: 31 }
+      ]
+    }
+  ],
+  baseball: [
+    {
+      id: 21,
+      name: "Los Angeles Dodgers",
+      sport: "Baseball",
+      league: "MLB",
+      country: "USA",
+      featured: true,
+      stats: {
+        overall: {
+          wins: 93,
+          losses: 69,
+          worldSeries: 7
+        },
+        home: {
+          wins: 50,
+          losses: 31
+        },
+        away: {
+          wins: 43,
+          losses: 38
+        }
+      },
+      keyPlayers: ["Shohei Ohtani", "Mookie Betts"],
+      logo: "LAD",
+      schedule: [
+        { date: "2024-11-15", opponent: "San Francisco Giants", location: "Home", time: "19:10" },
+        { date: "2024-11-19", opponent: "San Diego Padres", location: "Away", time: "18:40" },
+        { date: "2024-11-23", opponent: "Arizona Diamondbacks", location: "Home", time: "19:10" },
+        { date: "2024-11-28", opponent: "Colorado Rockies", location: "Away", time: "17:40" }
+      ],
+      roster: [
+        { name: "Mookie Betts", position: "Outfielder", number: 50 },
+        { name: "Freddie Freeman", position: "First Baseman", number: 5 },
+        { name: "Will Smith", position: "Catcher", number: 16 },
+        { name: "Max Muncy", position: "Third Baseman", number: 13 },
+        { name: "J.D. Martinez", position: "Designated Hitter", number: 28 },
+        { name: "James Outman", position: "Outfielder", number: 33 },
+        { name: "Miguel Rojas", position: "Shortstop", number: 11 },
+        { name: "David Peralta", position: "Outfielder", number: 6 }
+      ]
+    }
+  ],
+  hockey: [
+    {
+      id: 24,
+      name: "Florida Panthers",
+      sport: "Hockey",
+      league: "NHL",
+      country: "USA",
+      featured: true,
+      stats: {
+        overall: {
+          points: 19,
+          stanleyCups: 1
+        },
+        home: {
+          points: 10,
+          wins: 5
+        },
+        away: {
+          points: 9,
+          wins: 4
+        }
+      },
+      keyPlayers: ["Matthew Tkachuk", "Aleksander Barkov"],
+      logo: "FLA",
+      schedule: [
+        { date: "2024-11-16", opponent: "Tampa Bay Lightning", location: "Home", time: "19:00" },
+        { date: "2024-11-19", opponent: "Boston Bruins", location: "Away", time: "19:00" },
+        { date: "2024-11-22", opponent: "Toronto Maple Leafs", location: "Home", time: "19:00" },
+        { date: "2024-11-26", opponent: "Montreal Canadiens", location: "Away", time: "19:00" }
+      ],
+      roster: [
+        { name: "Aleksander Barkov", position: "Center", number: 16 },
+        { name: "Matthew Tkachuk", position: "Left Wing", number: 19 },
+        { name: "Sam Reinhart", position: "Right Wing", number: 13 },
+        { name: "Aaron Ekblad", position: "Defenseman", number: 5 },
+        { name: "Brandon Montour", position: "Defenseman", number: 62 },
+        { name: "Sergei Bobrovsky", position: "Goaltender", number: 72 },
+        { name: "Carter Verhaeghe", position: "Center", number: 23 },
+        { name: "Sam Bennett", position: "Center", number: 9 }
+      ]
+    }
+  ],
+  formula1: [
+    {
+      id: 27,
+      name: "McLaren",
+      sport: "Formula 1",
+      league: "Formula 1",
+      country: "UK",
+      featured: true,
+      stats: {
+        overall: {
+          points: 756,
+          championships: 8
+        },
+        home: {
+          points: 150,
+          wins: 2
+        },
+        away: {
+          points: 606,
+          wins: 4
+        }
+      },
+      keyPlayers: ["Lando Norris", "Oscar Piastri"],
+      logo: "MCL",
+      schedule: [
+        { date: "2024-11-17", opponent: "Brazil Grand Prix", location: "São Paulo", time: "14:00" },
+        { date: "2024-11-24", opponent: "Las Vegas Grand Prix", location: "Las Vegas", time: "22:00" },
+        { date: "2024-12-01", opponent: "Qatar Grand Prix", location: "Lusail", time: "17:00" },
+        { date: "2024-12-08", opponent: "Abu Dhabi Grand Prix", location: "Yas Marina", time: "17:00" }
+      ],
+      roster: [
+        { name: "Lando Norris", position: "Driver", number: 4 },
+        { name: "Oscar Piastri", position: "Driver", number: 81 },
+        { name: "Andrea Stella", position: "Team Principal", number: null },
+        { name: "Rob Marshall", position: "Chief Technical Officer", number: null }
+      ]
+    }
+  ],
+  rugby: [
+    {
+      id: 30,
+      name: "South Africa",
+      sport: "Rugby",
+      league: "World Rugby",
+      country: "South Africa",
+      featured: true,
+      stats: {
+        overall: {
+          points: 93,
+          worldCups: 4
+        },
+        home: {
+          points: 50,
+          wins: 10
+        },
+        away: {
+          points: 43,
+          wins: 8
+        }
+      },
+      keyPlayers: ["Siya Kolisi", "Cheslin Kolbe"],
+      logo: "RSA",
+      schedule: [
+        { date: "2024-11-16", opponent: "New Zealand", location: "Home", time: "17:05" },
+        { date: "2024-11-23", opponent: "Australia", location: "Away", time: "19:35" },
+        { date: "2024-12-07", opponent: "England", location: "Home", time: "17:05" },
+        { date: "2024-12-14", opponent: "France", location: "Away", time: "21:00" }
+      ],
+      roster: [
+        { name: "Siya Kolisi", position: "Flanker", number: 6 },
+        { name: "Eben Etzebeth", position: "Lock", number: 4 },
+        { name: "Cheslin Kolbe", position: "Wing", number: 14 },
+        { name: "Faf de Klerk", position: "Scrum-half", number: 9 },
+        { name: "Handré Pollard", position: "Fly-half", number: 10 },
+        { name: "Malcolm Marx", position: "Hooker", number: 2 },
+        { name: "Pieter-Steph du Toit", position: "Flanker", number: 7 },
+        { name: "Damian de Allende", position: "Centre", number: 12 }
+      ]
+    }
+  ]
+};
+
+// League tables data
+const leagueTables = {
+  "La Liga": [
+    { position: 1, team: "Real Madrid", played: 12, wins: 9, draws: 2, losses: 1, points: 29 },
+    { position: 2, team: "Barcelona", played: 12, wins: 8, draws: 3, losses: 1, points: 27 },
+    { position: 3, team: "Atletico Madrid", played: 12, wins: 8, draws: 1, losses: 3, points: 25 },
+    { position: 4, team: "Girona", played: 12, wins: 7, draws: 2, losses: 3, points: 23 },
+    { position: 5, team: "Athletic Bilbao", played: 12, wins: 6, draws: 3, losses: 3, points: 21 }
+  ],
+  "Premier League": [
+    { position: 1, team: "Arsenal", played: 11, wins: 8, draws: 2, losses: 1, points: 26 },
+    { position: 2, team: "Manchester City", played: 11, wins: 7, draws: 1, losses: 3, points: 22 },
+    { position: 3, team: "Chelsea", played: 11, wins: 6, draws: 2, losses: 3, points: 20 },
+    { position: 4, team: "Liverpool", played: 11, wins: 6, draws: 1, losses: 4, points: 19 },
+    { position: 5, team: "Tottenham", played: 11, wins: 5, draws: 3, losses: 3, points: 18 }
+  ],
+  "NBA": [
+    { position: 1, team: "Detroit Pistons", played: 14, wins: 12, losses: 2, points: 24 },
+    { position: 2, team: "Oklahoma City Thunder", played: 15, wins: 14, losses: 1, points: 28 },
+    { position: 3, team: "Denver Nuggets", played: 12, wins: 10, losses: 2, points: 20 },
+    { position: 4, team: "Los Angeles Lakers", played: 14, wins: 10, losses: 4, points: 20 },
+    { position: 5, team: "Cleveland Cavaliers", played: 15, wins: 10, losses: 5, points: 20 }
+  ],
+  "ICC Cricket": [
+    { position: 1, team: "India", played: 15, wins: 12, losses: 3, points: 24 },
+    { position: 2, team: "Australia", played: 14, wins: 10, losses: 4, points: 20 },
+    { position: 3, team: "New Zealand", played: 13, wins: 9, losses: 4, points: 18 },
+    { position: 4, team: "England", played: 14, wins: 8, losses: 6, points: 16 },
+    { position: 5, team: "Pakistan", played: 13, wins: 7, losses: 6, points: 14 }
+  ],
+  "MLB": [
+    { position: 1, team: "Los Angeles Dodgers", played: 162, wins: 93, losses: 69, points: 186 },
+    { position: 2, team: "New York Yankees", played: 162, wins: 94, losses: 68, points: 188 },
+    { position: 3, team: "Toronto Blue Jays", played: 162, wins: 94, losses: 68, points: 188 },
+    { position: 4, team: "Houston Astros", played: 162, wins: 90, losses: 72, points: 180 },
+    { position: 5, team: "Atlanta Braves", played: 162, wins: 89, losses: 73, points: 178 }
+  ],
+  "NHL": [
+    { position: 1, team: "Florida Panthers", played: 20, wins: 15, losses: 5, points: 30 },
+    { position: 2, team: "Colorado Avalanche", played: 19, wins: 14, losses: 5, points: 28 },
+    { position: 3, team: "Toronto Maple Leafs", played: 20, wins: 13, losses: 7, points: 26 },
+    { position: 4, team: "Boston Bruins", played: 19, wins: 12, losses: 7, points: 24 },
+    { position: 5, team: "Vegas Golden Knights", played: 20, wins: 11, losses: 9, points: 22 }
+  ],
+  "Formula 1": [
+    { position: 1, team: "McLaren", points: 756 },
+    { position: 2, team: "Mercedes", points: 398 },
+    { position: 3, team: "Red Bull", points: 366 },
+    { position: 4, team: "Ferrari", points: 334 },
+    { position: 5, team: "Aston Martin", points: 280 }
+  ],
+  "World Rugby": [
+    { position: 1, team: "South Africa", points: 93 },
+    { position: 2, team: "New Zealand", points: 90 },
+    { position: 3, team: "France", points: 88 },
+    { position: 4, team: "Ireland", points: 87 },
+    { position: 5, team: "England", points: 83 }
+  ]
+};
+
+// Teams App
+class TeamsApp {
+  constructor() {
+    this.state = {
+      currentSport: 'all',
+      currentLeague: 'All',
+      currentCountry: 'All',
+      currentStatsFilter: 'overall',
+      teams: this.getAllTeams(),
+      featuredTeams: this.getFeaturedTeams(),
+      followedTeams: new Set(),
+      user: null,
+      searchQuery: '',
+      searchFilters: {
+        teamName: '',
+        sport: 'All',
+        league: 'All',
+        country: 'All',
+        player: ''
+      },
+      isAdvancedSearchActive: false
+    };
+    
+    this.init();
+  }
+
+  async init() {
+    console.log('Teams App Initializing...');
+    await this.checkAuthStatus();
+    await this.loadFollowedTeams();
+    this.renderFeaturedTeams();
+    this.renderAllTeams();
+    this.renderTeamStatistics();
+    this.renderLeagueTables();
+    this.setupEventListeners();
+    this.updateTeamsCount();
+    this.setupSearchFunctionality();
+  }
+
+  setupSearchFunctionality() {
+    // Header search
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.state.searchQuery = e.target.value;
+        this.performSearch();
+      });
+
+      // Hide search results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search')) {
+          this.hideSearchResults();
+        }
+      });
+
+      // Handle focus to show recent searches or all teams
+      searchInput.addEventListener('focus', () => {
+        if (this.state.searchQuery.length === 0) {
+          this.showAllTeamsInSearch();
+        }
+      });
+    }
+
+    // Mobile search
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    if (mobileSearchInput) {
+      mobileSearchInput.addEventListener('input', (e) => {
+        this.state.searchQuery = e.target.value;
+        this.performMobileSearch();
+      });
+
+      // Hide search results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.mobile-search')) {
+          this.hideMobileSearchResults();
+        }
+      });
+
+      // Handle focus to show recent searches or all teams
+      mobileSearchInput.addEventListener('focus', () => {
+        if (this.state.searchQuery.length === 0) {
+          this.showAllTeamsInMobileSearch();
+        }
+      });
+    }
+
+    // Advanced search toggle
+    const advancedSearchToggle = document.getElementById('advancedSearchToggle');
+    const advancedSearchPanel = document.getElementById('advancedSearchPanel');
+    
+    if (advancedSearchToggle && advancedSearchPanel) {
+      advancedSearchToggle.addEventListener('click', () => {
+        advancedSearchPanel.classList.toggle('active');
+        this.state.isAdvancedSearchActive = advancedSearchPanel.classList.contains('active');
+      });
+    }
+
+    // Apply search filters
+    const applySearchBtn = document.getElementById('applySearchBtn');
+    if (applySearchBtn) {
+      applySearchBtn.addEventListener('click', () => {
+        this.applyAdvancedFilters();
+      });
+    }
+
+    // Clear search filters
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener('click', () => {
+        this.clearAdvancedFilters();
+      });
+    }
+
+    // Advanced search inputs
+    const searchTeamName = document.getElementById('searchTeamName');
+    const searchSport = document.getElementById('searchSport');
+    const searchLeague = document.getElementById('searchLeague');
+    const searchCountry = document.getElementById('searchCountry');
+    const searchPlayer = document.getElementById('searchPlayer');
+
+    if (searchTeamName) {
+      searchTeamName.addEventListener('input', () => {
+        this.state.searchFilters.teamName = searchTeamName.value;
+        this.performSearch();
+      });
+    }
+
+    if (searchSport) {
+      searchSport.addEventListener('change', () => {
+        this.state.searchFilters.sport = searchSport.value;
+        this.performSearch();
+      });
+    }
+
+    if (searchLeague) {
+      searchLeague.addEventListener('change', () => {
+        this.state.searchFilters.league = searchLeague.value;
+        this.performSearch();
+      });
+    }
+
+    if (searchCountry) {
+      searchCountry.addEventListener('change', () => {
+        this.state.searchFilters.country = searchCountry.value;
+        this.performSearch();
+      });
+    }
+
+    if (searchPlayer) {
+      searchPlayer.addEventListener('input', () => {
+        this.state.searchFilters.player = searchPlayer.value;
+        this.performSearch();
+      });
+    }
+  }
+
+  performSearch() {
+    const searchResults = document.getElementById('searchResults');
+    if (!searchResults) return;
+
+    if (this.state.searchQuery.length === 0) {
+      this.showAllTeamsInSearch();
+      return;
+    }
+
+    const query = this.state.searchQuery.toLowerCase();
+    const matchingTeams = this.getAllTeams().filter(team => 
+      team.name.toLowerCase().includes(query) ||
+      team.league.toLowerCase().includes(query) ||
+      team.country.toLowerCase().includes(query) ||
+      team.keyPlayers.some(player => player.toLowerCase().includes(query))
+    );
+
+    this.displaySearchResults(matchingTeams, searchResults);
+  }
+
+  performMobileSearch() {
+    const searchResults = document.getElementById('mobileSearchResults');
+    if (!searchResults) return;
+
+    if (this.state.searchQuery.length === 0) {
+      this.showAllTeamsInMobileSearch();
+      return;
+    }
+
+    const query = this.state.searchQuery.toLowerCase();
+    const matchingTeams = this.getAllTeams().filter(team => 
+      team.name.toLowerCase().includes(query) ||
+      team.league.toLowerCase().includes(query) ||
+      team.country.toLowerCase().includes(query) ||
+      team.keyPlayers.some(player => player.toLowerCase().includes(query))
+    );
+
+    this.displaySearchResults(matchingTeams, searchResults);
+  }
+
+  displaySearchResults(teams, container) {
+    if (teams.length === 0) {
+      container.innerHTML = `
+        <div class="search-no-results">
+          No teams found matching your search
+        </div>
+      `;
+    } else {
+      container.innerHTML = teams.slice(0, 8).map(team => `
+        <div class="search-result-item" data-team-id="${team.id}">
+          <div class="search-result-logo">${team.logo}</div>
+          <div class="search-result-info">
+            <div class="search-result-name">${team.name}</div>
+            <div class="search-result-details">${team.league} • ${team.country}</div>
+          </div>
+          <div class="search-result-sport">${this.getSportIcon(team.sport)} ${team.sport}</div>
+        </div>
+      `).join('');
+    }
+    
+    container.classList.add('active');
+    
+    // Add click handlers to search results
+    const resultItems = container.querySelectorAll('.search-result-item');
+    resultItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const teamId = item.dataset.teamId;
+        this.openTeamModal(teamId);
+        this.hideSearchResults();
+        this.hideMobileSearchResults();
+      });
+    });
+  }
+
+  showAllTeamsInSearch() {
+    const searchResults = document.getElementById('searchResults');
+    if (!searchResults) return;
+
+    const allTeams = this.getAllTeams().slice(0, 8);
+    this.displaySearchResults(allTeams, searchResults);
+  }
+
+  showAllTeamsInMobileSearch() {
+    const searchResults = document.getElementById('mobileSearchResults');
+    if (!searchResults) return;
+
+    const allTeams = this.getAllTeams().slice(0, 8);
+    this.displaySearchResults(allTeams, searchResults);
+  }
+
+  hideSearchResults() {
+    const searchResults = document.getElementById('searchResults');
+    if (searchResults) {
+      searchResults.classList.remove('active');
+    }
+  }
+
+  hideMobileSearchResults() {
+    const searchResults = document.getElementById('mobileSearchResults');
+    if (searchResults) {
+      searchResults.classList.remove('active');
+    }
+  }
+
+  applyAdvancedFilters() {
+    this.performAdvancedSearch();
+  }
+
+  clearAdvancedFilters() {
+    // Reset search filters
+    this.state.searchQuery = '';
+    this.state.searchFilters = {
+      teamName: '',
+      sport: 'All',
+      league: 'All',
+      country: 'All',
+      player: ''
+    };
+
+    // Reset UI elements
+    const searchInput = document.getElementById('searchInput');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    const searchTeamName = document.getElementById('searchTeamName');
+    const searchSport = document.getElementById('searchSport');
+    const searchLeague = document.getElementById('searchLeague');
+    const searchCountry = document.getElementById('searchCountry');
+    const searchPlayer = document.getElementById('searchPlayer');
+
+    if (searchInput) searchInput.value = '';
+    if (mobileSearchInput) mobileSearchInput.value = '';
+    if (searchTeamName) searchTeamName.value = '';
+    if (searchSport) searchSport.value = 'All';
+    if (searchLeague) searchLeague.value = 'All';
+    if (searchCountry) searchCountry.value = 'All';
+    if (searchPlayer) searchPlayer.value = '';
+
+    // Reset main filters
+    this.state.currentSport = 'all';
+    this.state.currentLeague = 'All';
+    this.state.currentCountry = 'All';
+
+    const leagueFilter = document.getElementById('leagueFilter');
+    const countryFilter = document.getElementById('countryFilter');
+    const sportCategories = document.querySelectorAll('.sport-category');
+
+    if (leagueFilter) leagueFilter.value = 'All';
+    if (countryFilter) countryFilter.value = 'All';
+
+    sportCategories.forEach(category => {
+      category.classList.remove('active');
+      if (category.dataset.sport === 'all') {
+        category.classList.add('active');
+      }
+    });
+
+    // Reset teams
+    this.state.teams = this.getAllTeams();
+    this.renderAllTeams();
+    this.updateTeamsCount();
+    this.updateSearchResultsCount();
+  }
+
+  performAdvancedSearch() {
+    let filteredTeams = this.getAllTeams();
+
+    // Apply text search
+    if (this.state.searchQuery) {
+      const query = this.state.searchQuery.toLowerCase();
+      filteredTeams = filteredTeams.filter(team => 
+        team.name.toLowerCase().includes(query) ||
+        team.league.toLowerCase().includes(query) ||
+        team.country.toLowerCase().includes(query) ||
+        team.keyPlayers.some(player => player.toLowerCase().includes(query))
+      );
+    }
+
+    // Apply advanced filters
+    if (this.state.searchFilters.teamName) {
+      const teamName = this.state.searchFilters.teamName.toLowerCase();
+      filteredTeams = filteredTeams.filter(team => 
+        team.name.toLowerCase().includes(teamName)
+      );
+    }
+
+    if (this.state.searchFilters.sport !== 'All') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.sport === this.state.searchFilters.sport
+      );
+    }
+
+    if (this.state.searchFilters.league !== 'All') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.league === this.state.searchFilters.league
+      );
+    }
+
+    if (this.state.searchFilters.country !== 'All') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.country === this.state.searchFilters.country
+      );
+    }
+
+    if (this.state.searchFilters.player) {
+      const playerName = this.state.searchFilters.player.toLowerCase();
+      filteredTeams = filteredTeams.filter(team => 
+        team.keyPlayers.some(player => player.toLowerCase().includes(playerName))
+      );
+    }
+
+    // Apply main filters (sport, league, country)
+    if (this.state.currentSport !== 'all') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.sport.toLowerCase() === this.state.currentSport
+      );
+    }
+    
+    if (this.state.currentLeague !== 'All') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.league === this.state.currentLeague
+      );
+    }
+    
+    if (this.state.currentCountry !== 'All') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.country === this.state.currentCountry
+      );
+    }
+
+    this.state.teams = filteredTeams;
+    this.renderAllTeams();
+    this.updateTeamsCount();
+    this.updateSearchResultsCount();
+  }
+
+  updateSearchResultsCount() {
+    const searchResultsCount = document.getElementById('searchResultsCount');
+    const noResults = document.getElementById('noResults');
+    
+    if (searchResultsCount) {
+      const isFiltered = this.state.searchQuery || 
+                         Object.values(this.state.searchFilters).some(val => 
+                           val && val !== 'All'
+                         ) ||
+                         this.state.currentSport !== 'all' ||
+                         this.state.currentLeague !== 'All' ||
+                         this.state.currentCountry !== 'All';
+      
+      if (isFiltered) {
+        searchResultsCount.textContent = `Found ${this.state.teams.length} teams matching your search`;
+      } else {
+        searchResultsCount.textContent = 'Showing all teams';
+      }
+    }
+    
+    if (noResults) {
+      if (this.state.teams.length === 0) {
+        noResults.style.display = 'block';
+      } else {
+        noResults.style.display = 'none';
+      }
+    }
+  }
+
+  async checkAuthStatus() {
+    try {
+      const response = await fetch('/api/user');
+      const data = await response.json();
+      
+      if (data.success && data.user) {
+        this.state.user = data.user;
+        this.updateAuthUI();
+        console.log('User authenticated:', this.state.user.username);
+      } else {
+        console.log('User not authenticated');
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+    }
+  }
+
+  async loadFollowedTeams() {
+    try {
+      const response = await fetch('/api/user/followed-teams');
+      const data = await response.json();
+      
+      if (data.success) {
+        const teamIds = data.followedTeams.map(team => team.teamId);
+        this.state.followedTeams = new Set(teamIds);
+        console.log('Loaded followed teams:', teamIds);
+      } else {
+        console.log('No followed teams found or not logged in');
+      }
+    } catch (error) {
+      console.error('Error loading followed teams:', error);
+    }
+  }
+
+  updateAuthUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    
+    if (this.state.user) {
+      if (loginText) loginText.textContent = this.state.user.username;
+      if (mobileLoginText) mobileLoginText.textContent = this.state.user.username;
+    }
+  }
+
+  async toggleFollowTeam(teamId, teamName, sport, league, logo) {
+    // Check if user is logged in
+    if (!this.state.user) {
+        this.showToast('Please log in to follow teams');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+        return;
+    }
+
+    // Determine the correct action based on current follow state
+    const isCurrentlyFollowing = this.state.followedTeams.has(teamId);
+    const action = isCurrentlyFollowing ? 'unfollow' : 'follow';
+
+    console.log('Toggle follow state:', {
+        teamId,
+        teamName,
+        currentState: isCurrentlyFollowing ? 'following' : 'not following',
+        action
+    });
+
+    try {
+        const response = await fetch('/api/user/follow-team', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                teamId: parseInt(teamId),
+                teamName,
+                sport,
+                league,
+                logo,
+                action
+            })
+        });
+
+        // Check if response is OK
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Server response:', result);
+
+        if (result.success) {
+            // Update local state based on the action that was actually performed
+            if (result.action === 'followed') {
+                this.state.followedTeams.add(teamId);
+            } else if (result.action === 'unfollowed') {
+                this.state.followedTeams.delete(teamId);
+            }
+
+            // Update UI
+            this.updateFollowButtons(teamId, result.action);
+            
+            // Show confirmation message
+            this.showToast(result.message);
+            
+            console.log(`Team ${teamId} ${result.action} successfully`);
+        } else {
+            this.showToast(result.message || 'Error updating follow status');
+        }
+    } catch (error) {
+        console.error('Error toggling team follow:', error);
+        this.showToast('Server error. Please try again.');
+    }
+  }
+
+  updateFollowButtons(teamId, action) {
+    // Update all follow buttons for this team
+    const followButtons = document.querySelectorAll(`[data-team-id="${teamId}"] .follow-btn`);
+    
+    followButtons.forEach(button => {
+        if (action === 'followed') {
+            button.classList.remove('ghost');
+            button.classList.add('followed');
+            button.querySelector('.btn-text').textContent = 'Followed';
+        } else if (action === 'unfollowed') {
+            button.classList.add('ghost');
+            button.classList.remove('followed');
+            button.querySelector('.btn-text').textContent = 'Follow';
+        }
+    });
+
+    // Also update the modal button if open
+    const modalFollowBtn = document.getElementById('modalFollowBtn');
+    if (modalFollowBtn && modalFollowBtn.dataset.teamId == teamId) {
+        if (action === 'followed') {
+            modalFollowBtn.classList.remove('ghost');
+            modalFollowBtn.classList.add('followed');
+            modalFollowBtn.querySelector('.btn-text').textContent = 'Followed';
+        } else if (action === 'unfollowed') {
+            modalFollowBtn.classList.add('ghost');
+            modalFollowBtn.classList.remove('followed');
+            modalFollowBtn.querySelector('.btn-text').textContent = 'Follow Team';
+        }
+    }
+  }
+
+  getAllTeams() {
+    let allTeams = [];
+    for (const sport in teamsData) {
+      allTeams = allTeams.concat(teamsData[sport]);
+    }
+    return allTeams;
+  }
+
+  getFeaturedTeams() {
+    return this.getAllTeams().filter(team => team.featured);
+  }
+
+  filterTeams() {
+    let filteredTeams = this.getAllTeams();
+    
+    // Filter by sport
+    if (this.state.currentSport !== 'all') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.sport.toLowerCase() === this.state.currentSport
+      );
+    }
+    
+    // Filter by league
+    if (this.state.currentLeague !== 'All') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.league === this.state.currentLeague
+      );
+    }
+    
+    // Filter by country
+    if (this.state.currentCountry !== 'All') {
+      filteredTeams = filteredTeams.filter(team => 
+        team.country === this.state.currentCountry
+      );
+    }
+    
+    this.state.teams = filteredTeams;
+    this.renderAllTeams();
+    this.updateTeamsCount();
+    this.updateSearchResultsCount();
+  }
+
+  updateTeamsCount() {
+    const teamsCount = document.getElementById('teamsCount');
+    if (teamsCount) {
+      teamsCount.textContent = `${this.state.teams.length} teams`;
+    }
+  }
+
+  renderFeaturedTeams() {
+    const featuredGrid = document.getElementById('featuredTeamsGrid');
+    if (!featuredGrid) return;
+
+    const featuredTeams = this.state.featuredTeams.slice(0, 3);
+    
+    featuredGrid.innerHTML = featuredTeams.map(team => {
+      const isFollowing = this.state.followedTeams.has(team.id);
+      const followBtnClass = isFollowing ? 'btn-small followed' : 'btn-small ghost';
+      
+      return `
+      <div class="team-card featured" data-team-id="${team.id}">
+        <div class="team-header">
+          <div class="team-logo">${team.logo}</div>
+          <div class="team-info">
+            <div class="team-name">${team.name}</div>
+            <div class="team-sport">
+              <span class="sport-icon">${this.getSportIcon(team.sport)}</span>
+              ${team.sport} • ${team.league}
+            </div>
+          </div>
+        </div>
+        
+        <div class="team-stats">
+          ${this.renderTeamStats(team)}
+        </div>
+        
+        <div class="team-players">
+          <div class="players-title">Key Players</div>
+          <div class="players-list">
+            ${team.keyPlayers.map(player => `
+              <span class="player-tag">${player}</span>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="team-actions">
+          <button class="btn ${followBtnClass} follow-btn" data-team-id="${team.id}">
+            <span class="btn-text">${isFollowing ? 'Followed' : 'Follow'}</span>
+            <span class="hover-text">Unfollow</span>
+          </button>
+          <button class="btn btn-small ghost view-team-btn" data-team-id="${team.id}">View Details</button>
+        </div>
+      </div>
+    `}).join('');
+    
+    this.setupTeamCardEvents();
+  }
+
+  renderAllTeams() {
+    const teamsGrid = document.getElementById('teamsGrid');
+    if (!teamsGrid) return;
+    
+    teamsGrid.innerHTML = this.state.teams.map(team => {
+      const isFollowing = this.state.followedTeams.has(team.id);
+      const followBtnClass = isFollowing ? 'btn-small followed' : 'btn-small ghost';
+      
+      return `
+      <div class="team-card" data-team-id="${team.id}">
+        <div class="team-header">
+          <div class="team-logo">${team.logo}</div>
+          <div class="team-info">
+            <div class="team-name">${team.name}</div>
+            <div class="team-sport">
+              <span class="sport-icon">${this.getSportIcon(team.sport)}</span>
+              ${team.sport} • ${team.league}
+            </div>
+          </div>
+        </div>
+        
+        <div class="team-stats">
+          ${this.renderTeamStats(team)}
+        </div>
+        
+        <div class="team-players">
+          <div class="players-title">Key Players</div>
+          <div class="players-list">
+            ${team.keyPlayers.slice(0, 3).map(player => `
+              <span class="player-tag">${player}</span>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="team-actions">
+          <button class="btn ${followBtnClass} follow-btn" data-team-id="${team.id}">
+            <span class="btn-text">${isFollowing ? 'Followed' : 'Follow'}</span>
+            <span class="hover-text">Unfollow</span>
+          </button>
+          <button class="btn btn-small ghost view-team-btn" data-team-id="${team.id}">View Details</button>
+        </div>
+      </div>
+    `}).join('');
+    
+    this.setupTeamCardEvents();
+  }
+
+  renderTeamStats(team) {
+    const stats = team.stats.overall;
+    
+    switch(team.sport) {
+      case 'Football':
+        return `
+          <div class="stat">
+            <div class="stat-value">${stats.position}</div>
+            <div class="stat-label">Position</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">${stats.points}</div>
+            <div class="stat-label">Points</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">${stats.trophies}</div>
+            <div class="stat-label">Trophies</div>
+          </div>
+        `;
+      case 'Basketball':
+        return `
+          <div class="stat">
+            <div class="stat-value">${stats.wins}-${stats.losses}</div>
+            <div class="stat-label">Record</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">${stats.championships}</div>
+            <div class="stat-label">Championships</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">${Math.round((stats.wins / (stats.wins + stats.losses)) * 100)}%</div>
+            <div class="stat-label">Win %</div>
+          </div>
+        `;
+      default:
+        return `
+          <div class="stat">
+            <div class="stat-value">--</div>
+            <div class="stat-label">Stats</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">--</div>
+            <div class="stat-label">Stats</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">--</div>
+            <div class="stat-label">Stats</div>
+          </div>
+        `;
+    }
+  }
+
+  renderTeamStatistics() {
+    const statsTable = document.getElementById('teamStatsTable');
+    if (!statsTable) return;
+
+    const topTeams = this.getAllTeams().slice(0, 10);
+    
+    statsTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Sport</th>
+            <th>League</th>
+            <th>Country</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>Trophies</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${topTeams.map(team => {
+            const stats = team.stats[this.state.currentStatsFilter] || team.stats.overall;
+            let wins, losses;
+            
+            switch(team.sport) {
+              case 'Football':
+                wins = stats.wins;
+                losses = stats.losses;
+                break;
+              case 'Basketball':
+                wins = stats.wins;
+                losses = stats.losses;
+                break;
+              case 'Baseball':
+                wins = stats.wins;
+                losses = stats.losses;
+                break;
+              default:
+                wins = 0;
+                losses = 0;
+            }
+            
+            return `
+              <tr>
+                <td>
+                  <div class="team-cell">
+                    <div class="team-logo-small">${team.logo}</div>
+                    ${team.name}
+                  </div>
+                </td>
+                <td>${team.sport}</td>
+                <td>${team.league}</td>
+                <td>${team.country}</td>
+                <td class="highlight">${wins}</td>
+                <td>${losses}</td>
+                <td class="highlight">${stats.trophies || stats.championships || stats.worldCups || stats.worldSeries || stats.stanleyCups || 0}</td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  renderLeagueTables() {
+    const leagueTablesContainer = document.getElementById('leagueTables');
+    if (!leagueTablesContainer) return;
+
+    let tablesHTML = '';
+    
+    for (const leagueName in leagueTables) {
+      const tableData = leagueTables[leagueName];
+      const leagueIcon = this.getLeagueIcon(leagueName);
+      
+      tablesHTML += `
+        <div class="league-table-container">
+          <div class="league-table-header">
+            <div class="league-logo">${leagueIcon}</div>
+            <div>
+              <div class="league-name">${leagueName}</div>
+              <div class="league-sport">${this.getLeagueSport(leagueName)}</div>
+            </div>
+          </div>
+          <div class="stats-table-container">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Team</th>
+                  <th>P</th>
+                  <th>W</th>
+                  <th>D</th>
+                  <th>L</th>
+                  <th>Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableData.map(team => `
+                  <tr>
+                    <td>${team.position}</td>
+                    <td>
+                      <div class="team-cell">
+                        <div class="team-logo-small">${team.team.substring(0, 3).toUpperCase()}</div>
+                        ${team.team}
+                      </div>
+                    </td>
+                    <td>${team.played || '-'}</td>
+                    <td>${team.wins || '-'}</td>
+                    <td>${team.draws || '-'}</td>
+                    <td>${team.losses || '-'}</td>
+                    <td class="highlight">${team.points}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+    
+    leagueTablesContainer.innerHTML = tablesHTML;
+  }
+
+  getLeagueIcon(leagueName) {
+    const icons = {
+      'La Liga': '⚽',
+      'Premier League': '⚽',
+      'NBA': '🏀',
+      'ICC Cricket': '🏏',
+      'MLB': '⚾',
+      'NHL': '🏒',
+      'Formula 1': '🏎️',
+      'World Rugby': '🏉'
+    };
+    
+    return icons[leagueName] || '🏆';
+  }
+
+  getLeagueSport(leagueName) {
+    const sports = {
+      'La Liga': 'Football',
+      'Premier League': 'Football',
+      'NBA': 'Basketball',
+      'ICC Cricket': 'Cricket',
+      'MLB': 'Baseball',
+      'NHL': 'Hockey',
+      'Formula 1': 'Formula 1',
+      'World Rugby': 'Rugby'
+    };
+    
+    return sports[leagueName] || 'Sports';
+  }
+
+  getSportIcon(sport) {
+    const icons = {
+      'Football': '⚽',
+      'Basketball': '🏀',
+      'Cricket': '🏏',
+      'Baseball': '⚾',
+      'Hockey': '🏒',
+      'Tennis': '🎾',
+      'Formula 1': '🏎️',
+      'Rugby': '🏉',
+      'Golf': '⛳',
+      'Boxing': '🥊',
+      'MMA': '🥋',
+      'Olympics': '🏅'
+    };
+    
+    return icons[sport] || '🏆';
+  }
+
+  setupEventListeners() {
+    // Sport category filters
+    const sportCategories = document.querySelectorAll('.sport-category');
+    sportCategories.forEach(category => {
+      if (category.dataset.sport) {
+        category.addEventListener('click', () => {
+          sportCategories.forEach(c => c.classList.remove('active'));
+          category.classList.add('active');
+          
+          this.state.currentSport = category.dataset.sport;
+          this.filterTeams();
+        });
+      }
+    });
+    
+    // League filter
+    const leagueFilter = document.getElementById('leagueFilter');
+    if (leagueFilter) {
+      leagueFilter.addEventListener('change', (e) => {
+        this.state.currentLeague = e.target.value;
+        this.filterTeams();
+      });
+    }
+    
+    // Country filter
+    const countryFilter = document.getElementById('countryFilter');
+    if (countryFilter) {
+      countryFilter.addEventListener('change', (e) => {
+        this.state.currentCountry = e.target.value;
+        this.filterTeams();
+      });
+    }
+    
+    // Stats filter buttons
+    const statsFilterButtons = document.querySelectorAll('[data-stats-filter]');
+    statsFilterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        statsFilterButtons.forEach(btn => {
+          btn.classList.remove('active');
+          btn.classList.add('ghost');
+        });
+        button.classList.remove('ghost');
+        button.classList.add('active');
+        
+        this.state.currentStatsFilter = button.dataset.statsFilter;
+        this.renderTeamStatistics();
+      });
+    });
+    
+    // Modal close
+    const teamModalClose = document.getElementById('teamModalClose');
+    const teamModalBackdrop = document.getElementById('teamModalBackdrop');
+    
+    if (teamModalClose) {
+      teamModalClose.addEventListener('click', () => this.closeTeamModal());
+    }
+    
+    if (teamModalBackdrop) {
+      teamModalBackdrop.addEventListener('click', () => this.closeTeamModal());
+    }
+  }
+
+  setupTeamCardEvents() {
+    // Team card click
+    const teamCards = document.querySelectorAll('.team-card');
+    teamCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('btn')) {
+          const teamId = card.dataset.teamId;
+          this.openTeamModal(teamId);
+        }
+      });
+    });
+    
+    // View team buttons
+    const viewTeamButtons = document.querySelectorAll('.view-team-btn');
+    viewTeamButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const teamId = button.dataset.teamId;
+        this.openTeamModal(teamId);
+      });
+    });
+
+    // Follow buttons
+    const followButtons = document.querySelectorAll('.follow-btn');
+    followButtons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const teamId = button.dataset.teamId;
+        const team = this.getAllTeams().find(t => t.id == teamId);
+        
+        if (team) {
+          await this.toggleFollowTeam(
+            team.id,
+            team.name,
+            team.sport,
+            team.league,
+            team.logo
+          );
+        }
+      });
+    });
+  }
+
+  openTeamModal(teamId) {
+    const team = this.getAllTeams().find(t => t.id == teamId);
+    if (!team) return;
+    
+    const modal = document.getElementById('teamModal');
+    const modalTitle = document.getElementById('teamModalTitle');
+    const modalContent = document.getElementById('teamModalContent');
+    
+    if (!modal || !modalTitle || !modalContent) return;
+    
+    modalTitle.textContent = `${team.name} - Team Details`;
+    
+    const isFollowing = this.state.followedTeams.has(team.id);
+    const followBtnClass = isFollowing ? 'followed' : 'ghost';
+    const followBtnText = isFollowing ? 'Followed' : 'Follow Team';
+    
+    modalContent.innerHTML = `
+      <div class="team-modal-tab-pane active" id="details-tab">
+        <div class="team-modal-content">
+          <div class="team-modal-header">
+            <div class="team-logo-large">${team.logo}</div>
+            <div class="team-modal-info">
+              <h4>${team.name}</h4>
+              <p>${team.sport} • ${team.league} • ${team.country}</p>
+            </div>
+          </div>
+          
+          <div class="team-modal-stats">
+            <h5>Team Statistics</h5>
+            <div class="stats-grid">
+              ${this.renderModalStats(team)}
+            </div>
+          </div>
+          
+          <div class="team-modal-players">
+            <h5>Key Players</h5>
+            <div class="players-grid">
+              ${team.keyPlayers.map(player => `
+                <div class="player-card">
+                  <div class="player-avatar">${player.split(' ').map(n => n[0]).join('')}</div>
+                  <div class="player-name">${player}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="team-modal-actions">
+            <button class="btn ${followBtnClass}" id="modalFollowBtn" data-team-id="${team.id}">
+              <span class="btn-text">${followBtnText}</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn ghost" data-tab="schedule">View Schedule</button>
+            <button class="btn ghost" data-tab="roster">View Roster</button>
+          </div>
+        </div>
+      </div>
+      <div class="team-modal-tab-pane" id="schedule-tab">
+        ${this.renderTeamSchedule(team)}
+      </div>
+      <div class="team-modal-tab-pane" id="roster-tab">
+        ${this.renderTeamRoster(team)}
+      </div>
+    `;
+    
+    // Add event listeners to modal buttons
+    const modalFollowBtn = document.getElementById('modalFollowBtn');
+    if (modalFollowBtn) {
+      modalFollowBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await this.toggleFollowTeam(
+          team.id,
+          team.name,
+          team.sport,
+          team.league,
+          team.logo
+        );
+      });
+    }
+    
+    // Add event listeners to tab buttons in modal
+    const tabButtons = document.querySelectorAll('.team-modal-tab');
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabName = button.dataset.tab;
+        this.switchTeamModalTab(tabName);
+      });
+    });
+    
+    // Add event listeners to schedule/roster buttons
+    const scheduleBtn = modalContent.querySelector('[data-tab="schedule"]');
+    const rosterBtn = modalContent.querySelector('[data-tab="roster"]');
+    
+    if (scheduleBtn) {
+      scheduleBtn.addEventListener('click', () => {
+        this.switchTeamModalTab('schedule');
+        // Also update the active tab button
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        document.querySelector('[data-tab="schedule"]').classList.add('active');
+      });
+    }
+    
+    if (rosterBtn) {
+      rosterBtn.addEventListener('click', () => {
+        this.switchTeamModalTab('roster');
+        // Also update the active tab button
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        document.querySelector('[data-tab="roster"]').classList.add('active');
+      });
+    }
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  switchTeamModalTab(tabName) {
+    // Hide all tab panes
+    const tabPanes = document.querySelectorAll('.team-modal-tab-pane');
+    tabPanes.forEach(pane => pane.classList.remove('active'));
+    
+    // Show the selected tab pane
+    const selectedPane = document.getElementById(`${tabName}-tab`);
+    if (selectedPane) {
+      selectedPane.classList.add('active');
+    }
+    
+    // Update active tab button
+    const tabButtons = document.querySelectorAll('.team-modal-tab');
+    tabButtons.forEach(button => {
+      button.classList.remove('active');
+      if (button.dataset.tab === tabName) {
+        button.classList.add('active');
+      }
+    });
+  }
+
+  renderTeamSchedule(team) {
+    if (!team.schedule || team.schedule.length === 0) {
+      return `<div class="team-modal-content"><p>No schedule available for ${team.name}.</p></div>`;
+    }
+    
+    return `
+      <div class="team-modal-content">
+        <div class="team-modal-header">
+          <div class="team-logo-large">${team.logo}</div>
+          <div class="team-modal-info">
+            <h4>${team.name} Schedule</h4>
+            <p>Upcoming matches and events</p>
+          </div>
+        </div>
+        
+        <div class="schedule-list">
+          ${team.schedule.map(match => {
+            const date = new Date(match.date);
+            const month = date.toLocaleString('en-US', { month: 'short' });
+            const day = date.getDate();
+            
+            return `
+              <div class="schedule-item">
+                <div class="schedule-date">
+                  <div class="schedule-month">${month}</div>
+                  <div class="schedule-day">${day}</div>
+                </div>
+                <div class="schedule-match">
+                  <div class="schedule-teams">
+                    <div class="schedule-team">
+                      <div class="schedule-team-logo">${team.logo}</div>
+                      <span>${team.name}</span>
+                    </div>
+                    <div class="schedule-vs">vs</div>
+                    <div class="schedule-team">
+                      <div class="schedule-team-logo">${match.opponent.substring(0, 3)}</div>
+                      <span>${match.opponent}</span>
+                    </div>
+                  </div>
+                  <div class="schedule-info">
+                    <span class="schedule-time">${match.time}</span> • ${match.location}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  renderTeamRoster(team) {
+    if (!team.roster || team.roster.length === 0) {
+      return `<div class="team-modal-content"><p>No roster available for ${team.name}.</p></div>`;
+    }
+    
+    return `
+      <div class="team-modal-content">
+        <div class="team-modal-header">
+          <div class="team-logo-large">${team.logo}</div>
+          <div class="team-modal-info">
+            <h4>${team.name} Roster</h4>
+            <p>Team players and staff</p>
+          </div>
+        </div>
+        
+        <div class="stats-table-container">
+          <table class="roster-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Position</th>
+                <th>Number</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${team.roster.map(player => `
+                <tr>
+                  <td>
+                    <div class="roster-player">
+                      <div class="roster-player-avatar">${player.name.split(' ').map(n => n[0]).join('')}</div>
+                      ${player.name}
+                    </div>
+                  </td>
+                  <td>${player.position}</td>
+                  <td>${player.number || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  renderModalStats(team) {
+    const stats = team.stats.overall;
+    
+    switch(team.sport) {
+      case 'Football':
+        return `
+          <div class="stat-card">
+            <div class="stat-number">${stats.position}</div>
+            <div class="stat-label">Position</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${stats.played}</div>
+            <div class="stat-label">Played</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${stats.wins}</div>
+            <div class="stat-label">Wins</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${stats.draws}</div>
+            <div class="stat-label">Draws</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${stats.losses}</div>
+            <div class="stat-label">Losses</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${stats.points}</div>
+            <div class="stat-label">Points</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${stats.trophies}</div>
+            <div class="stat-label">Trophies</div>
+          </div>
+        `;
+      default:
+        return `
+          <div class="stat-card">
+            <div class="stat-number">--</div>
+            <div class="stat-label">Stats</div>
+          </div>
+        `;
+    }
+  }
+
+  closeTeamModal() {
+    const modal = document.getElementById('teamModal');
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+
+  showToast(message) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+}
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Teams page loaded");
+  window.teamsApp = new TeamsApp();
+});
+</script>
+</body>
+</html>

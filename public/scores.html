@@ -1,0 +1,3492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Live Scores & Results - AllSports</title>
+  <meta name="description" content="Live sports scores, results, and match updates from all major leagues and tournaments."/>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Additional styles for scores page */
+    .ticker {
+      background: linear-gradient(135deg, var(--accent) 0%, #d32f2f 100%);
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      box-shadow: 0 4px 12px rgba(232, 29, 47, 0.3);
+    }
+    
+    .ticker .label {
+      background: rgba(0,0,0,0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .ticker .marquee {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .marquee-inner {
+      white-space: nowrap;
+      animation: marquee 30s linear infinite;
+      font-weight: 500;
+    }
+    
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    .ticker .meta {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    
+    .advanced-filters {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+      align-items: end;
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    
+    .filter-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .filter-select {
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      min-width: 160px;
+    }
+    
+    .filter-select:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232, 29, 47, 0.2);
+    }
+    
+    .scores-main {
+      padding: var(--space-4) 0;
+    }
+    
+    .scores-section {
+      margin-bottom: var(--space-4);
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .section-title {
+      font-size: 28px;
+      margin: 0;
+      color: var(--text-primary);
+      position: relative;
+      padding-left: 12px;
+    }
+    
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    
+    .live-count, .date-filter, .time-range {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .live-count {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: rgba(232, 29, 47, 0.1);
+    }
+    
+    .scores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: var(--space-3);
+    }
+    
+    .match-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: var(--space-3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .match-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    
+    .match-card.live {
+      border-left: 4px solid var(--accent);
+    }
+    
+    .match-card.finished {
+      border-left: 4px solid #4CAF50;
+    }
+    
+    .match-card.upcoming {
+      border-left: 4px solid #FF9800;
+    }
+    
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+    
+    .match-sport {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .match-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+    
+    .match-status.live {
+      background: rgba(232, 29, 47, 0.15);
+      color: var(--accent);
+    }
+    
+    .match-status.finished {
+      background: rgba(76, 175, 80, 0.15);
+      color: #4CAF50;
+    }
+    
+    .match-status.upcoming {
+      background: rgba(255, 152, 0, 0.15);
+      color: #FF9800;
+    }
+    
+    .live-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .match-competition {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-3);
+      font-weight: 500;
+    }
+    
+    .match-teams {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    
+    .team {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .team-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .team-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 10px;
+      color: white;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .team-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .team-score {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .match-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .match-details div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .match-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+    
+    .match-actions .btn-small {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+    
+    /* Enhanced Follow and Reminder button transitions */
+    .follow-btn, .reminder-btn {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .follow-btn .btn-text,
+    .reminder-btn .btn-text {
+      display: block;
+      transition: all 0.3s ease;
+    }
+    
+    .follow-btn .hover-text,
+    .reminder-btn .hover-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(100%);
+      transition: all 0.3s ease;
+    }
+    
+    .follow-btn.followed {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    
+    .follow-btn.followed:hover {
+      background: #d32f2f;
+      border-color: #d32f2f;
+    }
+    
+    .follow-btn.followed:hover .btn-text {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    
+    .follow-btn.followed:hover .hover-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .reminder-btn.reminder-set {
+      background: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+    
+    .reminder-btn.reminder-set:hover {
+      background: #388E3C;
+      border-color: #388E3C;
+    }
+    
+    .reminder-btn.reminder-set:hover .btn-text {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    
+    .reminder-btn.reminder-set:hover .hover-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Toast notification styles */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      background: var(--card);
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      transform: translateY(30px);
+      transition: transform 0.3s ease;
+    }
+    
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .modal-title {
+      font-size: 24px;
+      margin: 0;
+      color: var(--text-primary);
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-close:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text-primary);
+    }
+    
+    .modal-body {
+      padding: var(--space-4);
+    }
+    
+    /* Stats modal styles */
+    .stats-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    
+    .stat-item {
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius);
+      padding: var(--space-3);
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: var(--space-1);
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .team-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+    }
+    
+    .team-stat {
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius);
+      padding: var(--space-3);
+    }
+    
+    .team-stat-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    
+    .team-stat-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .stat-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .stat-name {
+      color: var(--text-secondary);
+    }
+    
+    .stat-value-team {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    /* Highlights modal styles */
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      height: 0;
+      overflow: hidden;
+      border-radius: var(--radius);
+      margin-bottom: var(--space-4);
+    }
+    
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    .match-summary {
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius);
+      padding: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    
+    .summary-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+    
+    .summary-text {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    /* Preview modal styles */
+    .preview-teams {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+    
+    .preview-team {
+      background: rgba(255,255,255,0.05);
+      border-radius: var(--radius);
+      padding: var(--space-3);
+    }
+    
+    .preview-team-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .preview-team-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .coach-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    
+    .coach-label {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    .coach-name {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    .lineup-section {
+      margin-bottom: var(--space-3);
+    }
+    
+    .lineup-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+    
+    .player-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    
+    .player-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .player-number {
+      background: var(--accent);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .player-name {
+      color: var(--text-primary);
+    }
+    
+    .player-position {
+      color: var(--text-secondary);
+      font-size: 12px;
+      margin-left: auto;
+    }
+    
+    /* Search Results Dropdown */
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      z-index: 1000;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+      margin-top: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .search-results.active {
+      display: block;
+    }
+    
+    .search-result-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .search-result-item:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    
+    .search-result-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    
+    .search-result-sport {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .search-result-title {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .search-result-details {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: var(--space-4);
+      color: var(--text-secondary);
+    }
+    
+    .no-results h3 {
+      margin-bottom: var(--space-2);
+      color: var(--text-primary);
+    }
+    
+    @media (max-width: 768px) {
+      .scores-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .advanced-filters {
+        flex-direction: column;
+      }
+      
+      .filter-select {
+        min-width: 100%;
+      }
+      
+      .match-details {
+        grid-template-columns: 1fr;
+      }
+      
+      .ticker {
+        flex-direction: column;
+        gap: var(--space-2);
+        text-align: center;
+      }
+      
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .team-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .preview-teams {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="AllSports home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+      </div>
+      <div class="brand-text">
+        <h1>AllSports</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="scores.html" class="nav-link nav-active" aria-current="page">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="teams.html" class="nav-link">Teams</a>
+        </li>
+
+         <li role="none">
+          <a role="menuitem" href="players.html" class="nav-link">Players</a>
+        </li>
+
+
+        <li role="none">
+          <a role="menuitem" href="fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+         <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="more/podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="more/highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="more/news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="more/statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="more/transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="more/injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and User Area -->
+    <div class="header-actions">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          id="searchInput" 
+          placeholder="Search matches, teams..." 
+          aria-label="Search matches"
+          type="text"
+        >
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+        </div>
+        <div class="brand-text">
+          <h2>AllSports</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="scores.html" class="mobile-nav-link mobile-nav-active">Scores</a></li>
+        <li><a href="watch.html" class="mobile-nav-link">Watch</a></li>
+        <li><a href="teams.html" class="mobile-nav-link">Teams</a></li>
+        <li><a href="fixtures.html" class="mobile-nav-link">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search matches..." aria-label="Search matches" id="mobileSearchInput">
+        <div class="search-results" id="mobileSearchResults"></div>
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Live Scores & Results</h1>
+    <p class="page-subtitle">Real-time scores from all major sports leagues and tournaments</p>
+  </div>
+
+  <!-- Live Ticker -->
+  <div class="ticker" role="region" aria-label="Live scores and updates">
+    <div class="label">LIVE</div>
+    <div class="marquee" id="liveTicker" aria-live="polite">
+      <div class="marquee-inner" id="marqueeInner">
+        ⚽ Man City 2-1 Liverpool (75') • 🏀 Lakers vs Celtics: 98-95 Q4 • 🏏 IND vs AUS: 245/3 (45) • 🎾 Djokovic leads 2-1 sets • ⚾ Yankees 4-3 Red Sox F • 🏒 Maple Leafs 3-2 Canadiens (P3) • 🏉 All Blacks 24-18 Springboks (65') • 🥊 Alvarez vs Plant: Round 8
+      </div>
+    </div>
+    <div class="meta">Updated: <strong id="tickerTime">Just now</strong></div>
+  </div>
+
+  <!-- Advanced Filters -->
+  <div class="advanced-filters" aria-label="Advanced filters for scores">
+    <div class="filter-group">
+      <label for="sportFilter">Sport</label>
+      <select id="sportFilter" class="filter-select">
+        <option value="All">All Sports</option>
+        <option value="Football">⚽ Football</option>
+        <option value="Cricket">🏏 Cricket</option>
+        <option value="Basketball">🏀 Basketball</option>
+        <option value="Tennis">🎾 Tennis</option>
+        <option value="Baseball">⚾ Baseball</option>
+        <option value="Hockey">🏒 Hockey</option>
+        <option value="Rugby">🏉 Rugby</option>
+        <option value="Boxing">🥊 Boxing</option>
+        <option value="Formula1">🏎️ Formula 1</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="leagueFilter">League</label>
+      <select id="leagueFilter" class="filter-select">
+        <option value="All">All Leagues</option>
+        <option value="premier-league">Premier League</option>
+        <option value="nba">NBA</option>
+        <option value="ipl">IPL</option>
+        <option value="nfl">NFL</option>
+        <option value="mlb">MLB</option>
+        <option value="nhl">NHL</option>
+        <option value="rugby-championship">Rugby Championship</option>
+        <option value="formula1">Formula 1</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="statusFilter">Status</label>
+      <select id="statusFilter" class="filter-select">
+        <option value="All">All Status</option>
+        <option value="Live">Live</option>
+        <option value="Upcoming">Upcoming</option>
+        <option value="Finished">Finished</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <button class="btn btn-secondary" id="resetFiltersBtn">Clear Filters</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="scores-main">
+    <!-- Live Matches Section -->
+    <section class="scores-section">
+      <div class="section-header">
+        <h2 class="section-title">Live Matches</h2>
+        <div class="live-count" id="liveCount">9 matches live</div>
+      </div>
+      
+      <div class="scores-grid" id="liveScoresGrid">
+        <!-- Live Match 1: Football -->
+        <div class="match-card live" data-sport="Football" data-match-id="101">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">⚽</span>
+              <span>Football</span>
+            </div>
+            <div class="match-status live">
+              <div class="live-indicator"></div>
+              <span>75'</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            Premier League • Etihad Stadium
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">MC</div>
+                <div class="team-name">Manchester City</div>
+              </div>
+              <div class="team-score">2</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">LIV</div>
+                <div class="team-name">Liverpool</div>
+              </div>
+              <div class="team-score">1</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Etihad Stadium
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Live - 2nd Half
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="101">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost stats-btn" data-match-id="101">Stats</button>
+          </div>
+        </div>
+
+        <!-- Live Match 2: Basketball -->
+        <div class="match-card live" data-sport="Basketball" data-match-id="102">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏀</span>
+              <span>Basketball</span>
+            </div>
+            <div class="match-status live">
+              <div class="live-indicator"></div>
+              <span>Q4</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            NBA • TD Garden
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">BOS</div>
+                <div class="team-name">Boston Celtics</div>
+              </div>
+              <div class="team-score">95</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">LAL</div>
+                <div class="team-name">LA Lakers</div>
+              </div>
+              <div class="team-score">98</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              TD Garden
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              4:32 remaining
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="102">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost stats-btn" data-match-id="102">Stats</button>
+          </div>
+        </div>
+
+        <!-- Live Match 3: Cricket -->
+        <div class="match-card live" data-sport="Cricket" data-match-id="103">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏏</span>
+              <span>Cricket</span>
+            </div>
+            <div class="match-status live">
+              <div class="live-indicator"></div>
+              <span>45th Over</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            ICC World Cup • MCG
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">IND</div>
+                <div class="team-name">India</div>
+              </div>
+              <div class="team-score">245/3</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">AUS</div>
+                <div class="team-name">Australia</div>
+              </div>
+              <div class="team-score">280/6</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Melbourne Cricket Ground
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              India Batting
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="103">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost stats-btn" data-match-id="103">Scorecard</button>
+          </div>
+        </div>
+
+        <!-- Live Match 4: Hockey -->
+        <div class="match-card live" data-sport="Hockey" data-match-id="104">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏒</span>
+              <span>Hockey</span>
+            </div>
+            <div class="match-status live">
+              <div class="live-indicator"></div>
+              <span>P3</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            NHL • Bell Centre
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">MTL</div>
+                <div class="team-name">Canadiens</div>
+              </div>
+              <div class="team-score">2</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">TOR</div>
+                <div class="team-name">Maple Leafs</div>
+              </div>
+              <div class="team-score">3</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Bell Centre
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              12:15 remaining
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="104">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost stats-btn" data-match-id="104">Stats</button>
+          </div>
+        </div>
+
+        <!-- Live Match 5: Rugby -->
+        <div class="match-card live" data-sport="Rugby" data-match-id="105">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏉</span>
+              <span>Rugby</span>
+            </div>
+            <div class="match-status live">
+              <div class="live-indicator"></div>
+              <span>65'</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            Rugby Championship • Ellis Park
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">RSA</div>
+                <div class="team-name">Springboks</div>
+              </div>
+              <div class="team-score">18</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">NZL</div>
+                <div class="team-name">All Blacks</div>
+              </div>
+              <div class="team-score">24</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Ellis Park
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Second Half
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="105">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost stats-btn" data-match-id="105">Stats</button>
+          </div>
+        </div>
+
+        <!-- Live Match 6: Boxing -->
+        <div class="match-card live" data-sport="Boxing" data-match-id="106">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🥊</span>
+              <span>Boxing</span>
+            </div>
+            <div class="match-status live">
+              <div class="live-indicator"></div>
+              <span>Round 8</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            WBA Middleweight • T-Mobile Arena
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">CA</div>
+                <div class="team-name">Canelo Alvarez</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">CP</div>
+                <div class="team-name">Caleb Plant</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              T-Mobile Arena
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Live - Championship
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="106">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost stats-btn" data-match-id="106">Stats</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="no-results" id="liveNoResults" style="display: none;">
+        <h3>No live matches found</h3>
+        <p>Try adjusting your search criteria or check back later</p>
+      </div>
+    </section>
+
+    <!-- Today's Results Section -->
+    <section class="scores-section">
+      <div class="section-header">
+        <h2 class="section-title">Today's Results</h2>
+        <div class="date-filter">November 17, 2024</div>
+      </div>
+      
+      <div class="scores-grid" id="resultsGrid">
+        <!-- Result 1: Football -->
+        <div class="match-card finished" data-sport="Football" data-match-id="201">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">⚽</span>
+              <span>Football</span>
+            </div>
+            <div class="match-status finished">
+              <span>FT</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            La Liga • Camp Nou
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">FCB</div>
+                <div class="team-name">Barcelona</div>
+              </div>
+              <div class="team-score">1</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">RMA</div>
+                <div class="team-name">Real Madrid</div>
+              </div>
+              <div class="team-score">3</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Camp Nou
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Full Time
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="201">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost highlights-btn" data-match-id="201">Highlights</button>
+          </div>
+        </div>
+
+        <!-- Result 2: Tennis -->
+        <div class="match-card finished" data-sport="Tennis" data-match-id="202">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🎾</span>
+              <span>Tennis</span>
+            </div>
+            <div class="match-status finished">
+              <span>Final</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            ATP Finals • Turin
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">ND</div>
+                <div class="team-name">Novak Djokovic</div>
+              </div>
+              <div class="team-score">2</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">CA</div>
+                <div class="team-name">Carlos Alcaraz</div>
+              </div>
+              <div class="team-score">1</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Pala Alpitour
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              6-4, 5-7, 6-4
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="202">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost highlights-btn" data-match-id="202">Highlights</button>
+          </div>
+        </div>
+
+        <!-- Result 3: Baseball -->
+        <div class="match-card finished" data-sport="Baseball" data-match-id="203">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">⚾</span>
+              <span>Baseball</span>
+            </div>
+            <div class="match-status finished">
+              <span>Final</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            MLB World Series
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">NYY</div>
+                <div class="team-name">NY Yankees</div>
+              </div>
+              <div class="team-score">4</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">BOS</div>
+                <div class="team-name">Boston Red Sox</div>
+              </div>
+              <div class="team-score">3</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Yankee Stadium
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Game 7 Final
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="203">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost highlights-btn" data-match-id="203">Highlights</button>
+          </div>
+        </div>
+
+        <!-- Result 4: Basketball -->
+        <div class="match-card finished" data-sport="Basketball" data-match-id="204">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏀</span>
+              <span>Basketball</span>
+            </div>
+            <div class="match-status finished">
+              <span>Final</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            NBA • Fiserv Forum
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">MIL</div>
+                <div class="team-name">Bucks</div>
+              </div>
+              <div class="team-score">112</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">BKN</div>
+                <div class="team-name">Nets</div>
+              </div>
+              <div class="team-score">108</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Fiserv Forum
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Overtime
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="204">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost highlights-btn" data-match-id="204">Highlights</button>
+          </div>
+        </div>
+
+        <!-- Result 5: Cricket -->
+        <div class="match-card finished" data-sport="Cricket" data-match-id="205">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏏</span>
+              <span>Cricket</span>
+            </div>
+            <div class="match-status finished">
+              <span>Final</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            T20 League • Dubai
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">MI</div>
+                <div class="team-name">Mumbai Indians</div>
+              </div>
+              <div class="team-score">185/6</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">CSK</div>
+                <div class="team-name">Chennai Super Kings</div>
+              </div>
+              <div class="team-score">189/4</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Dubai International
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              CSK won by 6 wickets
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="205">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost highlights-btn" data-match-id="205">Highlights</button>
+          </div>
+        </div>
+
+        <!-- Result 6: Formula 1 -->
+        <div class="match-card finished" data-sport="Formula1" data-match-id="206">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏎️</span>
+              <span>Formula 1</span>
+            </div>
+            <div class="match-status finished">
+              <span>Final</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            Brazilian Grand Prix
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">VER</div>
+                <div class="team-name">Max Verstappen</div>
+              </div>
+              <div class="team-score">1st</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">HAM</div>
+                <div class="team-name">Lewis Hamilton</div>
+              </div>
+              <div class="team-score">2nd</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Interlagos Circuit
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              71 Laps Completed
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small follow-btn" data-match-id="206">
+              <span class="btn-text">Follow</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost highlights-btn" data-match-id="206">Highlights</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="no-results" id="resultsNoResults" style="display: none;">
+        <h3>No results found</h3>
+        <p>Try adjusting your search criteria or check another date</p>
+      </div>
+    </section>
+
+    <!-- Upcoming Matches Section -->
+    <section class="scores-section">
+      <div class="section-header">
+        <h2 class="section-title">Upcoming Matches</h2>
+        <div class="time-range">Next 24 hours</div>
+      </div>
+      
+      <div class="scores-grid" id="upcomingGrid">
+        <!-- Upcoming 1: Football -->
+        <div class="match-card upcoming" data-sport="Football" data-match-id="301">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">⚽</span>
+              <span>Football</span>
+            </div>
+            <div class="match-status upcoming">
+              <span>19:45</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            Champions League • Allianz Arena
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">BAY</div>
+                <div class="team-name">Bayern Munich</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">PSG</div>
+                <div class="team-name">Paris SG</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Allianz Arena
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Today, 19:45 GMT
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small reminder-btn" data-match-id="301">
+              <span class="btn-text">Remind Me</span>
+              <span class="hover-text">Off Reminder</span>
+            </button>
+            <button class="btn btn-small ghost preview-btn" data-match-id="301">Preview</button>
+          </div>
+        </div>
+
+        <!-- Upcoming 2: Basketball -->
+        <div class="match-card upcoming" data-sport="Basketball" data-match-id="302">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏀</span>
+              <span>Basketball</span>
+            </div>
+            <div class="match-status upcoming">
+              <span>02:30</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            NBA • Chase Center
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">GSW</div>
+                <div class="team-name">Golden State</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">PHX</div>
+                <div class="team-name">Phoenix Suns</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Chase Center
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Tomorrow, 02:30 GMT
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small reminder-btn" data-match-id="302">
+              <span class="btn-text">Remind Me</span>
+              <span class="hover-text">Off Reminder</span>
+            </button>
+            <button class="btn btn-small ghost preview-btn" data-match-id="302">Preview</button>
+          </div>
+        </div>
+
+        <!-- Upcoming 3: Cricket -->
+        <div class="match-card upcoming" data-sport="Cricket" data-match-id="303">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🏏</span>
+              <span>Cricket</span>
+            </div>
+            <div class="match-status upcoming">
+              <span>08:00</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            T20 World Cup • Dubai
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">ENG</div>
+                <div class="team-name">England</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">PAK</div>
+                <div class="team-name">Pakistan</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Dubai International
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Tomorrow, 08:00 GMT
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small reminder-btn" data-match-id="303">
+              <span class="btn-text">Remind Me</span>
+              <span class="hover-text">Off Reminder</span>
+            </button>
+            <button class="btn btn-small ghost preview-btn" data-match-id="303">Preview</button>
+          </div>
+        </div>
+
+        <!-- Upcoming 4: Tennis -->
+        <div class="match-card upcoming" data-sport="Tennis" data-match-id="304">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🎾</span>
+              <span>Tennis</span>
+            </div>
+            <div class="match-status upcoming">
+              <span>14:00</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            Australian Open • Melbourne
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">RN</div>
+                <div class="team-name">Rafael Nadal</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">DN</div>
+                <div class="team-name">Daniil Medvedev</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Rod Laver Arena
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Today, 14:00 GMT
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small reminder-btn" data-match-id="304">
+              <span class="btn-text">Remind Me</span>
+              <span class="hover-text">Off Reminder</span>
+            </button>
+            <button class="btn btn-small ghost preview-btn" data-match-id="304">Preview</button>
+          </div>
+        </div>
+
+        <!-- Upcoming 5: Golf -->
+        <div class="match-card upcoming" data-sport="Golf" data-match-id="305">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">⛳</span>
+              <span>Golf</span>
+            </div>
+            <div class="match-status upcoming">
+              <span>07:30</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            Masters Tournament • Augusta
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">TS</div>
+                <div class="team-name">Tiger Woods</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">RM</div>
+                <div class="team-name">Rory McIlroy</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              Augusta National
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Tomorrow, 07:30 GMT
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small reminder-btn" data-match-id="305">
+              <span class="btn-text">Remind Me</span>
+              <span class="hover-text">Off Reminder</span>
+            </button>
+            <button class="btn btn-small ghost preview-btn" data-match-id="305">Preview</button>
+          </div>
+        </div>
+
+        <!-- Upcoming 6: MMA -->
+        <div class="match-card upcoming" data-sport="MMA" data-match-id="306">
+          <div class="match-header">
+            <div class="match-sport">
+              <span class="sport-icon">🥋</span>
+              <span>MMA</span>
+            </div>
+            <div class="match-status upcoming">
+              <span>23:00</span>
+            </div>
+          </div>
+          <div class="match-competition">
+            UFC 300 • T-Mobile Arena
+          </div>
+          <div class="match-teams">
+            <div class="team home-team">
+              <div class="team-info">
+                <div class="team-logo">IM</div>
+                <div class="team-name">Israel Adesanya</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+            <div class="team away-team">
+              <div class="team-info">
+                <div class="team-logo">AP</div>
+                <div class="team-name">Alex Pereira</div>
+              </div>
+              <div class="team-score">-</div>
+            </div>
+          </div>
+          <div class="match-details">
+            <div class="match-venue">
+              <i class="fas fa-map-marker-alt"></i>
+              T-Mobile Arena
+            </div>
+            <div class="match-time">
+              <i class="fas fa-clock"></i>
+              Today, 23:00 GMT
+            </div>
+          </div>
+          <div class="match-actions">
+            <button class="btn btn-small reminder-btn" data-match-id="306">
+              <span class="btn-text">Remind Me</span>
+              <span class="hover-text">Off Reminder</span>
+            </button>
+            <button class="btn btn-small ghost preview-btn" data-match-id="306">Preview</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="no-results" id="upcomingNoResults" style="display: none;">
+        <h3>No upcoming matches found</h3>
+        <p>Try adjusting your search criteria or check another time period</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer role="contentinfo">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h5>AllSports</h5>
+      <p>Your premier destination for sports news, live scores, and video highlights.</p>
+    </div>
+    <div class="footer-section">
+      <h5>Sports</h5>
+      <a href="games/football.html">Football</a>
+      <a href="games/cricket.html">Cricket</a>
+      <a href="games/basketball.html">Basketball</a>
+      <a href="games/tennis.html">Tennis</a>
+    </div>
+    <div class="footer-section">
+      <h5>Company</h5>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#terms">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2024 AllSports — Built with ❤️ for sports fans worldwide
+  </div>
+</footer>
+
+<!-- Modals -->
+<!-- Stats Modal -->
+<div id="statsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="statsModalTitle">Match Statistics</h2>
+      <button class="modal-close" id="closeStatsModal">&times;</button>
+    </div>
+    <div class="modal-body" id="statsModalBody">
+      <!-- Stats content will be dynamically inserted here -->
+    </div>
+  </div>
+</div>
+
+<!-- Highlights Modal -->
+<div id="highlightsModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="highlightsModalTitle">Match Highlights</h2>
+      <button class="modal-close" id="closeHighlightsModal">&times;</button>
+    </div>
+    <div class="modal-body" id="highlightsModalBody">
+      <!-- Highlights content will be dynamically inserted here -->
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="previewModalTitle">Match Preview</h2>
+      <button class="modal-close" id="closePreviewModal">&times;</button>
+    </div>
+    <div class="modal-body" id="previewModalBody">
+      <!-- Preview content will be dynamically inserted here -->
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<script>
+// Scores App
+class ScoresApp {
+  constructor() {
+    this.state = {
+      user: null,
+      followedMatches: new Set(),
+      remindedMatches: new Set(),
+      currentFilters: {
+        sport: 'All',
+        league: 'All',
+        status: 'All'
+      }
+    };
+    
+    // Sample data for stats, highlights, and previews
+    this.matchData = {
+      // Live matches stats
+      101: {
+        title: "Manchester City vs Liverpool",
+        stats: {
+          possession: "58% - 42%",
+          shots: "14 - 8",
+          shotsOnTarget: "6 - 3",
+          corners: "5 - 2",
+          fouls: "12 - 15",
+          yellowCards: "2 - 3",
+          redCards: "0 - 0",
+          offsides: "1 - 2"
+        },
+        teamStats: {
+          home: {
+            name: "Manchester City",
+            shots: 14,
+            shotsOnTarget: 6,
+            passes: 512,
+            passAccuracy: "87%",
+            tackles: 18,
+            interceptions: 12
+          },
+          away: {
+            name: "Liverpool",
+            shots: 8,
+            shotsOnTarget: 3,
+            passes: 389,
+            passAccuracy: "79%",
+            tackles: 22,
+            interceptions: 15
+          }
+        }
+      },
+      102: {
+        title: "Boston Celtics vs LA Lakers",
+        stats: {
+          fieldGoals: "42% - 46%",
+          threePointers: "35% - 38%",
+          freeThrows: "82% - 85%",
+          rebounds: "42 - 38",
+          assists: "24 - 26",
+          steals: "7 - 5",
+          blocks: "4 - 3",
+          turnovers: "12 - 10"
+        },
+        teamStats: {
+          home: {
+            name: "Boston Celtics",
+            fieldGoals: "42%",
+            threePointers: "35%",
+            freeThrows: "82%",
+            rebounds: 42,
+            assists: 24
+          },
+          away: {
+            name: "LA Lakers",
+            fieldGoals: "46%",
+            threePointers: "38%",
+            freeThrows: "85%",
+            rebounds: 38,
+            assists: 26
+          }
+        }
+      },
+      103: {
+        title: "India vs Australia",
+        stats: {
+          runs: "245/3 - 280/6",
+          runRate: "5.44 - 6.22",
+          overs: "45 - 50",
+          fours: "24 - 28",
+          sixes: "6 - 8",
+          wickets: "3 - 6",
+          extras: "12 - 10"
+        },
+        teamStats: {
+          home: {
+            name: "India",
+            runs: 245,
+            wickets: 3,
+            overs: 45,
+            runRate: "5.44"
+          },
+          away: {
+            name: "Australia",
+            runs: 280,
+            wickets: 6,
+            overs: 50,
+            runRate: "5.60"
+          }
+        }
+      },
+      104: {
+        title: "Canadiens vs Maple Leafs",
+        stats: {
+          shots: "28 - 32",
+          faceoffs: "52% - 48%",
+          powerPlay: "1/3 - 0/2",
+          penaltyMins: "6 - 8",
+          hits: "24 - 18",
+          blocks: "15 - 12"
+        },
+        teamStats: {
+          home: {
+            name: "Canadiens",
+            shots: 28,
+            faceoffs: "52%",
+            powerPlay: "1/3",
+            hits: 24
+          },
+          away: {
+            name: "Maple Leafs",
+            shots: 32,
+            faceoffs: "48%",
+            powerPlay: "0/2",
+            hits: 18
+          }
+        }
+      },
+      105: {
+        title: "Springboks vs All Blacks",
+        stats: {
+          possession: "47% - 53%",
+          territory: "52% - 48%",
+          lineouts: "12/14 - 10/12",
+          scrums: "5/5 - 6/6",
+          penalties: "9 - 11",
+          turnovers: "8 - 6"
+        },
+        teamStats: {
+          home: {
+            name: "Springboks",
+            possession: "47%",
+            territory: "52%",
+            lineouts: "12/14",
+            penalties: 9
+          },
+          away: {
+            name: "All Blacks",
+            possession: "53%",
+            territory: "48%",
+            lineouts: "10/12",
+            penalties: 11
+          }
+        }
+      },
+      106: {
+        title: "Alvarez vs Plant",
+        stats: {
+          rounds: "8",
+          punchesLanded: "98 - 76",
+          punchAccuracy: "42% - 38%",
+          jabsLanded: "32 - 28",
+          powerPunches: "66 - 48",
+          knockdowns: "0 - 0"
+        },
+        teamStats: {
+          home: {
+            name: "Canelo Alvarez",
+            punchesLanded: 98,
+            punchAccuracy: "42%",
+            jabsLanded: 32
+          },
+          away: {
+            name: "Caleb Plant",
+            punchesLanded: 76,
+            punchAccuracy: "38%",
+            jabsLanded: 28
+          }
+        }
+      },
+      
+      // Today's results highlights
+      201: {
+        title: "Barcelona vs Real Madrid",
+        videoId: "ni8PheuLDgs", // Example YouTube ID
+        summary: "Real Madrid secured a convincing 3-1 victory over rivals Barcelona in a thrilling El Clásico encounter. The away side dominated possession and created numerous chances, with their attacking trio causing constant problems for the Barcelona's defense."
+      },
+      202: {
+        title: "Djokovic vs Alcaraz",
+        videoId: "a3kMDNxKhJ4", // Example YouTube ID
+        summary: "Novak Djokovic claimed his seventh ATP Finals title with a hard-fought victory over Carlos Alcaraz. The match lasted over three hours and featured incredible rallies, with Djokovic's experience ultimately proving decisive in the final set."
+      },
+      203: {
+        title: "NY Yankees vs Boston Red Sox",
+        videoId: "Vd-gDnhvtHM", // Example YouTube ID
+        summary: "The New York Yankees clinched the World Series with a dramatic 4-3 victory over the Boston Red Sox in Game 7. A ninth-inning home run secured the championship for the Yankees in one of the most memorable World Series finales in recent history."
+      },
+      204: {
+        title: "Bucks vs Nets",
+        videoId: "example_id_4", // Example YouTube ID
+        summary: "The Milwaukee Bucks edged out the Brooklyn Nets in an overtime thriller. Giannis Antetokounmpo led the way with a triple-double, while Kevin Durant's 45-point effort wasn't enough for the Nets in this closely contested matchup."
+      },
+      205: {
+        title: "Mumbai Indians vs Chennai Super Kings",
+        videoId: "example_id_5", // Example YouTube ID
+        summary: "Chennai Super Kings chased down 186 with 6 wickets in hand in a thrilling IPL encounter. MS Dhoni's finishing touches in the final over secured victory for CSK in this classic rivalry match."
+      },
+      206: {
+        title: "Brazilian Grand Prix",
+        videoId: "example_id_6", // Example YouTube ID
+        summary: "Max Verstappen dominated the Brazilian Grand Prix, leading from start to finish. Lewis Hamilton secured second place after an intense battle with Sergio Perez, who completed the podium in third position."
+      },
+      
+      // Upcoming matches previews
+      301: {
+        title: "Bayern Munich vs Paris SG",
+        teams: {
+          home: {
+            name: "Bayern Munich",
+            coach: "Thomas Tuchel",
+            lineup: [
+              { number: 1, name: "Manuel Neuer", position: "Goalkeeper" },
+              { number: 5, name: "Benjamin Pavard", position: "Defender" },
+              { number: 2, name: "Dayot Upamecano", position: "Defender" },
+              { number: 4, name: "Matthijs de Ligt", position: "Defender" },
+              { number: 19, name: "Alphonso Davies", position: "Defender" },
+              { number: 6, name: "Joshua Kimmich", position: "Midfielder" },
+              { number: 8, name: "Leon Goretzka", position: "Midfielder" },
+              { number: 10, name: "Leroy Sané", position: "Forward" },
+              { number: 25, name: "Thomas Müller", position: "Forward" },
+              { number: 7, name: "Serge Gnabry", position: "Forward" },
+              { number: 9, name: "Harry Kane", position: "Forward" }
+            ],
+            substitutes: [
+              { number: 26, name: "Sven Ulreich", position: "Goalkeeper" },
+              { number: 40, name: "Noussair Mazraoui", position: "Defender" },
+              { number: 22, name: "Raphaël Guerreiro", position: "Defender" },
+              { number: 45, name: "Aleksandar Pavlović", position: "Midfielder" },
+              { number: 42, name: "Jamal Musiala", position: "Midfielder" },
+              { number: 39, name: "Mathys Tel", position: "Forward" },
+              { number: 13, name: "Eric Maxim Choupo-Moting", position: "Forward" }
+            ]
+          },
+          away: {
+            name: "Paris Saint-Germain",
+            coach: "Luis Enrique",
+            lineup: [
+              { number: 99, name: "Gianluigi Donnarumma", position: "Goalkeeper" },
+              { number: 2, name: "Achraf Hakimi", position: "Defender" },
+              { number: 5, name: "Marquinhos", position: "Defender" },
+              { number: 21, name: "Lucas Hernández", position: "Defender" },
+              { number: 25, name: "Nuno Mendes", position: "Defender" },
+              { number: 17, name: "Vitinha", position: "Midfielder" },
+              { number: 8, name: "Fabian Ruiz", position: "Midfielder" },
+              { number: 33, name: "Warren Zaïre-Emery", position: "Midfielder" },
+              { number: 10, name: "Kylian Mbappé", position: "Forward" },
+              { number: 9, name: "Gonçalo Ramos", position: "Forward" },
+              { number: 7, name: "Ousmane Dembélé", position: "Forward" }
+            ],
+            substitutes: [
+              { number: 80, name: "Arnau Tenas", position: "Goalkeeper" },
+              { number: 37, name: "Milan Škriniar", position: "Defender" },
+              { number: 15, name: "Danilo Pereira", position: "Defender" },
+              { number: 4, name: "Manuel Ugarte", position: "Midfielder" },
+              { number: 19, name: "Lee Kang-in", position: "Midfielder" },
+              { number: 11, name: "Marco Asensio", position: "Forward" },
+              { number: 23, name: "Randal Kolo Muani", position: "Forward" }
+            ]
+          }
+        }
+      },
+      302: {
+        title: "Golden State Warriors vs Phoenix Suns",
+        teams: {
+          home: {
+            name: "Golden State Warriors",
+            coach: "Steve Kerr",
+            lineup: [
+              { number: 30, name: "Stephen Curry", position: "Point Guard" },
+              { number: 11, name: "Klay Thompson", position: "Shooting Guard" },
+              { number: 22, name: "Andrew Wiggins", position: "Small Forward" },
+              { number: 23, name: "Draymond Green", position: "Power Forward" },
+              { number: 5, name: "Kevon Looney", position: "Center" }
+            ],
+            substitutes: [
+              { number: 3, name: "Chris Paul", position: "Point Guard" },
+              { number: 1, name: "Gary Payton II", position: "Shooting Guard" },
+              { number: 2, name: "Brandin Podziemski", position: "Shooting Guard" },
+              { number: 4, name: "Jonathan Kuminga", position: "Forward" },
+              { number: 20, name: "Dario Šarić", position: "Forward" },
+              { number: 32, name: "Trayce Jackson-Davis", position: "Center" }
+            ]
+          },
+          away: {
+            name: "Phoenix Suns",
+            coach: "Frank Vogel",
+            lineup: [
+              { number: 3, name: "Bradley Beal", position: "Point Guard" },
+              { number: 1, name: "Devin Booker", position: "Shooting Guard" },
+              { number: 35, name: "Kevin Durant", position: "Small Forward" },
+              { number: 10, name: "Grayson Allen", position: "Shooting Guard" },
+              { number: 20, name: "Jusuf Nurkić", position: "Center" }
+            ],
+            substitutes: [
+              { number: 8, name: "Eric Gordon", position: "Shooting Guard" },
+              { number: 14, name: "Drew Eubanks", position: "Center" },
+              { number: 18, name: "Yuta Watanabe", position: "Small Forward" },
+              { number: 11, name: "Jordan Goodwin", position: "Point Guard" },
+              { number: 21, name: "Keita Bates-Diop", position: "Small Forward" },
+              { number: 12, name: "Chimezie Metu", position: "Power Forward" }
+            ]
+          }
+        }
+      },
+      303: {
+        title: "England vs Pakistan",
+        teams: {
+          home: {
+            name: "England",
+            coach: "Matthew Mott",
+            lineup: [
+              { number: 1, name: "Jos Buttler", position: "Wicket-keeper" },
+              { number: 2, name: "Phil Salt", position: "Batsman" },
+              { number: 66, name: "Will Jacks", position: "All-rounder" },
+              { number: 56, name: "Jonny Bairstow", position: "Batsman" },
+              { number: 55, name: "Harry Brook", position: "Batsman" },
+              { number: 17, name: "Liam Livingstone", position: "All-rounder" },
+              { number: 18, name: "Sam Curran", position: "All-rounder" },
+              { number: 81, name: "Chris Woakes", position: "Bowler" },
+              { number: 24, name: "Adil Rashid", position: "Bowler" },
+              { number: 33, name: "Mark Wood", position: "Bowler" },
+              { number: 15, name: "Reece Topley", position: "Bowler" }
+            ],
+            substitutes: [
+              { name: "Ben Duckett", position: "Batsman" },
+              { name: "Moeen Ali", position: "All-rounder" },
+              { name: "Gus Atkinson", position: "Bowler" },
+              { name: "Brydon Carse", position: "Bowler" }
+            ]
+          },
+          away: {
+            name: "Pakistan",
+            coach: "Grant Bradburn",
+            lineup: [
+              { number: 56, name: "Mohammad Rizwan", position: "Wicket-keeper" },
+              { number: 1, name: "Babar Azam", position: "Batsman" },
+              { number: 3, name: "Fakhar Zaman", position: "Batsman" },
+              { number: 29, name: "Mohammad Haris", position: "Batsman" },
+              { number: 18, name: "Shadab Khan", position: "All-rounder" },
+              { number: 8, name: "Iftikhar Ahmed", position: "All-rounder" },
+              { number: 27, name: "Imad Wasim", position: "All-rounder" },
+              { number: 16, name: "Mohammad Nawaz", position: "Bowler" },
+              { number: 97, name: "Shaheen Afridi", position: "Bowler" },
+              { number: 9, name: "Haris Rauf", position: "Bowler" },
+              { number: 70, name: "Naseem Shah", position: "Bowler" }
+            ],
+            substitutes: [
+              { name: "Abdullah Shafique", position: "Batsman" },
+              { name: "Saud Shakeel", position: "Batsman" },
+              { name: "Mohammad Wasim Jr", position: "Bowler" },
+              { name: "Usama Mir", position: "Bowler" }
+            ]
+          }
+        }
+      },
+      304: {
+        title: "Nadal vs Medvedev",
+        teams: {
+          home: {
+            name: "Rafael Nadal",
+            coach: "Carlos Moya",
+            ranking: "World No. 2"
+          },
+          away: {
+            name: "Daniil Medvedev",
+            coach: "Gilles Cervara",
+            ranking: "World No. 3"
+          }
+        }
+      },
+      305: {
+        title: "Woods vs McIlroy",
+        teams: {
+          home: {
+            name: "Tiger Woods",
+            coach: "Not disclosed",
+            worldRanking: "45"
+          },
+          away: {
+            name: "Rory McIlroy",
+            coach: "Michael Bannon",
+            worldRanking: "2"
+          }
+        }
+      },
+      306: {
+        title: "Adesanya vs Pereira",
+        teams: {
+          home: {
+            name: "Israel Adesanya",
+            record: "24-3-0",
+            height: "6'4\"",
+            weight: "185 lbs"
+          },
+          away: {
+            name: "Alex Pereira",
+            record: "9-2-0",
+            height: "6'4\"",
+            weight: "185 lbs"
+          }
+        }
+      }
+    };
+    
+    // Search data
+    this.searchData = [
+      { id: 101, title: "Manchester City vs Liverpool", sport: "Football", status: "Live", time: "75'", score: "2-1" },
+      { id: 102, title: "Boston Celtics vs LA Lakers", sport: "Basketball", status: "Live", time: "Q4", score: "95-98" },
+      { id: 103, title: "India vs Australia", sport: "Cricket", status: "Live", time: "45th Over", score: "245/3 - 280/6" },
+      { id: 201, title: "Barcelona vs Real Madrid", sport: "Football", status: "Finished", time: "FT", score: "1-3" },
+      { id: 202, title: "Novak Djokovic vs Carlos Alcaraz", sport: "Tennis", status: "Finished", time: "Final", score: "2-1" },
+      { id: 203, title: "NY Yankees vs Boston Red Sox", sport: "Baseball", status: "Finished", time: "Final", score: "4-3" },
+      { id: 301, title: "Bayern Munich vs Paris SG", sport: "Football", status: "Upcoming", time: "19:45", score: "-" },
+      { id: 302, title: "Golden State Warriors vs Phoenix Suns", sport: "Basketball", status: "Upcoming", time: "02:30", score: "-" },
+      { id: 303, title: "England vs Pakistan", sport: "Cricket", status: "Upcoming", time: "08:00", score: "-" },
+      { id: "team-mc", title: "Manchester City", type: "Team", sport: "Football" },
+      { id: "team-liv", title: "Liverpool", type: "Team", sport: "Football" },
+      { id: "team-bos", title: "Boston Celtics", type: "Team", sport: "Basketball" },
+      { id: "team-lal", title: "LA Lakers", type: "Team", sport: "Basketball" },
+      { id: "player-mbappe", title: "Kylian Mbappé", type: "Player", sport: "Football" },
+      { id: "player-curry", title: "Stephen Curry", type: "Player", sport: "Basketball" },
+      { id: "player-djokovic", title: "Novak Djokovic", type: "Player", sport: "Tennis" }
+    ];
+    
+    this.init();
+  }
+
+  async init() {
+    console.log('Scores App Initializing...');
+    await this.checkAuthStatus();
+    await this.loadFollowedMatches();
+    await this.loadRemindedMatches();
+    this.setupEventListeners();
+    this.updateFollowButtons();
+    this.updateReminderButtons();
+    this.setupModalListeners();
+    this.setupSearchFunctionality();
+  }
+
+  setupSearchFunctionality() {
+    // Header search
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        this.performSearch(query, searchResults);
+      });
+      
+      // Hide results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+          searchResults.classList.remove('active');
+        }
+      });
+    }
+
+    // Mobile search
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    const mobileSearchResults = document.getElementById('mobileSearchResults');
+    
+    if (mobileSearchInput) {
+      mobileSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        this.performSearch(query, mobileSearchResults);
+      });
+      
+      // Hide results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mobileSearchInput.contains(e.target) && !mobileSearchResults.contains(e.target)) {
+          mobileSearchResults.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  performSearch(query, resultsContainer) {
+    if (!query) {
+      resultsContainer.classList.remove('active');
+      return;
+    }
+    
+    const filteredResults = this.searchData.filter(item => 
+      item.title.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    this.displaySearchResults(filteredResults, resultsContainer);
+  }
+
+  displaySearchResults(results, container) {
+    if (results.length === 0) {
+      container.innerHTML = `
+        <div class="search-result-item">
+          <div class="search-result-title">No results found</div>
+          <div class="search-result-details">Try different keywords</div>
+        </div>
+      `;
+    } else {
+      container.innerHTML = results.map(item => {
+        let details = '';
+        
+        if (item.type === 'Team') {
+          details = `${item.sport} Team`;
+        } else if (item.type === 'Player') {
+          details = `${item.sport} Player`;
+        } else {
+          details = `${item.sport} • ${item.status} • ${item.score}`;
+        }
+        
+        return `
+          <div class="search-result-item" data-id="${item.id}">
+            <div class="search-result-header">
+              <span class="search-result-sport">${item.sport}</span>
+              ${item.status ? `<span class="match-status ${item.status.toLowerCase()}">${item.status}</span>` : ''}
+            </div>
+            <div class="search-result-title">${item.title}</div>
+            <div class="search-result-details">${details}</div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    container.classList.add('active');
+    
+    // Add click handlers to search results
+    container.querySelectorAll('.search-result-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const itemId = item.dataset.id;
+        this.handleSearchResultClick(itemId);
+        container.classList.remove('active');
+      });
+    });
+  }
+
+  handleSearchResultClick(itemId) {
+    // Handle different types of search results
+    if (itemId.startsWith('team-')) {
+      // Navigate to team page
+      this.showToast(`Navigating to team: ${itemId}`);
+    } else if (itemId.startsWith('player-')) {
+      // Navigate to player page
+      this.showToast(`Navigating to player: ${itemId}`);
+    } else {
+      // It's a match ID, scroll to and highlight the match card
+      const matchCard = document.querySelector(`.match-card[data-match-id="${itemId}"]`);
+      if (matchCard) {
+        matchCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Add highlight effect
+        matchCard.style.boxShadow = '0 0 0 3px var(--accent)';
+        setTimeout(() => {
+          matchCard.style.boxShadow = '';
+        }, 2000);
+        
+        this.showToast(`Showing match: ${this.matchData[itemId]?.title || 'Match'}`);
+      }
+    }
+  }
+
+  setupModalListeners() {
+    // Stats modal
+    const statsModal = document.getElementById('statsModal');
+    const closeStatsModal = document.getElementById('closeStatsModal');
+    const statsButtons = document.querySelectorAll('.stats-btn');
+    
+    statsButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const matchId = button.dataset.matchId;
+        this.showStatsModal(matchId);
+      });
+    });
+    
+    closeStatsModal.addEventListener('click', () => {
+      statsModal.classList.remove('active');
+    });
+    
+    statsModal.addEventListener('click', (e) => {
+      if (e.target === statsModal) {
+        statsModal.classList.remove('active');
+      }
+    });
+    
+    // Highlights modal
+    const highlightsModal = document.getElementById('highlightsModal');
+    const closeHighlightsModal = document.getElementById('closeHighlightsModal');
+    const highlightsButtons = document.querySelectorAll('.highlights-btn');
+    
+    highlightsButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const matchId = button.dataset.matchId;
+        this.showHighlightsModal(matchId);
+      });
+    });
+    
+    closeHighlightsModal.addEventListener('click', () => {
+      highlightsModal.classList.remove('active');
+    });
+    
+    highlightsModal.addEventListener('click', (e) => {
+      if (e.target === highlightsModal) {
+        highlightsModal.classList.remove('active');
+      }
+    });
+    
+    // Preview modal
+    const previewModal = document.getElementById('previewModal');
+    const closePreviewModal = document.getElementById('closePreviewModal');
+    const previewButtons = document.querySelectorAll('.preview-btn');
+    
+    previewButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const matchId = button.dataset.matchId;
+        this.showPreviewModal(matchId);
+      });
+    });
+    
+    closePreviewModal.addEventListener('click', () => {
+      previewModal.classList.remove('active');
+    });
+    
+    previewModal.addEventListener('click', (e) => {
+      if (e.target === previewModal) {
+        previewModal.classList.remove('active');
+      }
+    });
+  }
+
+  showStatsModal(matchId) {
+    const statsModal = document.getElementById('statsModal');
+    const statsModalTitle = document.getElementById('statsModalTitle');
+    const statsModalBody = document.getElementById('statsModalBody');
+    
+    const matchData = this.matchData[matchId];
+    
+    if (!matchData) {
+      this.showToast('Stats data not available for this match');
+      return;
+    }
+    
+    statsModalTitle.textContent = `${matchData.title} - Statistics`;
+    
+    let statsHTML = '';
+    
+    // Key stats
+    statsHTML += `
+      <div class="stats-container">
+    `;
+    
+    for (const [key, value] of Object.entries(matchData.stats)) {
+      const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+      statsHTML += `
+        <div class="stat-item">
+          <div class="stat-value">${value}</div>
+          <div class="stat-label">${formattedKey}</div>
+        </div>
+      `;
+    }
+    
+    statsHTML += `</div>`;
+    
+    // Team stats
+    statsHTML += `
+      <div class="team-stats">
+        <div class="team-stat">
+          <div class="team-stat-header">
+            <div class="team-logo">${matchData.teamStats.home.name.substring(0, 3)}</div>
+            <div class="team-stat-title">${matchData.teamStats.home.name}</div>
+          </div>
+          <div class="stat-list">
+    `;
+    
+    for (const [key, value] of Object.entries(matchData.teamStats.home)) {
+      if (key !== 'name') {
+        const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        statsHTML += `
+          <div class="stat-row">
+            <span class="stat-name">${formattedKey}</span>
+            <span class="stat-value-team">${value}</span>
+          </div>
+        `;
+      }
+    }
+    
+    statsHTML += `
+          </div>
+        </div>
+        
+        <div class="team-stat">
+          <div class="team-stat-header">
+            <div class="team-logo">${matchData.teamStats.away.name.substring(0, 3)}</div>
+            <div class="team-stat-title">${matchData.teamStats.away.name}</div>
+          </div>
+          <div class="stat-list">
+    `;
+    
+    for (const [key, value] of Object.entries(matchData.teamStats.away)) {
+      if (key !== 'name') {
+        const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        statsHTML += `
+          <div class="stat-row">
+            <span class="stat-name">${formattedKey}</span>
+            <span class="stat-value-team">${value}</span>
+          </div>
+        `;
+      }
+    }
+    
+    statsHTML += `
+          </div>
+        </div>
+      </div>
+    `;
+    
+    statsModalBody.innerHTML = statsHTML;
+    statsModal.classList.add('active');
+  }
+
+  showHighlightsModal(matchId) {
+    const highlightsModal = document.getElementById('highlightsModal');
+    const highlightsModalTitle = document.getElementById('highlightsModalTitle');
+    const highlightsModalBody = document.getElementById('highlightsModalBody');
+    
+    const matchData = this.matchData[matchId];
+    
+    if (!matchData) {
+      this.showToast('Highlights not available for this match');
+      return;
+    }
+    
+    highlightsModalTitle.textContent = `${matchData.title} - Highlights`;
+    
+    let highlightsHTML = `
+      <div class="video-container">
+        <iframe 
+          src="https://www.youtube.com/embed/${matchData.videoId}" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+        </iframe>
+      </div>
+      <div class="match-summary">
+        <div class="summary-title">Match Summary</div>
+        <div class="summary-text">${matchData.summary}</div>
+      </div>
+    `;
+    
+    highlightsModalBody.innerHTML = highlightsHTML;
+    highlightsModal.classList.add('active');
+  }
+
+  showPreviewModal(matchId) {
+    const previewModal = document.getElementById('previewModal');
+    const previewModalTitle = document.getElementById('previewModalTitle');
+    const previewModalBody = document.getElementById('previewModalBody');
+    
+    const matchData = this.matchData[matchId];
+    
+    if (!matchData) {
+      this.showToast('Preview not available for this match');
+      return;
+    }
+    
+    previewModalTitle.textContent = `${matchData.title} - Preview`;
+    
+    let previewHTML = '';
+    
+    // Check if this is a team sport with lineup data
+    if (matchData.teams && matchData.teams.home && matchData.teams.home.lineup) {
+      previewHTML = `
+        <div class="preview-teams">
+          <div class="preview-team">
+            <div class="preview-team-header">
+              <div class="team-logo">${matchData.teams.home.name.substring(0, 3)}</div>
+              <div class="preview-team-title">${matchData.teams.home.name}</div>
+            </div>
+            <div class="coach-info">
+              <span class="coach-label">Coach:</span>
+              <span class="coach-name">${matchData.teams.home.coach}</span>
+            </div>
+            <div class="lineup-section">
+              <div class="lineup-title">Starting Lineup</div>
+              <div class="player-list">
+      `;
+      
+      matchData.teams.home.lineup.forEach(player => {
+        previewHTML += `
+          <div class="player-item">
+            <div class="player-number">${player.number}</div>
+            <div class="player-name">${player.name}</div>
+            <div class="player-position">${player.position}</div>
+          </div>
+        `;
+      });
+      
+      previewHTML += `
+              </div>
+            </div>
+            <div class="lineup-section">
+              <div class="lineup-title">Substitutes</div>
+              <div class="player-list">
+      `;
+      
+      matchData.teams.home.substitutes.forEach(player => {
+        previewHTML += `
+          <div class="player-item">
+            <div class="player-number">${player.number || ''}</div>
+            <div class="player-name">${player.name}</div>
+            <div class="player-position">${player.position}</div>
+          </div>
+        `;
+      });
+      
+      previewHTML += `
+              </div>
+            </div>
+          </div>
+          
+          <div class="preview-team">
+            <div class="preview-team-header">
+              <div class="team-logo">${matchData.teams.away.name.substring(0, 3)}</div>
+              <div class="preview-team-title">${matchData.teams.away.name}</div>
+            </div>
+            <div class="coach-info">
+              <span class="coach-label">Coach:</span>
+              <span class="coach-name">${matchData.teams.away.coach}</span>
+            </div>
+            <div class="lineup-section">
+              <div class="lineup-title">Starting Lineup</div>
+              <div class="player-list">
+      `;
+      
+      matchData.teams.away.lineup.forEach(player => {
+        previewHTML += `
+          <div class="player-item">
+            <div class="player-number">${player.number}</div>
+            <div class="player-name">${player.name}</div>
+            <div class="player-position">${player.position}</div>
+          </div>
+        `;
+      });
+      
+      previewHTML += `
+              </div>
+            </div>
+            <div class="lineup-section">
+              <div class="lineup-title">Substitutes</div>
+              <div class="player-list">
+      `;
+      
+      matchData.teams.away.substitutes.forEach(player => {
+        previewHTML += `
+          <div class="player-item">
+            <div class="player-number">${player.number || ''}</div>
+            <div class="player-name">${player.name}</div>
+            <div class="player-position">${player.position}</div>
+          </div>
+        `;
+      });
+      
+      previewHTML += `
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      // Individual sports preview (tennis, golf, MMA)
+      previewHTML = `
+        <div class="preview-teams">
+          <div class="preview-team">
+            <div class="preview-team-header">
+              <div class="team-logo">${matchData.teams.home.name.substring(0, 2)}</div>
+              <div class="preview-team-title">${matchData.teams.home.name}</div>
+            </div>
+            <div class="player-list">
+      `;
+      
+      for (const [key, value] of Object.entries(matchData.teams.home)) {
+        if (key !== 'name') {
+          const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          previewHTML += `
+            <div class="player-item">
+              <div class="player-name">${formattedKey}:</div>
+              <div class="player-position">${value}</div>
+            </div>
+          `;
+        }
+      }
+      
+      previewHTML += `
+            </div>
+          </div>
+          
+          <div class="preview-team">
+            <div class="preview-team-header">
+              <div class="team-logo">${matchData.teams.away.name.substring(0, 2)}</div>
+              <div class="preview-team-title">${matchData.teams.away.name}</div>
+            </div>
+            <div class="player-list">
+      `;
+      
+      for (const [key, value] of Object.entries(matchData.teams.away)) {
+        if (key !== 'name') {
+          const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          previewHTML += `
+            <div class="player-item">
+              <div class="player-name">${formattedKey}:</div>
+              <div class="player-position">${value}</div>
+            </div>
+          `;
+        }
+      }
+      
+      previewHTML += `
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    previewModalBody.innerHTML = previewHTML;
+    previewModal.classList.add('active');
+  }
+
+  async checkAuthStatus() {
+    try {
+      const response = await fetch('/api/user');
+      const data = await response.json();
+      
+      if (data.success && data.user) {
+        this.state.user = data.user;
+        this.updateAuthUI();
+        console.log('User authenticated:', this.state.user.username);
+      } else {
+        console.log('User not authenticated');
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+    }
+  }
+
+  async loadFollowedMatches() {
+    try {
+      const response = await fetch('/api/user/followed-matches');
+      const data = await response.json();
+      
+      if (data.success) {
+        const matchIds = data.followedMatches.map(match => match.matchId);
+        this.state.followedMatches = new Set(matchIds);
+        console.log('Loaded followed matches:', matchIds);
+      } else {
+        console.log('No followed matches found or not logged in');
+      }
+    } catch (error) {
+      console.error('Error loading followed matches:', error);
+    }
+  }
+
+  async loadRemindedMatches() {
+    try {
+      const response = await fetch('/api/user/reminded-matches');
+      const data = await response.json();
+      
+      if (data.success) {
+        const matchIds = data.remindedMatches.map(match => match.matchId);
+        this.state.remindedMatches = new Set(matchIds);
+        console.log('Loaded reminded matches:', matchIds);
+      } else {
+        console.log('No reminded matches found or not logged in');
+      }
+    } catch (error) {
+      console.error('Error loading reminded matches:', error);
+    }
+  }
+
+  updateAuthUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    
+    if (this.state.user) {
+      if (loginText) loginText.textContent = this.state.user.username;
+      if (mobileLoginText) mobileLoginText.textContent = this.state.user.username;
+    }
+  }
+
+  updateFollowButtons() {
+    const followButtons = document.querySelectorAll('.follow-btn');
+    
+    followButtons.forEach(button => {
+      const matchId = button.dataset.matchId;
+      const isFollowing = this.state.followedMatches.has(matchId);
+      
+      if (isFollowing) {
+        button.classList.remove('ghost');
+        button.classList.add('followed');
+        button.querySelector('.btn-text').textContent = 'Followed';
+      } else {
+        button.classList.add('ghost');
+        button.classList.remove('followed');
+        button.querySelector('.btn-text').textContent = 'Follow';
+      }
+    });
+  }
+
+  updateReminderButtons() {
+    const reminderButtons = document.querySelectorAll('.reminder-btn');
+    
+    reminderButtons.forEach(button => {
+      const matchId = button.dataset.matchId;
+      const isReminderSet = this.state.remindedMatches.has(matchId);
+      
+      if (isReminderSet) {
+        button.classList.remove('ghost');
+        button.classList.add('reminder-set');
+        button.querySelector('.btn-text').textContent = 'Reminder Set';
+      } else {
+        button.classList.add('ghost');
+        button.classList.remove('reminder-set');
+        button.querySelector('.btn-text').textContent = 'Remind Me';
+      }
+    });
+  }
+
+  async toggleFollowMatch(matchId, matchData) {
+    // Check if user is logged in
+    if (!this.state.user) {
+        this.showToast('Please log in to follow matches');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+        return;
+    }
+
+    // Determine the correct action based on current follow state
+    const isCurrentlyFollowing = this.state.followedMatches.has(matchId);
+    const action = isCurrentlyFollowing ? 'unfollow' : 'follow';
+
+    console.log('Toggle follow match:', {
+        matchId,
+        currentState: isCurrentlyFollowing ? 'following' : 'not following',
+        action
+    });
+
+    try {
+        const response = await fetch('/api/user/follow-match', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                matchId: parseInt(matchId),
+                ...matchData,
+                action
+            })
+        });
+
+        // Check if response is OK
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Server response:', result);
+
+        if (result.success) {
+            // Update local state based on the action that was actually performed
+            if (result.action === 'followed') {
+                this.state.followedMatches.add(matchId);
+            } else if (result.action === 'unfollowed') {
+                this.state.followedMatches.delete(matchId);
+            }
+
+            // Update UI
+            this.updateFollowButtons();
+            
+            // Show confirmation message
+            this.showToast(result.message);
+            
+            console.log(`Match ${matchId} ${result.action} successfully`);
+        } else {
+            this.showToast(result.message || 'Error updating follow status');
+        }
+    } catch (error) {
+        console.error('Error toggling match follow:', error);
+        this.showToast('Server error. Please try again.');
+    }
+  }
+
+  async toggleReminder(matchId, matchData) {
+    // Check if user is logged in
+    if (!this.state.user) {
+        this.showToast('Please log in to set reminders');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+        return;
+    }
+
+    // Determine the correct action based on current reminder state
+    const isCurrentlyReminded = this.state.remindedMatches.has(matchId);
+    const action = isCurrentlyReminded ? 'remove' : 'add';
+
+    console.log('Toggle reminder:', {
+        matchId,
+        currentState: isCurrentlyReminded ? 'reminder set' : 'no reminder',
+        action
+    });
+
+    try {
+        const response = await fetch('/api/user/set-reminder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                matchId: parseInt(matchId),
+                ...matchData,
+                action
+            })
+        });
+
+        // Check if response is OK
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Server response:', result);
+
+        if (result.success) {
+            // Update local state based on the action that was actually performed
+            if (result.action === 'reminder_set') {
+                this.state.remindedMatches.add(matchId);
+                this.showToast('Reminder set successfully! You will be notified before the match starts.');
+            } else if (result.action === 'reminder_removed') {
+                this.state.remindedMatches.delete(matchId);
+                this.showToast('Reminder removed successfully');
+            }
+
+            // Update UI
+            this.updateReminderButtons();
+            
+            console.log(`Match ${matchId} reminder ${result.action} successfully`);
+        } else {
+            this.showToast(result.message || 'Error updating reminder status');
+        }
+    } catch (error) {
+        console.error('Error toggling reminder:', error);
+        this.showToast('Server error. Please try again.');
+    }
+  }
+
+  setupEventListeners() {
+    // Follow buttons
+    const followButtons = document.querySelectorAll('.follow-btn');
+    followButtons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const matchId = button.dataset.matchId;
+        const matchCard = button.closest('.match-card');
+        const matchData = this.getMatchData(matchCard);
+        
+        await this.toggleFollowMatch(matchId, matchData);
+      });
+    });
+
+    // Reminder buttons
+    const reminderButtons = document.querySelectorAll('.reminder-btn');
+    reminderButtons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const matchId = button.dataset.matchId;
+        const matchCard = button.closest('.match-card');
+        const matchData = this.getMatchData(matchCard);
+        
+        await this.toggleReminder(matchId, matchData);
+      });
+    });
+
+    // Filter functionality
+    const sportFilter = document.getElementById('sportFilter');
+    const leagueFilter = document.getElementById('leagueFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+
+    if (sportFilter) {
+      sportFilter.addEventListener('change', (e) => {
+        this.state.currentFilters.sport = e.target.value;
+        this.filterMatches();
+      });
+    }
+
+    if (leagueFilter) {
+      leagueFilter.addEventListener('change', (e) => {
+        this.state.currentFilters.league = e.target.value;
+        this.filterMatches();
+      });
+    }
+
+    if (statusFilter) {
+      statusFilter.addEventListener('change', (e) => {
+        this.state.currentFilters.status = e.target.value;
+        this.filterMatches();
+      });
+    }
+
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener('click', () => {
+        this.resetFilters();
+      });
+    }
+  }
+
+ getMatchData(matchCard) {
+  const sport = matchCard.dataset.sport;
+  const teams = matchCard.querySelectorAll('.team-name');
+  const competition = matchCard.querySelector('.match-competition').textContent;
+  const venueElement = matchCard.querySelector('.match-venue');
+  const timeElement = matchCard.querySelector('.match-time');
+  
+  // Extract venue from the venue element
+  let venue = 'Unknown Venue';
+  if (venueElement) {
+    venue = venueElement.textContent.replace('📍', '').trim();
+  }
+  
+  // Extract time from the time element
+  let time = new Date();
+  if (timeElement) {
+    // This is a simplified time extraction - you might want to enhance this
+    const timeText = timeElement.textContent;
+    if (timeText.includes('Today')) {
+      time = new Date();
+    } else if (timeText.includes('Tomorrow')) {
+      time = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    }
+  }
+  
+  return {
+    sport: sport,
+    homeTeam: teams[0].textContent,
+    awayTeam: teams[1].textContent,
+    league: competition.split('•')[0]?.trim() || 'Unknown League',
+    venue: venue,
+    time: time
+  };
+}
+
+  filterMatches() {
+    const matchCards = document.querySelectorAll('.match-card');
+    let visibleLiveCount = 0;
+    let visibleResultsCount = 0;
+    let visibleUpcomingCount = 0;
+    
+    matchCards.forEach(card => {
+      const sport = card.dataset.sport;
+      const status = card.classList.contains('live') ? 'Live' : 
+                    card.classList.contains('finished') ? 'Finished' : 'Upcoming';
+      const competition = card.querySelector('.match-competition').textContent;
+      
+      let show = true;
+      
+      // Main filters
+      if (this.state.currentFilters.sport !== 'All' && this.state.currentFilters.sport !== sport) {
+        show = false;
+      }
+      
+      if (this.state.currentFilters.status !== 'All' && this.state.currentFilters.status !== status) {
+        show = false;
+      }
+      
+      // League filter (simplified - would need more data attributes for proper implementation)
+      if (this.state.currentFilters.league !== 'All') {
+        // This would need more sophisticated matching in a real implementation
+        const league = this.state.currentFilters.league.toLowerCase();
+        if (!competition.toLowerCase().includes(league)) {
+          show = false;
+        }
+      }
+      
+      card.style.display = show ? 'block' : 'none';
+      
+      // Count visible matches by status
+      if (show) {
+        if (status === 'Live') visibleLiveCount++;
+        else if (status === 'Finished') visibleResultsCount++;
+        else if (status === 'Upcoming') visibleUpcomingCount++;
+      }
+    });
+    
+    // Update counts
+    this.updateLiveCount(visibleLiveCount);
+    this.updateNoResultsVisibility(visibleLiveCount, visibleResultsCount, visibleUpcomingCount);
+  }
+
+  updateLiveCount(count) {
+    const liveCount = document.getElementById('liveCount');
+    if (liveCount) {
+      liveCount.textContent = `${count} matches live`;
+    }
+  }
+
+  updateNoResultsVisibility(liveCount, resultsCount, upcomingCount) {
+    const liveNoResults = document.getElementById('liveNoResults');
+    const resultsNoResults = document.getElementById('resultsNoResults');
+    const upcomingNoResults = document.getElementById('upcomingNoResults');
+    
+    if (liveNoResults) {
+      liveNoResults.style.display = liveCount === 0 ? 'block' : 'none';
+    }
+    
+    if (resultsNoResults) {
+      resultsNoResults.style.display = resultsCount === 0 ? 'block' : 'none';
+    }
+    
+    if (upcomingNoResults) {
+      upcomingNoResults.style.display = upcomingCount === 0 ? 'block' : 'none';
+    }
+  }
+
+  resetFilters() {
+    this.state.currentFilters = {
+      sport: 'All',
+      league: 'All',
+      status: 'All'
+    };
+    
+    const sportFilter = document.getElementById('sportFilter');
+    const leagueFilter = document.getElementById('leagueFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    if (sportFilter) sportFilter.value = 'All';
+    if (leagueFilter) leagueFilter.value = 'All';
+    if (statusFilter) statusFilter.value = 'All';
+    
+    this.filterMatches();
+  }
+
+  showToast(message) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+}
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Scores page loaded");
+  window.scoresApp = new ScoresApp();
+});
+</script>
+</body>
+</html>

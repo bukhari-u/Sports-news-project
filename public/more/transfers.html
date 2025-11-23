@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Transfers — SportSphereX</title>
+  <meta name="description" content="Latest football transfers, rumors, confirmed deals, and transfer news from around the world on SportSphereX."/>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../games.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="SportSphereX home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="SportSphereX Logo">
+      </div>
+      <div class="brand-text">
+        <h1>SportSphereX</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="../index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="../games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="../games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="../games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="../games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="../games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="../games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="../games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="../games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="../games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="../games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="../games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="../games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../teams.html" class="nav-link">Teams</a>
+        </li>
+
+         <li role="none">
+          <a role="menuitem" href="../players.html" class="nav-link">Players</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="transfers.html" class="dropdown-item nav-active">Transfers</a>
+            <a role="menuitem" href="injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and User Area -->
+    <div class="header-actions">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          id="searchInput" 
+          placeholder="Search transfers..." 
+          aria-label="Search transfers"
+          type="text"
+        >
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown" style="display: none;">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="SportSphereX Logo">
+        </div>
+        <div class="brand-text">
+          <h2>SportSphereX</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="../index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="../games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="../games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="../games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="../games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="../games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="../games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="../games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="../games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="../games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="../games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="../games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="../games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="../scores.html" class="mobile-nav-link">Scores</a></li>
+        <li><a href="../watch.html" class="mobile-nav-link">Watch</a></li>
+        <li><a href="../teams.html" class="mobile-nav-link">Teams</a></li>
+        <li><a href="../fixtures.html" class="mobile-nav-link">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item mobile-nav-active">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search transfers..." aria-label="Search transfers" id="mobileSearchInput">
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown" style="display: none;">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Transfer Center</h1>
+    <p class="page-subtitle">Latest football transfers, confirmed deals, rumors, and transfer news from around the world</p>
+  </div>
+
+  <!-- Transfer Tabs -->
+  <div class="transfer-tabs">
+    <button class="transfer-tab active" data-tab="confirmed">Confirmed Deals</button>
+    <button class="transfer-tab" data-tab="rumors">Transfer Rumors</button>
+    <button class="transfer-tab" data-tab="done-deals">Done Deals</button>
+    <button class="transfer-tab" data-tab="free-agents">Free Agents</button>
+  </div>
+
+  <main class="main-grid">
+    <!-- Left: Transfer Content -->
+    <section>
+      <!-- Featured Transfer -->
+      <div class="featured">
+        <div class="hero" aria-labelledby="featuredTransferTitle">
+          <div class="hero-img" style="background-image: url('https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')">
+            <div class="hero-overlay">
+              <div class="transfer-badge">CONFIRMED</div>
+            </div>
+          </div>
+          <div class="hero-body">
+            <div class="tag">BREAKING TRANSFER</div>
+            <h2 id="featuredTransferTitle">Jude Bellingham Completes Real Madrid Move</h2>
+            <div class="meta">Confirmed <strong>Today</strong> • <span>Record Signing</span></div>
+            <p>England international completes €103 million move from Borussia Dortmund to Real Madrid, signing a six-year contract with the Spanish giants.</p>
+            
+            <div class="transfer-details">
+              <div class="transfer-clubs">
+                <div class="club from-club">
+                  <div class="club-logo">BVB</div>
+                  <div class="club-name">Borussia Dortmund</div>
+                </div>
+                <div class="transfer-arrow">→</div>
+                <div class="club to-club">
+                  <div class="club-logo">RMA</div>
+                  <div class="club-name">Real Madrid</div>
+                </div>
+              </div>
+              
+              <div class="transfer-info">
+                <div class="transfer-fee">€103M</div>
+                <div class="transfer-contract">6 years</div>
+                <div class="transfer-position">Midfielder</div>
+              </div>
+            </div>
+            
+            <div class="actions">
+              <button class="btn" id="readTransferBtn">Read Full Story</button>
+              <button class="btn ghost">Follow Player</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Transfers -->
+      <section id="latestTransfers" aria-label="Latest transfers">
+        <div class="section-header">
+          <h3 class="section-title">Latest Transfers</h3>
+          <div class="transfer-filters">
+            <select class="filter-select small">
+              <option>All Leagues</option>
+              <option>Premier League</option>
+              <option>La Liga</option>
+              <option>Serie A</option>
+              <option>Bundesliga</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="transfers-list">
+          <!-- Transfer 1 -->
+          <div class="transfer-card confirmed">
+            <div class="transfer-status confirmed">CONFIRMED</div>
+            <div class="transfer-content">
+              <div class="player-info">
+                <div class="player-photo-small" style="background-image: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+                <div class="player-details">
+                  <h4>Mason Mount</h4>
+                  <div class="player-position">Midfielder • 24 years</div>
+                </div>
+              </div>
+              
+              <div class="transfer-path">
+                <div class="club from">
+                  <div class="club-logo-small">CHE</div>
+                  <span>Chelsea</span>
+                </div>
+                <div class="transfer-arrow-small">→</div>
+                <div class="club to">
+                  <div class="club-logo-small">MUN</div>
+                  <span>Man United</span>
+                </div>
+              </div>
+              
+              <div class="transfer-meta">
+                <div class="transfer-fee-small">€64.2M</div>
+                <div class="transfer-date">2 hours ago</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transfer 2 -->
+          <div class="transfer-card confirmed">
+            <div class="transfer-status confirmed">CONFIRMED</div>
+            <div class="transfer-content">
+              <div class="player-info">
+                <div class="player-photo-small" style="background-image: url('https://images.unsplash.com/photo-1547949003-9792a18a2601?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+                <div class="player-details">
+                  <h4>Dominik Szoboszlai</h4>
+                  <div class="player-position">Midfielder • 22 years</div>
+                </div>
+              </div>
+              
+              <div class="transfer-path">
+                <div class="club from">
+                  <div class="club-logo-small">RBL</div>
+                  <span>RB Leipzig</span>
+                </div>
+                <div class="transfer-arrow-small">→</div>
+                <div class="club to">
+                  <div class="club-logo-small">LIV</div>
+                  <span>Liverpool</span>
+                </div>
+              </div>
+              
+              <div class="transfer-meta">
+                <div class="transfer-fee-small">€70M</div>
+                <div class="transfer-date">5 hours ago</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transfer 3 -->
+          <div class="transfer-card rumor">
+            <div class="transfer-status rumor">RUMOR</div>
+            <div class="transfer-content">
+              <div class="player-info">
+                <div class="player-photo-small" style="background-image: url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+                <div class="player-details">
+                  <h4>Victor Osimhen</h4>
+                  <div class="player-position">Forward • 24 years</div>
+                </div>
+              </div>
+              
+              <div class="transfer-path">
+                <div class="club from">
+                  <div class="club-logo-small">NAP</div>
+                  <span>Napoli</span>
+                </div>
+                <div class="transfer-arrow-small">→</div>
+                <div class="club to">
+                  <div class="club-logo-small">CHE</div>
+                  <span>Chelsea</span>
+                </div>
+              </div>
+              
+              <div class="transfer-meta">
+                <div class="transfer-fee-small">€120M</div>
+                <div class="transfer-date">Rumored</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Transfer Rumors -->
+      <section id="transferRumors" aria-label="Transfer rumors">
+        <div class="section-header">
+          <h3 class="section-title">Hot Rumors</h3>
+          <div class="reliability-filter">
+            <select class="filter-select small">
+              <option>All Reliability</option>
+              <option>High Reliability</option>
+              <option>Medium Reliability</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rumors-grid">
+          <!-- Rumor 1 -->
+          <div class="rumor-card high-reliability">
+            <div class="reliability-badge high">High</div>
+            <div class="rumor-content">
+              <h4>Harry Kane to Bayern Munich</h4>
+              <p>German giants preparing €100M bid for Tottenham striker. Personal terms already agreed.</p>
+              
+              <div class="rumor-details">
+                <div class="rumor-clubs">
+                  <span>Tottenham</span>
+                  <span class="rumor-arrow">→</span>
+                  <span>Bayern Munich</span>
+                </div>
+                <div class="rumor-meta">
+                  <span>€100M</span>
+                  <span>•</span>
+                  <span>Source: Sky Germany</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rumor 2 -->
+          <div class="rumor-card medium-reliability">
+            <div class="reliability-badge medium">Medium</div>
+            <div class="rumor-content">
+              <h4>Kylian Mbappé Real Madrid Saga</h4>
+              <p>PSG star considering final Real Madrid offer. Decision expected within 48 hours.</p>
+              
+              <div class="rumor-details">
+                <div class="rumor-clubs">
+                  <span>PSG</span>
+                  <span class="rumor-arrow">→</span>
+                  <span>Real Madrid</span>
+                </div>
+                <div class="rumor-meta">
+                  <span>Free Transfer</span>
+                  <span>•</span>
+                  <span>Source: Marca</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Right: Sidebar -->
+    <aside class="sidebar" aria-label="Transfers sidebar">
+      <!-- Transfer Market Value -->
+      <div class="panel">
+        <h4>Market Values</h4>
+        <div class="market-values">
+          <div class="value-item">
+            <div class="player-name">Jude Bellingham</div>
+            <div class="market-value">€120M</div>
+          </div>
+          <div class="value-item">
+            <div class="player-name">Erling Haaland</div>
+            <div class="market-value">€180M</div>
+          </div>
+          <div class="value-item">
+            <div class="player-name">Kylian Mbappé</div>
+            <div class="market-value">€160M</div>
+          </div>
+          <div class="value-item">
+            <div class="player-name">Vinicius Jr</div>
+            <div class="market-value">€150M</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Spending Clubs -->
+      <div class="panel">
+        <h4>Top Spending Clubs</h4>
+        <div class="spending-list">
+          <div class="spending-item">
+            <div class="club-rank">1</div>
+            <div class="club-info">
+              <strong>Chelsea</strong>
+              <div class="muted">€467M spent</div>
+            </div>
+          </div>
+          <div class="spending-item">
+            <div class="club-rank">2</div>
+            <div class="club-info">
+              <strong>Real Madrid</strong>
+              <div class="muted">€398M spent</div>
+            </div>
+          </div>
+          <div class="spending-item">
+            <div class="club-rank">3</div>
+            <div class="club-info">
+              <strong>Man United</strong>
+              <div class="muted">€342M spent</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transfer Timeline -->
+      <div class="panel">
+        <h4>Transfer Timeline</h4>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-date">Jun 14</div>
+            <div class="timeline-content">
+              <strong>Transfer Window Opens</strong>
+              <div class="muted">Summer window begins</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-date">Sep 1</div>
+            <div class="timeline-content">
+              <strong>Transfer Deadline</strong>
+              <div class="muted">Window closes at 23:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Free Agents -->
+      <div class="panel">
+        <h4>Notable Free Agents</h4>
+        <div class="free-agents-list">
+          <div class="free-agent-item">
+            <div class="player-name">Lionel Messi</div>
+            <div class="player-status">Available</div>
+          </div>
+          <div class="free-agent-item">
+            <div class="player-name">N'Golo Kanté</div>
+            <div class="player-status">Available</div>
+          </div>
+          <div class="free-agent-item">
+            <div class="player-name">Karim Benzema</div>
+            <div class="player-status">Available</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h5>SportSphereX</h5>
+        <p>Your premier destination for sports news, live scores, and video highlights.</p>
+      </div>
+      <div class="footer-section">
+        <h5>Sports</h5>
+        <a href="../games/football.html">Football</a>
+        <a href="../games/cricket.html">Cricket</a>
+        <a href="../games/basketball.html">Basketball</a>
+        <a href="../games/tennis.html">Tennis</a>
+      </div>
+      <div class="footer-section">
+        <h5>Company</h5>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2024 SportSphereX — Built with ❤️ for sports fans worldwide
+    </div>
+  </footer>
+</div>
+
+<!-- Transfer Details Modal -->
+<div class="modal" id="transferModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="transferModalBackdrop"></div>
+  <div class="modal-content" role="document">
+    <div class="modal-header">
+      <h3 id="transferModalTitle">Transfer Details</h3>
+      <button class="modal-close" aria-label="Close" id="transferModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="transferModalContainer">
+        <!-- Transfer details content injected by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Authentication state management
+class AuthManager {
+  constructor() {
+    this.state = {
+      user: JSON.parse(localStorage.getItem('user')) || null
+    };
+    this.init();
+  }
+
+  init() {
+    this.updateLoginUI();
+    this.setupEventListeners();
+  }
+
+  updateLoginUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+
+    if (this.state.user) {
+      if (loginText) loginText.textContent = 'Logged';
+      if (mobileLoginText) mobileLoginText.textContent = 'Logged';
+      if (loginBtn) loginBtn.classList.add('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.add('logged-in');
+      if (userDropdown) userDropdown.style.display = 'block';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'block';
+    } else {
+      if (loginText) loginText.textContent = 'Login';
+      if (mobileLoginText) mobileLoginText.textContent = 'Login';
+      if (loginBtn) loginBtn.classList.remove('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.remove('logged-in');
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'none';
+    }
+  }
+
+  setupEventListeners() {
+    // Login buttons
+    document.getElementById('loginBtn')?.addEventListener('click', () => this.handleLoginClick());
+    document.getElementById('mobileLoginBtn')?.addEventListener('click', () => this.handleLoginClick());
+
+    // Logout buttons
+    document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+  }
+
+  handleLoginClick() {
+    if (this.state.user) {
+      // User is logged in, do nothing (dropdown will handle logout)
+      return;
+    } else {
+      // Simulate login for demo purposes
+      this.state.user = { 
+        name: 'John Doe', 
+        email: 'john@example.com',
+        id: 'user123'
+      };
+      localStorage.setItem('user', JSON.stringify(this.state.user));
+      this.updateLoginUI();
+      this.showToast('Successfully logged in!');
+    }
+  }
+
+  logout() {
+    this.state.user = null;
+    localStorage.removeItem('user');
+    this.updateLoginUI();
+    this.showToast('Successfully logged out!');
+  }
+
+  showToast(message) {
+    // Create toast element if it doesn't exist
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-weight: 500;
+        pointer-events: none;
+      `;
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 3000);
+  }
+}
+
+// Initialize auth manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  window.authManager = new AuthManager();
+  
+  // Transfer functionality
+  const transferTabs = document.querySelectorAll('.transfer-tab');
+  const transferFilters = document.querySelector('.transfer-filters select');
+  const reliabilityFilter = document.querySelector('.reliability-filter select');
+  const readTransferBtn = document.getElementById('readTransferBtn');
+  const followPlayerBtn = document.querySelector('.btn.ghost');
+
+  // Transfer tabs
+  transferTabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      const tabName = this.dataset.tab;
+      
+      // Remove active class from all tabs
+      transferTabs.forEach(t => t.classList.remove('active'));
+      // Add active class to clicked tab
+      this.classList.add('active');
+      
+      window.authManager.showToast(`Showing ${this.textContent}`);
+    });
+  });
+
+  // Transfer filters
+  if (transferFilters) {
+    transferFilters.addEventListener('change', function() {
+      window.authManager.showToast(`Filtering by ${this.value}`);
+    });
+  }
+
+  // Reliability filter
+  if (reliabilityFilter) {
+    reliabilityFilter.addEventListener('change', function() {
+      window.authManager.showToast(`Filtering by ${this.value}`);
+    });
+  }
+
+  // Read full story button
+  if (readTransferBtn) {
+    readTransferBtn.addEventListener('click', function() {
+      const playerName = document.getElementById('featuredTransferTitle')?.textContent || 'Jude Bellingham';
+      window.authManager.showToast(`Reading full transfer story for ${playerName}`);
+    });
+  }
+
+  // Follow player button
+  if (followPlayerBtn) {
+    followPlayerBtn.addEventListener('click', function() {
+      const playerName = document.getElementById('featuredTransferTitle')?.textContent || 'this player';
+      if (this.textContent.includes('Follow')) {
+        this.textContent = 'Following';
+        window.authManager.showToast(`Now following ${playerName}`);
+      } else {
+        this.textContent = 'Follow Player';
+        window.authManager.showToast(`Unfollowed ${playerName}`);
+      }
+    });
+  }
+
+  // Transfer card interactions
+  const transferCards = document.querySelectorAll('.transfer-card, .rumor-card');
+  transferCards.forEach(card => {
+    card.addEventListener('click', function() {
+      const playerName = this.querySelector('h4').textContent;
+      const status = this.querySelector('.transfer-status')?.textContent || 'Rumor';
+      window.authManager.showToast(`Viewing ${status.toLowerCase()} details for ${playerName}`);
+    });
+  });
+
+  // Mobile menu functionality
+  const mobileToggle = document.getElementById('mobileToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileClose = document.querySelector('.mobile-close');
+
+  if (mobileToggle && mobileMenu) {
+    mobileToggle.addEventListener('click', function() {
+      mobileMenu.classList.add('open');
+      this.setAttribute('aria-expanded', 'true');
+    });
+  }
+
+  if (mobileClose) {
+    mobileClose.addEventListener('click', function() {
+      mobileMenu.classList.remove('open');
+      mobileToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  // Mobile dropdown functionality
+  const mobileDropdownButtons = document.querySelectorAll('.mobile-nav-button');
+  
+  mobileDropdownButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      
+      const dropdownMenu = this.nextElementSibling;
+      if (dropdownMenu) {
+        dropdownMenu.setAttribute('aria-hidden', isExpanded);
+        dropdownMenu.style.maxHeight = isExpanded ? '0' : '500px';
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

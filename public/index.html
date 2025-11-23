@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AllSports — Latest Sports News, Live Scores & Highlights</title>
+  <meta name="description" content="AllSports — latest news for all sports. Follow teams, get live scores, video highlights and updates."/>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="AllSports home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+      </div>
+      <div class="brand-text">
+        <h1>SportSphereX</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="index.html" class="nav-link nav-active" aria-current="page">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="teams.html" class="nav-link">Teams</a>
+        </li>
+
+         <li role="none">
+          <a role="menuitem" href="players.html" class="nav-link">Players</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="more/podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="more/highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="more/news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="more/statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="more/transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="more/injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+   <!-- Search and User Area -->
+<div class="header-actions">
+  <div class="search" role="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <input 
+      id="searchInput" 
+      placeholder="Search players, teams, articles..." 
+      aria-label="Search articles"
+      type="text"
+    >
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  
+  <!-- User menu -->
+  <div class="user-menu">
+    <button class="btn btn-login" id="loginBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+      <span id="loginText">Login</span>
+    </button>
+    <div class="user-dropdown" id="userDropdown">
+      <a href="#" id="logoutBtn">Sign Out</a>
+    </div>
+  </div>
+</div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+        </div>
+        <div class="brand-text">
+          <h2>AllSports</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="index.html" class="mobile-nav-link mobile-nav-active">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="#scores" class="mobile-nav-link">Scores</a></li>
+        <li><a href="#watch" class="mobile-nav-link">Watch</a></li>
+        <li><a href="#teams" class="mobile-nav-link">Teams</a></li>
+        <li><a href="#fixtures" class="mobile-nav-link">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+  <div class="search mobile-search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <input placeholder="Search..." aria-label="Search articles" id="mobileSearchInput">
+  </div>
+  
+  <div class="user-menu">
+    <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+      <span id="mobileLoginText">Login</span>
+    </button>
+    <div class="user-dropdown" id="mobileUserDropdown">
+      <a href="#" id="mobileLogoutBtn">Sign Out</a>
+    </div>
+  </div>
+</div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Live Ticker -->
+  <div class="ticker" role="region" aria-label="Live scores and updates">
+    <div class="label">LIVE</div>
+    <div class="marquee" id="liveTicker" aria-live="polite">
+      <div class="marquee-inner" id="marqueeInner">
+        ⚽ Man City 2-1 Liverpool (75') • 🏀 Lakers vs Celtics: 98-95 Q4 • 🏏 IND vs AUS: 245/3 (45) • 🎾 Djokovic leads 2-1 sets • ⚾ Yankees 4-3 Red Sox F
+      </div>
+    </div>
+    <div class="meta">Updated: <strong id="tickerTime">2 mins ago</strong></div>
+  </div>
+
+  <!-- Advanced Filters -->
+  <div class="advanced-filters" aria-label="Advanced filters for sports">
+    <div class="filter-group">
+      <label for="sportFilter">Sport</label>
+      <select id="sportFilter" class="filter-select">
+        <option value="All">All</option>
+        <option value="Football">⚽ Football</option>
+        <option value="Cricket">🏏 Cricket</option>
+        <option value="Basketball">🏀 Basketball</option>
+        <option value="Tennis">🎾 Tennis</option>
+        <option value="Baseball">⚾ Baseball</option>
+        <option value="Hockey">🏒 Hockey</option>
+        <option value="Golf">⛳ Golf</option>
+        <option value="Rugby">🏉 Rugby</option>
+        <option value="Formula1">🏎️ Formula 1</option>
+        <option value="Boxing">🥊 Boxing</option>
+        <option value="MMA">🥋 MMA</option>
+        <option value="Olympics">🏅 Olympics</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="leagueFilter">League</label>
+      <select id="leagueFilter" class="filter-select">
+        <option value="All">All</option>
+        <option value="premier-league">Premier League</option>
+        <option value="nba">NBA</option>
+        <option value="ipl">IPL</option>
+        <option value="nfl">NFL</option>
+        <option value="mlb">MLB</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="statusFilter">Status</label>
+      <select id="statusFilter" class="filter-select">
+        <option value="All">All</option>
+        <option value="Live">Live</option>
+        <option value="Upcoming">Upcoming</option>
+        <option value="Finished">Finished</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <button class="btn btn-secondary" id="resetFiltersBtn">Clear Filters</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-grid">
+    <!-- Left: content -->
+    <section>
+      <!-- Featured Hero Section -->
+      <div class="featured">
+        <div class="hero" aria-labelledby="heroTitle">
+          <div class="hero-img" id="heroImg" style="background-image: url('https://i.pinimg.com/736x/bd/f8/7f/bdf87f851419e4f63f82126a5eceae47.jpg')">
+            <div class="hero-overlay">
+              <button class="play-btn" aria-label="Play highlight video" id="playHeroBtn" data-youtube-id="XZYQv1yDdsM">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="hero-body">
+            <div class="tag" id="heroTag">FOOTBALL</div>
+            <h2 id="heroTitle">Los Blancos Shine as Barça Falters</h2>
+            <div class="meta">By <strong id="heroAuthor"> Alex Morgan</strong> • <span id="heroDate">Today, 18:45</span></div>
+            <p id="heroExcerpt">Real Madrid conquered El Clásico in thrilling fashion, blending flair, precision, and unyielding dominance to outshine Barcelona..</p>
+            
+            <div class="hero-match-info" id="heroMatchInfo">
+              <div class="hero-score" id="heroScore">3-0</div>
+              <div class="hero-status" id="heroStatus">Finished</div>
+              <div class="hero-venue" id="heroVenue">Santiago Bernabeu</div>
+            </div>
+            
+            <div class="actions">
+              <button class="btn" id="readStoryBtn">Read full story</button>
+              <button class="btn ghost" id="followSportBtn">Follow Football</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Highlights Carousel -->
+        <section class="carousel-section" aria-label="Video highlights">
+          <div class="section-header">
+            <h3 class="section-title">Video Highlights</h3>
+            <div class="carousel-nav">
+              <button class="carousel-btn prev" id="videoPrevBtn">‹</button>
+              <button class="carousel-btn next" id="videoNextBtn">›</button>
+            </div>
+          </div>
+          <div class="carousel" id="videoCarousel" role="region" aria-roledescription="carousel">
+            <div class="carousel-track" id="videoTrack">
+              <div class="video-card" data-youtube-id="4tiM9E9I1tc">
+                <div class="video-thumb" style="background-image: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                  <div class="video-play">▶</div>
+                </div>
+                <div class="c-body">
+                  <h4>Haaland's Incredible Hat-trick</h4>
+                  <div class="meta">Football • 5:32</div>
+                </div>
+              </div>
+              <div class="video-card" data-youtube-id="XH7_OER-0GY">
+                <div class="video-thumb" style="background-image: url('https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                  <div class="video-play">▶</div>
+                </div>
+                <div class="c-body">
+                  <h4>NBA Top 10 Plays of the Week</h4>
+                  <div class="meta">Basketball • 8:15</div>
+                </div>
+              </div>
+              <div class="video-card" data-youtube-id="1RGkSo_3d0w">
+                <div class="video-thumb" style="background-image: url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                  <div class="video-play">▶</div>
+                </div>
+                <div class="c-body">
+                  <h4>ICC World Cup Final Moments</h4>
+                  <div class="meta">Cricket • 12:45</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Live Events Carousel - REDESIGNED -->
+        <section class="carousel-section live-now-section" aria-label="Live events">
+          <div class="section-header">
+            <h3 class="section-title">Live Now</h3>
+            <div class="carousel-nav">
+              <button class="carousel-btn prev" id="livePrevBtn">‹</button>
+              <button class="carousel-btn next" id="liveNextBtn">›</button>
+            </div>
+          </div>
+          <div class="carousel" id="liveCarousel" role="region" aria-roledescription="carousel">
+            <div class="carousel-track" id="liveTrack">
+              <!-- Redesigned Live Card 1 -->
+              <div class="live-card" data-event-id="live-1" data-youtube-id="jZ2vGqF3Pm8" data-sport="Football">
+                <div class="live-card-header">
+                  <div class="match-status">
+                    <div class="live-indicator"></div>
+                    <span class="live-text">LIVE</span>
+                  </div>
+                  <div class="match-timer">75'</div>
+                </div>
+                <div class="live-card-body">
+                  <div class="teams">
+                    <div class="team home-team">
+                      <div class="team-info">
+                        <div class="team-logo">MC</div>
+                        <div class="team-name">Man City</div>
+                      </div>
+                      <div class="team-score">2</div>
+                    </div>
+                    <div class="team away-team">
+                      <div class="team-info">
+                        <div class="team-logo">LIV</div>
+                        <div class="team-name">Liverpool</div>
+                      </div>
+                      <div class="team-score">1</div>
+                    </div>
+                  </div>
+                  <div class="match-info">
+                    <div class="match-league">
+                      <div class="league-logo"></div>
+                      Premier League
+                    </div>
+                    <div class="match-venue">Etihad Stadium</div>
+                  </div>
+                </div>
+                <div class="live-card-actions">
+                  <button class="btn btn-small watch-live-btn">Watch Live</button>
+                  <button class="btn btn-small ghost stats-btn">Stats</button>
+                </div>
+              </div>
+              
+              <!-- Redesigned Live Card 2 -->
+              <div class="live-card" data-event-id="live-2" data-youtube-id="hTC6i1X9pYI" data-sport="Basketball">
+                <div class="live-card-header">
+                  <div class="match-status">
+                    <div class="live-indicator"></div>
+                    <span class="live-text">LIVE</span>
+                  </div>
+                  <div class="match-timer">Q4</div>
+                </div>
+                <div class="live-card-body">
+                  <div class="teams">
+                    <div class="team home-team">
+                      <div class="team-info">
+                        <div class="team-logo">LAL</div>
+                        <div class="team-name">Lakers</div>
+                      </div>
+                      <div class="team-score">98</div>
+                    </div>
+                    <div class="team away-team">
+                      <div class="team-info">
+                        <div class="team-logo">BOS</div>
+                        <div class="team-name">Celtics</div>
+                      </div>
+                      <div class="team-score">95</div>
+                    </div>
+                  </div>
+                  <div class="match-info">
+                    <div class="match-league">
+                      <div class="league-logo"></div>
+                      NBA
+                    </div>
+                    <div class="match-venue">TD Garden</div>
+                  </div>
+                </div>
+                <div class="live-card-actions">
+                  <button class="btn btn-small watch-live-btn">Watch Live</button>
+                  <button class="btn btn-small ghost stats-btn">Stats</button>
+                </div>
+              </div>
+              
+              <!-- Redesigned Live Card 3 -->
+              <div class="live-card" data-event-id="live-3" data-youtube-id="WcYjZ_2pD9I" data-sport="Cricket">
+                <div class="live-card-header">
+                  <div class="match-status">
+                    <div class="live-indicator"></div>
+                    <span class="live-text">LIVE</span>
+                  </div>
+                  <div class="match-timer">45th Over</div>
+                </div>
+                <div class="live-card-body">
+                  <div class="teams">
+                    <div class="team home-team">
+                      <div class="team-info">
+                        <div class="team-logo">IND</div>
+                        <div class="team-name">India</div>
+                      </div>
+                      <div class="team-score">245/3</div>
+                    </div>
+                    <div class="team away-team">
+                      <div class="team-info">
+                        <div class="team-logo">AUS</div>
+                        <div class="team-name">Australia</div>
+                      </div>
+                      <div class="team-score">280/6</div>
+                    </div>
+                  </div>
+                  <div class="match-info">
+                    <div class="match-league">
+                      <div class="league-logo"></div>
+                      ICC World Cup
+                    </div>
+                    <div class="match-venue">MCG</div>
+                  </div>
+                </div>
+                <div class="live-card-actions">
+                  <button class="btn btn-small watch-live-btn">Watch Live</button>
+                  <button class="btn btn-small ghost stats-btn">Stats</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Quick Filter Chips -->
+      <div class="filter-chips" id="categoryFilters">
+        <button class="filter-chip active">All</button>
+        <button class="filter-chip">⚽ Football</button>
+        <button class="filter-chip">🏀 Basketball</button>
+        <button class="filter-chip">🏏 Cricket</button>
+        <button class="filter-chip">🎾 Tennis</button>
+        <button class="filter-chip">⚾ Baseball</button>
+      </div>
+
+      <!-- Live Stats Section -->
+      <section id="stats" aria-label="Live statistics">
+        <h3 class="section-title">Live Stats</h3>
+        <div id="statsContainer" class="stats-grid" aria-live="polite">
+          <div class="stat-card">
+            <div class="stat-number">247</div>
+            <div class="stat-label">Live Matches</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">1.2M</div>
+            <div class="stat-label">Viewers Online</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">89</div>
+            <div class="stat-label">Goals Today</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">42</div>
+            <div class="stat-label">Tournaments</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Latest News Grid -->
+      <section id="latest" aria-label="Latest news">
+        <div class="section-header">
+          <h3 class="section-title">Latest News</h3>
+          <div class="filter-info" id="filterInfo">
+            Showing: <span id="currentFilter">All Sports</span>
+          </div>
+        </div>
+        <div class="news-grid" id="newsGrid" aria-live="polite">
+          <div class="card" data-article-id="1">
+            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+              <div class="score-badge">2-1</div>
+              <div class="status-badge finished">FT</div>
+            </div>
+            <div class="c-body">
+              <div class="sport-league">
+                <div class="league-tag">Premier League</div>
+              </div>
+              <h3>Arsenal Secure Top Spot with Victory Over Chelsea</h3>
+              <p>Gunners dominate London derby with impressive second-half performance.</p>
+              <div class="match-info">
+                <div class="status finished">Finished</div>
+                <div class="venue">Emirates Stadium</div>
+                <div class="time">Today, 16:30</div>
+              </div>
+              <div class="c-meta">
+                <span>By Alex Morgan</span>
+                <span>•</span>
+                <span>45 mins ago</span>
+              </div>
+            </div>
+          </div>
+          <div class="card" data-article-id="2">
+            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1550461716-dbf266b2a8a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+              <div class="score-badge">113-108</div>
+              <div class="status-badge finished">FT</div>
+            </div>
+            <div class="c-body">
+              <div class="sport-league">
+                <div class="league-tag">NBA</div>
+              </div>
+              <h3>Warriors Extend Winning Streak to 8 Games</h3>
+              <p>Curry scores 42 points in spectacular shooting display against Miami.</p>
+              <div class="match-info">
+                <div class="status finished">Finished</div>
+                <div class="venue">Chase Center</div>
+                <div class="time">Today, 03:00</div>
+              </div>
+              <div class="c-meta">
+                <span>By Mike Johnson</span>
+                <span>•</span>
+                <span>2 hours ago</span>
+              </div>
+            </div>
+          </div>
+          <div class="card" data-article-id="3">
+            <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+              <div class="score-badge">325/4</div>
+              <div class="status-badge live">LIVE</div>
+            </div>
+            <div class="c-body">
+              <div class="sport-league">
+                <div class="league-tag">ICC World Cup</div>
+              </div>
+              <h3>India Set Massive Target Against Australia</h3>
+              <p>Kohli and Rohit partnership puts India in commanding position.</p>
+              <div class="match-info">
+                <div class="status live">Live - 45th over</div>
+                <div class="venue">MCG</div>
+                <div class="time">Live Now</div>
+              </div>
+              <div class="c-meta">
+                <span>By Sarah Patel</span>
+                <span>•</span>
+                <span>Live</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Load More -->
+      <div class="load-more-wrap">
+        <button class="btn ghost" id="loadMoreBtn">
+          Load more stories
+        </button>
+      </div>
+    </section>
+
+    <!-- Right: sidebar -->
+    <aside class="sidebar" aria-label="Sidebar">
+      <!-- Fixtures Panel -->
+      <div class="panel">
+        <h4>Today's Fixtures</h4>
+        <div class="fixtures-list" id="fixturesList">
+          <div class="fixture-item">
+            <div class="fixture-teams">
+              <strong>⚽ Man Utd vs Tottenham</strong>
+              <div class="fixture-meta">Premier League • 20:00</div>
+            </div>
+            <div class="fixture-time">20:00</div>
+          </div>
+          <div class="fixture-item">
+            <div class="fixture-teams">
+              <strong>🏀 Bucks vs Celtics</strong>
+              <div class="fixture-meta">NBA • 23:30</div>
+            </div>
+            <div class="fixture-time">23:30</div>
+          </div>
+          <div class="fixture-item">
+            <div class="fixture-teams">
+              <strong>🎾 Nadal vs Alcaraz</strong>
+              <div class="fixture-meta">French Open • 15:00</div>
+            </div>
+            <div class="fixture-time">15:00</div>
+          </div>
+          <div class="fixture-item">
+            <div class="fixture-teams">
+              <strong>⚾ Yankees vs Red Sox</strong>
+              <div class="fixture-meta">MLB • 01:05</div>
+            </div>
+            <div class="fixture-time">01:05</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Teams Panel -->
+      <div class="panel">
+        <h4>Top Teams</h4>
+        <div class="small-list" id="topTeams">
+          <div class="small-item">
+            <div style="width: 40px; height: 40px; background: #6C1D5F; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">MC</div>
+            <div>
+              <strong>Real Madrid</strong>
+              <div class="muted">⚽ Laliga</div>
+            </div>
+          </div>
+          <div class="small-item">
+            <div style="width: 40px; height: 40px; background: #BA0C2F; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">LAL</div>
+            <div>
+              <strong>LA Lakers</strong>
+              <div class="muted">🏀 NBA</div>
+            </div>
+          </div>
+          <div class="small-item">
+            <div style="width: 40px; height: 40px; background: #004BA0; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">IND</div>
+            <div>
+              <strong>India</strong>
+              <div class="muted">🏏 Cricket</div>
+            </div>
+          </div>
+          <div class="small-item">
+            <div style="width: 40px; height: 40px; background: #0033A0; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">NY</div>
+            <div>
+              <strong>NY Yankees</strong>
+              <div class="muted">⚾ MLB</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Follow Sports Panel - UPDATED (follow buttons removed) -->
+      <div class="panel">
+        <h4>Follow Sports</h4>
+        <div class="sports-list" id="sportsList">
+          <div class="sport-follow-item">
+            <div class="sport-info">
+              <span class="sport-icon">⚽</span>
+              <div>
+                <strong>Football</strong>
+                <div class="muted">2.4M followers</div>
+              </div>
+            </div>
+          </div>
+          <div class="sport-follow-item">
+            <div class="sport-info">
+              <span class="sport-icon">🏀</span>
+              <div>
+                <strong>Basketball</strong>
+                <div class="muted">1.8M followers</div>
+              </div>
+            </div>
+          </div>
+          <div class="sport-follow-item">
+            <div class="sport-info">
+              <span class="sport-icon">🏏</span>
+              <div>
+                <strong>Cricket</strong>
+                <div class="muted">1.5M followers</div>
+              </div>
+            </div>
+          </div>
+          <div class="sport-follow-item">
+            <div class="sport-info">
+              <span class="sport-icon">🎾</span>
+              <div>
+                <strong>Tennis</strong>
+                <div class="muted">890K followers</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Standings Panel -->
+      <div class="panel">
+        <h4>Premier League Standings</h4>
+        <div class="standings-table">
+          <div class="standing-row header">
+            <div class="standing-pos">#</div>
+            <div class="standing-team">Team</div>
+            <div class="standing-stat">P</div>
+            <div class="standing-stat">GD</div>
+            <div class="standing-stat">PTS</div>
+          </div>
+          <div class="standing-row">
+            <div class="standing-pos">1</div>
+            <div class="standing-team">Arsenal</div>
+            <div class="standing-stat">28</div>
+            <div class="standing-stat">+45</div>
+            <div class="standing-stat">68</div>
+          </div>
+          <div class="standing-row">
+            <div class="standing-pos">2</div>
+            <div class="standing-team">Man City</div>
+            <div class="standing-stat">28</div>
+            <div class="standing-stat">+39</div>
+            <div class="standing-stat">64</div>
+          </div>
+          <div class="standing-row">
+            <div class="standing-pos">3</div>
+            <div class="standing-team">Liverpool</div>
+            <div class="standing-stat">28</div>
+            <div class="standing-stat">+35</div>
+            <div class="standing-stat">63</div>
+          </div>
+          <div class="standing-row">
+            <div class="standing-pos">4</div>
+            <div class="standing-team">Aston Villa</div>
+            <div class="standing-stat">28</div>
+            <div class="standing-stat">+18</div>
+            <div class="standing-stat">55</div>
+          </div>
+          <div class="standing-row">
+            <div class="standing-pos">5</div>
+            <div class="standing-team">Tottenham</div>
+            <div class="standing-stat">28</div>
+            <div class="standing-stat">+15</div>
+            <div class="standing-stat">53</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Newsletter Panel -->
+      <div class="panel">
+        <h4>Sports Newsletter</h4>
+        <p class="muted">Get top stories weekly — delivered to your inbox. Join 500K+ sports fans!</p>
+        <div class="newsletter-row">
+          <input type="email" id="nlEmail" placeholder="you@example.com" aria-label="Email for newsletter"/>
+          <button class="btn" id="subscribeBtn">Join</button>
+        </div>
+        <div style="margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+          ✓ No spam • Unsubscribe anytime
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h5>AllSports</h5>
+        <p>Your premier destination for sports news, live scores, and video highlights.</p>
+      </div>
+      <div class="footer-section">
+        <h5>Sports</h5>
+        <a href="games/football.html">Football</a>
+        <a href="games/cricket.html">Cricket</a>
+        <a href="games/basketball.html">Basketball</a>
+        <a href="games/tennis.html">Tennis</a>
+      </div>
+      <div class="footer-section">
+        <h5>Company</h5>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2024 AllSports — Built with ❤️ for sports fans worldwide
+    </div>
+  </footer>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<!-- Article Modal -->
+<div class="modal" id="articleModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="articleModalBackdrop"></div>
+  <div class="modal-content" role="document">
+    <div class="modal-header">
+      <h3 id="modalTitle">Article</h3>
+      <button class="modal-close" aria-label="Close" id="articleModalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalContent">
+      <!-- Article content injected by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Video Modal -->
+<div class="modal" id="videoModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="videoModalBackdrop"></div>
+  <div class="modal-content" role="document">
+    <div class="modal-header">
+      <h3 id="videoModalTitle">Video</h3>
+      <button class="modal-close" aria-label="Close" id="videoModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="videoContainer">
+        <!-- Video player injected by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="modal" id="statsModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="statsModalBackdrop"></div>
+  <div class="modal-content stats-modal-content" role="document">
+    <div class="modal-header">
+      <h3 id="statsModalTitle">Match Statistics</h3>
+      <button class="modal-close" aria-label="Close" id="statsModalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="statsModalContainer">
+        <!-- Stats content injected by JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="scripts.js"></script>
+</body>
+</html>

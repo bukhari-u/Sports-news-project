@@ -1,0 +1,25 @@
+firstly add video links options to the option of watch live in live now cards and add four more live now cards and they shd be added horizontally so tht the arrows over them can be used to traverse them 
+secondly when we click upon any latest news card the card pop ups and it shows info but the info is way too much vague like this 
+Match Analysis way too much vague like this 
+Match Analysis
+This is a detailed analysis of the match. In a real application, this would include:
+
+Key moments and turning points
+Player performances and statistics
+Tactical analysis and formations
+Expert commentary and insights
+Post-match interviews and reactions
+
+these are mere headings add info in these headings and also make the data in the pop a little more organized 
+
+dnt remove the existing funtionality and give me entire updated codes  (only update the codes tht i gave u without removing existing functionaity ) dnt change the size of anything keep the same structure just make the changes tht i told u to also as u r making more cards for specific sections there are already forward and backward arrows to traverse if they work good if they dnt make them work 
+
+read my instructions carefully dnt miss anything
+
+
+
+also when the stats option is clicked upon in live now cards it doesnt show the stats give unique stats to each card 
+also in the right side bar there is a premier league standings table add more tables for more leagues one from each sport and add an arrow from which we can move to another table (add a la liga table too in which real madrid is on top with 100 points)
+also the right side bar which contains todays fixtures , top teams , follow sports , premier league standings and newsletter doesnt scroll down when the arrow comes over it fix it
+
+do all these things without removing any existing functionality and give me the entire updated code

@@ -1,0 +1,2759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sports Fixtures & Schedule - AllSports</title>
+  <meta name="description" content="Upcoming sports fixtures, match schedules, and tournament calendars."/>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Additional styles for fixtures page */
+    .date-navigation {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+      padding: var(--space-3);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .date-nav-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    
+    .date-nav-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .date-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .date-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      min-width: 200px;
+      text-align: center;
+    }
+    
+    .quick-dates {
+      display: flex;
+      gap: var(--space-2);
+    }
+    
+    .quick-date {
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .quick-date:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-primary);
+    }
+    
+    .quick-date.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    
+    .advanced-filters {
+      display: flex;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+      align-items: end;
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    
+    .filter-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .filter-select {
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      min-width: 160px;
+    }
+    
+    .filter-select:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .filter-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(232, 29, 47, 0.2);
+    }
+    
+    .fixtures-main {
+      padding: var(--space-4) 0;
+    }
+    
+    .fixtures-section {
+      margin-bottom: var(--space-4);
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .section-title {
+      font-size: 28px;
+      margin: 0;
+      color: var(--text-primary);
+      position: relative;
+      padding-left: 12px;
+    }
+    
+    .section-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    
+    .fixtures-count, .tournament-status {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      color: var(--text-secondary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .view-toggle {
+      display: flex;
+      gap: var(--space-1);
+    }
+    
+    .view-toggle .btn-small {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    
+    .fixtures-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    
+    .time-group {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .time-header {
+      background: rgba(255, 255, 255, 0.08);
+      padding: var(--space-2) var(--space-3);
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .time-label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .time-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      border-radius: 50%;
+      font-size: 10px;
+    }
+    
+    .match-count {
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    
+    .time-matches {
+      padding: var(--space-3);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-3);
+    }
+    
+    .match-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: var(--space-3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .match-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    
+    .match-card.upcoming {
+      border-left: 4px solid #FF9800;
+    }
+    
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-2);
+    }
+    
+    .match-sport {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .match-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: rgba(255, 152, 0, 0.15);
+      color: #FF9800;
+    }
+    
+    .match-competition {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-3);
+      font-weight: 500;
+    }
+    
+    .match-teams {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    
+    .team {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .team-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .team-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 10px;
+      color: white;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .team-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .team-score {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .match-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .match-details div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .match-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+    
+    .match-actions .btn-small {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+    
+    /* Enhanced Reminder button transitions */
+    .reminder-btn {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .reminder-btn .btn-text {
+      display: block;
+      transition: all 0.3s ease;
+    }
+    
+    .reminder-btn .hover-text {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(100%);
+      transition: all 0.3s ease;
+    }
+    
+    .reminder-btn.reminder-set {
+      background: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+    
+    .reminder-btn.reminder-set:hover {
+      background: #388E3C;
+      border-color: #388E3C;
+    }
+    
+    .reminder-btn.reminder-set:hover .btn-text {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+    
+    .reminder-btn.reminder-set:hover .hover-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* League fixtures */
+    .league-fixtures {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    
+    .league-group {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .league-header {
+      background: rgba(255, 255, 255, 0.08);
+      padding: var(--space-3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .league-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .league-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 10px;
+      color: white;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .league-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 18px;
+    }
+    
+    .league-matches {
+      padding: var(--space-3);
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-3);
+    }
+    
+    /* Tournaments grid */
+    .tournaments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-3);
+    }
+    
+    .tournament-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: var(--space-3);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tournament-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    
+    .tournament-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-2);
+    }
+    
+    .tournament-sport {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .tournament-status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .tournament-status-badge.ongoing {
+      background: rgba(232, 29, 47, 0.15);
+      color: var(--accent);
+    }
+    
+    .tournament-status-badge.upcoming {
+      background: rgba(255, 152, 0, 0.15);
+      color: #FF9800;
+    }
+    
+    .tournament-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+    
+    .tournament-dates {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .tournament-teams {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--space-3);
+    }
+    
+    .team-avatars {
+      display: flex;
+    }
+    
+    .team-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 10px;
+      color: white;
+      border: 2px solid var(--card);
+      margin-left: -8px;
+    }
+    
+    .team-avatar:first-child {
+      margin-left: 0;
+    }
+    
+    .teams-count {
+      margin-left: var(--space-2);
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .tournament-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+    
+    .tournament-actions .btn-small {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+    
+    /* Modal styles */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      background: var(--card);
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      transform: translateY(30px);
+      transition: transform 0.3s ease;
+    }
+    
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .modal-title {
+      font-size: 24px;
+      margin: 0;
+      color: var(--text-primary);
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 24px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-close:hover {
+      background: rgba(255,255,255,0.1);
+      color: var(--text-primary);
+    }
+    
+    .modal-body {
+      padding: var(--space-4);
+    }
+    
+    /* Search Results Styles */
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      z-index: 1000;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .search-results.active {
+      display: block;
+    }
+    
+    .search-result-item {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .search-result-item:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    
+    .search-result-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    
+    .search-result-content {
+      flex: 1;
+    }
+    
+    .search-result-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    
+    .search-result-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .search-result-type {
+      font-size: 10px;
+      padding: 2px 6px;
+      background: var(--accent);
+      color: white;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+    
+    .no-results {
+      padding: var(--space-3);
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    /* Toast notification styles */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--accent);
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-6);
+      color: var(--text-secondary);
+    }
+    
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: var(--space-3);
+      opacity: 0.5;
+    }
+    
+    .empty-state-text {
+      font-size: 18px;
+      margin-bottom: var(--space-2);
+    }
+    
+    .empty-state-subtext {
+      font-size: 14px;
+      opacity: 0.7;
+    }
+    
+    @media (max-width: 768px) {
+      .date-navigation {
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+      
+      .date-nav-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .quick-dates {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .advanced-filters {
+        flex-direction: column;
+      }
+      
+      .filter-select {
+        min-width: 100%;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-2);
+      }
+      
+      .time-matches, .league-matches {
+        grid-template-columns: 1fr;
+      }
+      
+      .tournaments-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .match-details {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="AllSports home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+      </div>
+      <div class="brand-text">
+        <h1>AllSports</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="teams.html" class="nav-link">Teams</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="players.html" class="nav-link">Players</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="fixtures.html" class="nav-link nav-active" aria-current="page">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+       <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="more/podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="more/highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="more/news-archive.html" class="dropdown-item">News Archive</a>
+            <a role="menuitem" href="more/statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="more/transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="more/injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and User Area -->
+    <div class="header-actions">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          id="searchInput" 
+          placeholder="Search fixtures..." 
+          aria-label="Search fixtures"
+          type="text"
+        >
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="AllSports Logo">
+        </div>
+        <div class="brand-text">
+          <h2>AllSports</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="scores.html" class="mobile-nav-link">Scores</a></li>
+        <li><a href="watch.html" class="mobile-nav-link">Watch</a></li>
+        <li><a href="teams.html" class="mobile-nav-link">Teams</a></li>
+        <li><a href="fixtures.html" class="mobile-nav-link mobile-nav-active">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search fixtures..." aria-label="Search fixtures" id="mobileSearchInput">
+        <div class="search-results" id="mobileSearchResults"></div>
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Sports Fixtures</h1>
+    <p class="page-subtitle">Upcoming matches, tournament schedules and match calendars</p>
+  </div>
+
+  <!-- Date Navigation -->
+  <div class="date-navigation">
+    <div class="date-nav-controls">
+      <button class="date-nav-btn" id="prevDateBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+      </button>
+      
+      <div class="date-display">
+        <span id="currentDateRange">Today, November 17</span>
+      </div>
+      
+      <button class="date-nav-btn" id="nextDateBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="quick-dates">
+      <button class="quick-date active" data-days="0">Today</button>
+      <button class="quick-date" data-days="1">Tomorrow</button>
+      <button class="quick-date" data-days="7">Next 7 Days</button>
+    </div>
+  </div>
+
+  <!-- Advanced Filters -->
+  <div class="advanced-filters" aria-label="Advanced filters for fixtures">
+    <div class="filter-group">
+      <label for="sportFilter">Sport</label>
+      <select id="sportFilter" class="filter-select">
+        <option value="All">All Sports</option>
+        <option value="Football">⚽ Football</option>
+        <option value="Cricket">🏏 Cricket</option>
+        <option value="Basketball">🏀 Basketball</option>
+        <option value="Tennis">🎾 Tennis</option>
+        <option value="Baseball">⚾ Baseball</option>
+        <option value="Hockey">🏒 Hockey</option>
+        <option value="Rugby">🏉 Rugby</option>
+        <option value="Boxing">🥊 Boxing</option>
+        <option value="Formula1">🏎️ Formula 1</option>
+        <option value="Golf">⛳ Golf</option>
+        <option value="MMA">🥋 MMA</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="leagueFilter">League</label>
+      <select id="leagueFilter" class="filter-select">
+        <option value="All">All Leagues</option>
+        <option value="premier-league">Premier League</option>
+        <option value="nba">NBA</option>
+        <option value="ipl">IPL</option>
+        <option value="nfl">NFL</option>
+        <option value="mlb">MLB</option>
+        <option value="nhl">NHL</option>
+        <option value="rugby-championship">Rugby Championship</option>
+        <option value="formula1">Formula 1</option>
+        <option value="atp">ATP Tour</option>
+        <option value="pga">PGA Tour</option>
+        <option value="ufc">UFC</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="timeFilter">Time</label>
+      <select id="timeFilter" class="filter-select">
+        <option value="All">All Times</option>
+        <option value="morning">Morning (6AM-12PM)</option>
+        <option value="afternoon">Afternoon (12PM-6PM)</option>
+        <option value="evening">Evening (6PM-12AM)</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <button class="btn btn-secondary" id="resetFiltersBtn">Clear Filters</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="fixtures-main">
+    <!-- Today's Fixtures -->
+    <section class="fixtures-section">
+      <div class="section-header">
+        <h2 class="section-title">Today's Fixtures</h2>
+        <div class="fixtures-count" id="todayCount">8 matches today</div>
+      </div>
+      
+      <div class="fixtures-timeline" id="todayFixtures">
+        <!-- Today's fixtures will be populated by JavaScript -->
+      </div>
+    </section>
+
+    <!-- Upcoming Fixtures by League -->
+    <section class="fixtures-section">
+      <div class="section-header">
+        <h2 class="section-title">Upcoming by League</h2>
+        <div class="view-toggle">
+          <button class="btn btn-small active" id="listViewBtn">List View</button>
+          <button class="btn btn-small ghost" id="calendarViewBtn">Calendar View</button>
+        </div>
+      </div>
+      
+      <div class="league-fixtures" id="leagueFixtures">
+        <!-- League fixtures will be populated by JavaScript -->
+      </div>
+    </section>
+
+    <!-- Major Tournaments -->
+    <section class="fixtures-section">
+      <div class="section-header">
+        <h2 class="section-title">Major Tournaments</h2>
+        <div class="tournament-status">Ongoing & Upcoming</div>
+      </div>
+      
+      <div class="tournaments-grid" id="tournamentsGrid">
+        <!-- Tournaments will be populated by JavaScript -->
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Footer -->
+<footer role="contentinfo">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h5>AllSports</h5>
+      <p>Your premier destination for sports news, live scores, and video highlights.</p>
+    </div>
+    <div class="footer-section">
+      <h5>Sports</h5>
+      <a href="games/football.html">Football</a>
+      <a href="games/cricket.html">Cricket</a>
+      <a href="games/basketball.html">Basketball</a>
+      <a href="games/tennis.html">Tennis</a>
+    </div>
+    <div class="footer-section">
+      <h5>Company</h5>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#terms">Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2024 AllSports — Built with ❤️ for sports fans worldwide
+  </div>
+</footer>
+
+<!-- Match Modal -->
+<div class="modal" id="matchModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="matchModalTitle">Match Details</h3>
+      <button class="modal-close" id="matchModalClose">&times;</button>
+    </div>
+    <div class="modal-body" id="matchModalContent">
+      <!-- Match details will be dynamically inserted here -->
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+<script>
+// Fixtures App with Enhanced Search
+class FixturesApp {
+  constructor() {
+    this.state = {
+      user: null,
+      remindedMatches: new Set(),
+      currentDate: new Date(),
+      currentFilters: {
+        sport: 'All',
+        league: 'All',
+        time: 'All'
+      },
+      viewMode: 'list' // 'list' or 'calendar'
+    };
+    
+    // Search data
+    this.searchData = [];
+    
+    // Sample fixtures data
+    this.fixturesData = {
+      today: [
+        {
+          id: 401,
+          sport: 'Football',
+          league: 'Champions League',
+          time: '19:45',
+          homeTeam: 'Bayern Munich',
+          awayTeam: 'Paris SG',
+          venue: 'Allianz Arena',
+          date: new Date()
+        },
+        {
+          id: 402,
+          sport: 'Basketball',
+          league: 'NBA',
+          time: '02:30',
+          homeTeam: 'Golden State Warriors',
+          awayTeam: 'Phoenix Suns',
+          venue: 'Chase Center',
+          date: new Date()
+        },
+        {
+          id: 403,
+          sport: 'Cricket',
+          league: 'T20 World Cup',
+          time: '08:00',
+          homeTeam: 'England',
+          awayTeam: 'Pakistan',
+          venue: 'Dubai International',
+          date: new Date()
+        },
+        {
+          id: 404,
+          sport: 'Tennis',
+          league: 'Australian Open',
+          time: '14:00',
+          homeTeam: 'Rafael Nadal',
+          awayTeam: 'Daniil Medvedev',
+          venue: 'Rod Laver Arena',
+          date: new Date()
+        },
+        {
+          id: 405,
+          sport: 'MMA',
+          league: 'UFC',
+          time: '23:00',
+          homeTeam: 'Israel Adesanya',
+          awayTeam: 'Alex Pereira',
+          venue: 'T-Mobile Arena',
+          date: new Date()
+        },
+        {
+          id: 406,
+          sport: 'Football',
+          league: 'Premier League',
+          time: '20:00',
+          homeTeam: 'Chelsea',
+          awayTeam: 'Arsenal',
+          venue: 'Stamford Bridge',
+          date: new Date()
+        },
+        {
+          id: 407,
+          sport: 'Baseball',
+          league: 'MLB',
+          time: '01:05',
+          homeTeam: 'NY Yankees',
+          awayTeam: 'Boston Red Sox',
+          venue: 'Yankee Stadium',
+          date: new Date()
+        },
+        {
+          id: 408,
+          sport: 'Hockey',
+          league: 'NHL',
+          time: '00:00',
+          homeTeam: 'Toronto Maple Leafs',
+          awayTeam: 'Montreal Canadiens',
+          venue: 'Scotiabank Arena',
+          date: new Date()
+        }
+      ],
+      upcoming: [
+        {
+          id: 409,
+          sport: 'Football',
+          league: 'Premier League',
+          time: '15:00',
+          homeTeam: 'Manchester United',
+          awayTeam: 'Liverpool',
+          venue: 'Old Trafford',
+          date: new Date(Date.now() + 86400000) // Tomorrow
+        },
+        {
+          id: 410,
+          sport: 'Cricket',
+          league: 'IPL',
+          time: '19:30',
+          homeTeam: 'Mumbai Indians',
+          awayTeam: 'Chennai Super Kings',
+          venue: 'Wankhede Stadium',
+          date: new Date(Date.now() + 86400000)
+        },
+        {
+          id: 411,
+          sport: 'Basketball',
+          league: 'NBA',
+          time: '23:00',
+          homeTeam: 'LA Lakers',
+          awayTeam: 'Boston Celtics',
+          venue: 'Staples Center',
+          date: new Date(Date.now() + 172800000) // Day after tomorrow
+        },
+        {
+          id: 412,
+          sport: 'Tennis',
+          league: 'Wimbledon',
+          time: '13:00',
+          homeTeam: 'Novak Djokovic',
+          awayTeam: 'Roger Federer',
+          venue: 'Centre Court',
+          date: new Date(Date.now() + 259200000) // 3 days
+        },
+        {
+          id: 413,
+          sport: 'Rugby',
+          league: 'Six Nations',
+          time: '14:30',
+          homeTeam: 'England',
+          awayTeam: 'Wales',
+          venue: 'Twickenham Stadium',
+          date: new Date(Date.now() + 345600000) // 4 days
+        },
+        {
+          id: 414,
+          sport: 'Golf',
+          league: 'Masters Tournament',
+          time: '08:00',
+          homeTeam: 'Tiger Woods',
+          awayTeam: 'Rory McIlroy',
+          venue: 'Augusta National',
+          date: new Date(Date.now() + 432000000) // 5 days
+        },
+        {
+          id: 415,
+          sport: 'Boxing',
+          league: 'WBC Heavyweight',
+          time: '22:00',
+          homeTeam: 'Tyson Fury',
+          awayTeam: 'Anthony Joshua',
+          venue: 'Wembley Stadium',
+          date: new Date(Date.now() + 518400000) // 6 days
+        },
+        {
+          id: 416,
+          sport: 'Formula1',
+          league: 'Monaco Grand Prix',
+          time: '14:00',
+          homeTeam: 'Lewis Hamilton',
+          awayTeam: 'Max Verstappen',
+          venue: 'Circuit de Monaco',
+          date: new Date(Date.now() + 604800000) // 7 days
+        }
+      ],
+      tournaments: [
+        {
+          id: 501,
+          name: 'FIFA World Cup 2026',
+          sport: 'Football',
+          status: 'upcoming',
+          startDate: 'June 8, 2026',
+          endDate: 'July 3, 2026',
+          teams: 48,
+          location: 'USA, Canada & Mexico'
+        },
+        {
+          id: 502,
+          name: 'ICC Cricket World Cup',
+          sport: 'Cricket',
+          status: 'ongoing',
+          startDate: 'October 5, 2024',
+          endDate: 'November 19, 2024',
+          teams: 10,
+          location: 'India'
+        },
+        {
+          id: 503,
+          name: 'NBA Playoffs',
+          sport: 'Basketball',
+          status: 'upcoming',
+          startDate: 'April 15, 2024',
+          endDate: 'June 18, 2024',
+          teams: 16,
+          location: 'USA & Canada'
+        },
+        {
+          id: 504,
+          name: 'Wimbledon',
+          sport: 'Tennis',
+          status: 'upcoming',
+          startDate: 'July 1, 2024',
+          endDate: 'July 14, 2024',
+          teams: 128,
+          location: 'London, UK'
+        },
+        {
+          id: 505,
+          name: 'Summer Olympics',
+          sport: 'Olympics',
+          status: 'upcoming',
+          startDate: 'July 26, 2024',
+          endDate: 'August 11, 2024',
+          teams: 206,
+          location: 'Paris, France'
+        },
+        {
+          id: 506,
+          name: 'UFC 300',
+          sport: 'MMA',
+          status: 'upcoming',
+          startDate: 'April 13, 2024',
+          endDate: 'April 13, 2024',
+          teams: 24,
+          location: 'Las Vegas, USA'
+        }
+      ]
+    };
+    
+    this.init();
+  }
+
+  async init() {
+    console.log('Fixtures App Initializing...');
+    await this.checkAuthStatus();
+    await this.loadRemindedMatches();
+    this.setupEventListeners();
+    this.renderFixtures();
+    this.updateReminderButtons();
+    this.setupModalListeners();
+    this.setupSearch();
+  }
+
+  // ========== SEARCH FUNCTIONALITY ==========
+  setupSearch() {
+    // Initialize search data from fixturesData
+    this.prepareSearchData();
+    
+    // Desktop search
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        this.handleSearch(query, searchResults);
+      });
+      
+      // Close search results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+          searchResults.classList.remove('active');
+        }
+      });
+    }
+    
+    // Mobile search
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    const mobileSearchResults = document.getElementById('mobileSearchResults');
+    
+    if (mobileSearchInput) {
+      mobileSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        this.handleSearch(query, mobileSearchResults);
+      });
+      
+      // Close mobile search results when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mobileSearchInput.contains(e.target) && !mobileSearchResults.contains(e.target)) {
+          mobileSearchResults.classList.remove('active');
+        }
+      });
+    }
+  }
+
+  prepareSearchData() {
+    this.searchData = [];
+    
+    // Add matches from today and upcoming fixtures
+    [...this.fixturesData.today, ...this.fixturesData.upcoming].forEach(match => {
+      this.searchData.push({
+        id: `match-${match.id}`,
+        title: `${match.homeTeam} vs ${match.awayTeam}`,
+        subtitle: `${match.league} • ${match.venue}`,
+        type: 'Match',
+        icon: this.getSportIcon(match.sport),
+        data: match,
+        category: 'matches'
+      });
+    });
+    
+    // Add tournaments
+    this.fixturesData.tournaments.forEach(tournament => {
+      this.searchData.push({
+        id: `tournament-${tournament.id}`,
+        title: tournament.name,
+        subtitle: `${tournament.sport} • ${tournament.location}`,
+        type: 'Tournament',
+        icon: this.getSportIcon(tournament.sport),
+        data: tournament,
+        category: 'tournaments'
+      });
+    });
+    
+    // Add sports categories
+    const sports = [
+      { name: 'Football', icon: '⚽' },
+      { name: 'Basketball', icon: '🏀' },
+      { name: 'Cricket', icon: '🏏' },
+      { name: 'Tennis', icon: '🎾' },
+      { name: 'Baseball', icon: '⚾' },
+      { name: 'Hockey', icon: '🏒' },
+      { name: 'Rugby', icon: '🏉' },
+      { name: 'Boxing', icon: '🥊' },
+      { name: 'Formula 1', icon: '🏎️' },
+      { name: 'Golf', icon: '⛳' },
+      { name: 'MMA', icon: '🥋' },
+      { name: 'Olympics', icon: '🏅' }
+    ];
+    
+    sports.forEach(sport => {
+      this.searchData.push({
+        id: `sport-${sport.name.toLowerCase()}`,
+        title: sport.name,
+        subtitle: 'Sports Category',
+        type: 'Sport',
+        icon: sport.icon,
+        category: 'sports'
+      });
+    });
+    
+    // Add leagues
+    const leagues = [
+      { name: 'Premier League', sport: 'Football' },
+      { name: 'Champions League', sport: 'Football' },
+      { name: 'NBA', sport: 'Basketball' },
+      { name: 'IPL', sport: 'Cricket' },
+      { name: 'T20 World Cup', sport: 'Cricket' },
+      { name: 'UFC', sport: 'MMA' },
+      { name: 'Formula 1', sport: 'Formula 1' },
+      { name: 'MLB', sport: 'Baseball' },
+      { name: 'NHL', sport: 'Hockey' },
+      { name: 'Six Nations', sport: 'Rugby' },
+      { name: 'Wimbledon', sport: 'Tennis' },
+      { name: 'Australian Open', sport: 'Tennis' },
+      { name: 'Masters Tournament', sport: 'Golf' }
+    ];
+    
+    leagues.forEach(league => {
+      this.searchData.push({
+        id: `league-${league.name.toLowerCase().replace(/\s+/g, '-')}`,
+        title: league.name,
+        subtitle: `${league.sport} League`,
+        type: 'League',
+        icon: this.getSportIcon(league.sport),
+        category: 'leagues'
+      });
+    });
+    
+    // Add teams
+    const teams = [
+      { name: 'Bayern Munich', sport: 'Football' },
+      { name: 'Paris SG', sport: 'Football' },
+      { name: 'Chelsea', sport: 'Football' },
+      { name: 'Arsenal', sport: 'Football' },
+      { name: 'Manchester United', sport: 'Football' },
+      { name: 'Liverpool', sport: 'Football' },
+      { name: 'Golden State Warriors', sport: 'Basketball' },
+      { name: 'Phoenix Suns', sport: 'Basketball' },
+      { name: 'LA Lakers', sport: 'Basketball' },
+      { name: 'Boston Celtics', sport: 'Basketball' },
+      { name: 'England', sport: 'Cricket' },
+      { name: 'Pakistan', sport: 'Cricket' },
+      { name: 'Mumbai Indians', sport: 'Cricket' },
+      { name: 'Chennai Super Kings', sport: 'Cricket' },
+      { name: 'NY Yankees', sport: 'Baseball' },
+      { name: 'Boston Red Sox', sport: 'Baseball' },
+      { name: 'Toronto Maple Leafs', sport: 'Hockey' },
+      { name: 'Montreal Canadiens', sport: 'Hockey' }
+    ];
+    
+    teams.forEach(team => {
+      this.searchData.push({
+        id: `team-${team.name.toLowerCase().replace(/\s+/g, '-')}`,
+        title: team.name,
+        subtitle: `${team.sport} Team`,
+        type: 'Team',
+        icon: this.getSportIcon(team.sport),
+        category: 'teams'
+      });
+    });
+  }
+
+  handleSearch(query, resultsContainer) {
+    if (!query) {
+      resultsContainer.classList.remove('active');
+      return;
+    }
+    
+    const searchWords = query.split(/\s+/).filter(word => word.length > 0);
+    
+    if (searchWords.length === 0) {
+      resultsContainer.classList.remove('active');
+      return;
+    }
+    
+    const results = this.searchData.filter(item => {
+      // Check if every search word matches in title, subtitle, or type
+      return searchWords.every(word => {
+        const searchableText = `${item.title} ${item.subtitle} ${item.type} ${item.category}`.toLowerCase();
+        return searchableText.includes(word);
+      });
+    });
+    
+    this.displaySearchResults(results, resultsContainer, query);
+  }
+
+  displaySearchResults(results, container, query) {
+    if (results.length === 0) {
+      container.innerHTML = `
+        <div class="no-results">
+          <p>No results found for "<strong>${query}</strong>"</p>
+          <p style="font-size: 12px; margin-top: 8px;">Try searching for matches, teams, leagues, or tournaments</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = results.map(result => `
+        <div class="search-result-item" data-id="${result.id}" data-type="${result.category}">
+          <div class="search-result-icon">${result.icon}</div>
+          <div class="search-result-content">
+            <div class="search-result-title">${this.highlightText(result.title, query)}</div>
+            <div class="search-result-subtitle">${result.subtitle}</div>
+          </div>
+          <div class="search-result-type">${result.type}</div>
+        </div>
+      `).join('');
+      
+      // Add click handlers
+      container.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', () => {
+          this.handleSearchResultClick(item.dataset.id, item.dataset.type);
+          container.classList.remove('active');
+        });
+      });
+    }
+    
+    container.classList.add('active');
+  }
+
+  highlightText(text, query) {
+    const words = query.split(/\s+/).filter(word => word.length > 0);
+    let highlighted = text;
+    
+    words.forEach(word => {
+      const regex = new RegExp(`(${word})`, 'gi');
+      highlighted = highlighted.replace(regex, '<mark>$1</mark>');
+    });
+    
+    return highlighted;
+  }
+
+  handleSearchResultClick(id, type) {
+    const searchInput = document.getElementById('searchInput');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+    
+    // Clear search inputs
+    if (searchInput) searchInput.value = '';
+    if (mobileSearchInput) mobileSearchInput.value = '';
+    
+    // Handle based on type
+    switch (type) {
+      case 'matches':
+        const matchId = id.replace('match-', '');
+        this.showMatchDetails(matchId);
+        break;
+      case 'tournaments':
+        const tournamentId = id.replace('tournament-', '');
+        this.showTournamentDetails(tournamentId);
+        break;
+      case 'sports':
+        const sportName = id.replace('sport-', '');
+        this.filterBySport(sportName);
+        break;
+      case 'leagues':
+        const leagueName = id.replace('league-', '').replace(/-/g, ' ');
+        this.filterByLeague(leagueName);
+        break;
+      case 'teams':
+        const teamName = id.replace('team-', '').replace(/-/g, ' ');
+        this.filterByTeam(teamName);
+        break;
+    }
+  }
+
+  filterBySport(sportName) {
+    const sportFilter = document.getElementById('sportFilter');
+    if (sportFilter) {
+      sportFilter.value = sportName;
+      this.state.currentFilters.sport = sportName;
+      this.filterFixtures();
+    }
+  }
+
+  filterByLeague(leagueName) {
+    const leagueFilter = document.getElementById('leagueFilter');
+    if (leagueFilter) {
+      // Find the closest matching option
+      const options = Array.from(leagueFilter.options);
+      const matchingOption = options.find(option => 
+        option.text.toLowerCase().includes(leagueName.toLowerCase())
+      );
+      if (matchingOption) {
+        leagueFilter.value = matchingOption.value;
+        this.state.currentFilters.league = matchingOption.value;
+        this.filterFixtures();
+      }
+    }
+  }
+
+  filterByTeam(teamName) {
+    // Show all fixtures first
+    this.resetFilters();
+    
+    // Then filter by team
+    const matchCards = document.querySelectorAll('.match-card');
+    let foundMatches = false;
+    
+    matchCards.forEach(card => {
+      const homeTeam = card.querySelector('.home-team .team-name')?.textContent;
+      const awayTeam = card.querySelector('.away-team .team-name')?.textContent;
+      
+      if (homeTeam && awayTeam && 
+          (homeTeam.toLowerCase().includes(teamName.toLowerCase()) || 
+           awayTeam.toLowerCase().includes(teamName.toLowerCase()))) {
+        card.style.display = 'block';
+        foundMatches = true;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+    
+    if (foundMatches) {
+      this.showToast(`Showing matches for ${teamName}`);
+    } else {
+      this.showToast(`No matches found for ${teamName}`);
+    }
+  }
+
+  showTournamentDetails(tournamentId) {
+    const tournament = this.fixturesData.tournaments.find(t => t.id.toString() === tournamentId);
+    if (tournament) {
+      this.showToast(`Showing details for ${tournament.name}`);
+      // In a real app, you would open a tournament details modal or page
+    }
+  }
+
+  setupModalListeners() {
+    // Match modal
+    const matchModal = document.getElementById('matchModal');
+    const closeMatchModal = document.getElementById('matchModalClose');
+    
+    closeMatchModal.addEventListener('click', () => {
+      matchModal.classList.remove('active');
+    });
+    
+    matchModal.addEventListener('click', (e) => {
+      if (e.target === matchModal) {
+        matchModal.classList.remove('active');
+      }
+    });
+  }
+
+  async checkAuthStatus() {
+    try {
+      // Check if user is logged in using the same method as scores page
+      const response = await fetch('/api/user');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user) {
+          this.state.user = data.user;
+          this.updateAuthUI();
+          console.log('User authenticated:', this.state.user.username);
+        } else {
+          console.log('User not authenticated');
+          this.state.user = null;
+          this.updateAuthUI();
+        }
+      } else {
+        // Fallback to localStorage for demo purposes
+        const userData = localStorage.getItem('allsports_user');
+        if (userData) {
+          this.state.user = JSON.parse(userData);
+          this.updateAuthUI();
+          console.log('User authenticated (localStorage):', this.state.user.username);
+        } else {
+          console.log('User not authenticated');
+          this.state.user = null;
+          this.updateAuthUI();
+        }
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      // Fallback to localStorage for demo purposes
+      const userData = localStorage.getItem('allsports_user');
+      if (userData) {
+        this.state.user = JSON.parse(userData);
+        this.updateAuthUI();
+        console.log('User authenticated (localStorage fallback):', this.state.user.username);
+      } else {
+        this.state.user = null;
+        this.updateAuthUI();
+      }
+    }
+  }
+
+  async loadRemindedMatches() {
+    try {
+      // Try API first, then fallback to localStorage
+      const response = await fetch('/api/user/reminded-matches');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const matchIds = data.remindedMatches.map(match => match.matchId);
+          this.state.remindedMatches = new Set(matchIds);
+          console.log('Loaded reminded matches from API:', matchIds);
+        }
+      } else {
+        // Fallback to localStorage
+        const remindedMatches = localStorage.getItem('allsports_reminded_matches');
+        if (remindedMatches) {
+          const matchIds = JSON.parse(remindedMatches);
+          this.state.remindedMatches = new Set(matchIds);
+          console.log('Loaded reminded matches from localStorage:', matchIds);
+        } else {
+          console.log('No reminded matches found');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading reminded matches:', error);
+      // Fallback to localStorage
+      const remindedMatches = localStorage.getItem('allsports_reminded_matches');
+      if (remindedMatches) {
+        const matchIds = JSON.parse(remindedMatches);
+        this.state.remindedMatches = new Set(matchIds);
+      }
+    }
+  }
+
+  updateAuthUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    
+    if (this.state.user) {
+      // User is logged in - show username
+      if (loginText) loginText.textContent = this.state.user.username;
+      if (mobileLoginText) mobileLoginText.textContent = this.state.user.username;
+      
+      console.log('Updated UI for logged in user:', this.state.user.username);
+    } else {
+      // User is not logged in - show "Login"
+      if (loginText) loginText.textContent = 'Login';
+      if (mobileLoginText) mobileLoginText.textContent = 'Login';
+      
+      console.log('Updated UI for logged out user');
+    }
+  }
+
+  updateReminderButtons() {
+    const reminderButtons = document.querySelectorAll('.reminder-btn');
+    
+    reminderButtons.forEach(button => {
+      const matchId = button.dataset.matchId;
+      const isReminderSet = this.state.remindedMatches.has(matchId);
+      
+      if (isReminderSet) {
+        button.classList.remove('ghost');
+        button.classList.add('reminder-set');
+        button.querySelector('.btn-text').textContent = 'Reminder Set';
+      } else {
+        button.classList.add('ghost');
+        button.classList.remove('reminder-set');
+        button.querySelector('.btn-text').textContent = 'Remind Me';
+      }
+    });
+  }
+
+  async toggleReminder(matchId, matchData) {
+    // Check if user is logged in
+    if (!this.state.user) {
+        this.showToast('Please log in to set reminders');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+        return;
+    }
+
+    // Determine the correct action based on current reminder state
+    const isCurrentlyReminded = this.state.remindedMatches.has(matchId);
+    const action = isCurrentlyReminded ? 'remove' : 'add';
+
+    console.log('Toggle reminder:', {
+        matchId,
+        currentState: isCurrentlyReminded ? 'reminder set' : 'no reminder',
+        action
+    });
+
+    try {
+        const response = await fetch('/api/user/set-reminder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                matchId: parseInt(matchId),
+                ...matchData,
+                action
+            })
+        });
+
+        // Check if response is OK
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Server response:', result);
+
+        if (result.success) {
+            // Update local state based on the action that was actually performed
+            if (result.action === 'reminder_set') {
+                this.state.remindedMatches.add(matchId);
+                this.showToast('Reminder set successfully! You will be notified before the match starts.');
+            } else if (result.action === 'reminder_removed') {
+                this.state.remindedMatches.delete(matchId);
+                this.showToast('Reminder removed successfully');
+            }
+
+            // Update UI
+            this.updateReminderButtons();
+            
+            console.log(`Match ${matchId} reminder ${result.action} successfully`);
+        } else {
+            this.showToast(result.message || 'Error updating reminder status');
+        }
+    } catch (error) {
+        console.error('Error toggling reminder:', error);
+        // Fallback to localStorage for demo
+        if (action === 'add') {
+            this.state.remindedMatches.add(matchId);
+            localStorage.setItem('allsports_reminded_matches', JSON.stringify([...this.state.remindedMatches]));
+            this.showToast('Reminder set successfully! You will be notified before the match starts.');
+        } else {
+            this.state.remindedMatches.delete(matchId);
+            localStorage.setItem('allsports_reminded_matches', JSON.stringify([...this.state.remindedMatches]));
+            this.showToast('Reminder removed successfully');
+        }
+        this.updateReminderButtons();
+    }
+  }
+
+  setupEventListeners() {
+    // Date navigation
+    const prevDateBtn = document.getElementById('prevDateBtn');
+    const nextDateBtn = document.getElementById('nextDateBtn');
+    const quickDates = document.querySelectorAll('.quick-date');
+
+    if (prevDateBtn) {
+      prevDateBtn.addEventListener('click', () => {
+        this.navigateDate(-1);
+      });
+    }
+
+    if (nextDateBtn) {
+      nextDateBtn.addEventListener('click', () => {
+        this.navigateDate(1);
+      });
+    }
+
+    quickDates.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const days = parseInt(e.target.dataset.days);
+        this.setQuickDate(days);
+        
+        // Update active state
+        quickDates.forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
+
+    // Filter functionality
+    const sportFilter = document.getElementById('sportFilter');
+    const leagueFilter = document.getElementById('leagueFilter');
+    const timeFilter = document.getElementById('timeFilter');
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+
+    if (sportFilter) {
+      sportFilter.addEventListener('change', (e) => {
+        this.state.currentFilters.sport = e.target.value;
+        this.filterFixtures();
+      });
+    }
+
+    if (leagueFilter) {
+      leagueFilter.addEventListener('change', (e) => {
+        this.state.currentFilters.league = e.target.value;
+        this.filterFixtures();
+      });
+    }
+
+    if (timeFilter) {
+      timeFilter.addEventListener('change', (e) => {
+        this.state.currentFilters.time = e.target.value;
+        this.filterFixtures();
+      });
+    }
+
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener('click', () => {
+        this.resetFilters();
+      });
+    }
+
+    // View toggle
+    const listViewBtn = document.getElementById('listViewBtn');
+    const calendarViewBtn = document.getElementById('calendarViewBtn');
+
+    if (listViewBtn) {
+      listViewBtn.addEventListener('click', () => {
+        this.setViewMode('list');
+        listViewBtn.classList.remove('ghost');
+        listViewBtn.classList.add('active');
+        calendarViewBtn.classList.remove('active');
+        calendarViewBtn.classList.add('ghost');
+      });
+    }
+
+    if (calendarViewBtn) {
+      calendarViewBtn.addEventListener('click', () => {
+        this.setViewMode('calendar');
+        calendarViewBtn.classList.remove('ghost');
+        calendarViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+        listViewBtn.classList.add('ghost');
+      });
+    }
+
+    // Login/Logout functionality
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+
+    if (loginBtn) {
+      loginBtn.addEventListener('click', () => {
+        if (!this.state.user) {
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    if (mobileLoginBtn) {
+      mobileLoginBtn.addEventListener('click', () => {
+        if (!this.state.user) {
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleLogout();
+      });
+    }
+
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleLogout();
+      });
+    }
+
+    // Reminder buttons (delegated event handling)
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.reminder-btn')) {
+        const button = e.target.closest('.reminder-btn');
+        const matchId = button.dataset.matchId;
+        const matchCard = button.closest('.match-card');
+        const matchData = this.getMatchData(matchCard);
+        
+        this.toggleReminder(matchId, matchData);
+      }
+      
+      // Match card click for details
+      if (e.target.closest('.match-card') && !e.target.closest('.btn')) {
+        const matchCard = e.target.closest('.match-card');
+        const matchId = matchCard.dataset.matchId;
+        this.showMatchDetails(matchId);
+      }
+    });
+  }
+
+  async handleLogout() {
+    try {
+      const response = await fetch('/api/user/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          this.state.user = null;
+          this.updateAuthUI();
+          this.showToast('You have been logged out');
+          console.log('User logged out successfully');
+        }
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Fallback to localStorage clearing
+      localStorage.removeItem('allsports_user');
+      localStorage.removeItem('allsports_reminded_matches');
+      this.state.user = null;
+      this.state.remindedMatches = new Set();
+      this.updateAuthUI();
+      this.updateReminderButtons();
+      this.showToast('You have been logged out');
+    }
+  }
+
+  navigateDate(direction) {
+    const newDate = new Date(this.state.currentDate);
+    newDate.setDate(newDate.getDate() + direction);
+    this.state.currentDate = newDate;
+    this.updateDateDisplay();
+    this.renderFixtures();
+  }
+
+  setQuickDate(days) {
+    const newDate = new Date();
+    newDate.setDate(newDate.getDate() + days);
+    this.state.currentDate = newDate;
+    this.updateDateDisplay();
+    this.renderFixtures();
+  }
+
+  setViewMode(mode) {
+    this.state.viewMode = mode;
+    // In a real app, this would trigger a re-render of the fixtures
+    this.showToast(`Switched to ${mode} view`);
+  }
+
+  updateDateDisplay() {
+    const dateDisplay = document.getElementById('currentDateRange');
+    if (dateDisplay) {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      dateDisplay.textContent = this.state.currentDate.toLocaleDateString('en-US', options);
+    }
+  }
+
+  renderFixtures() {
+    this.renderTodayFixtures();
+    this.renderLeagueFixtures();
+    this.renderTournaments();
+  }
+
+  renderTodayFixtures() {
+    const todayFixturesContainer = document.getElementById('todayFixtures');
+    if (!todayFixturesContainer) return;
+
+    // Group fixtures by time
+    const timeGroups = {
+      morning: [],
+      afternoon: [],
+      evening: []
+    };
+
+    this.fixturesData.today.forEach(fixture => {
+      const time = fixture.time;
+      const hour = parseInt(time.split(':')[0]);
+      
+      if (hour >= 6 && hour < 12) {
+        timeGroups.morning.push(fixture);
+      } else if (hour >= 12 && hour < 18) {
+        timeGroups.afternoon.push(fixture);
+      } else {
+        timeGroups.evening.push(fixture);
+      }
+    });
+
+    let html = '';
+
+    // Morning fixtures
+    if (timeGroups.morning.length > 0) {
+      html += this.renderTimeGroup('Morning', '🌅', timeGroups.morning);
+    }
+
+    // Afternoon fixtures
+    if (timeGroups.afternoon.length > 0) {
+      html += this.renderTimeGroup('Afternoon', '☀️', timeGroups.afternoon);
+    }
+
+    // Evening fixtures
+    if (timeGroups.evening.length > 0) {
+      html += this.renderTimeGroup('Evening', '🌙', timeGroups.evening);
+    }
+
+    // If no fixtures
+    if (html === '') {
+      html = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📅</div>
+          <div class="empty-state-text">No fixtures scheduled for today</div>
+          <div class="empty-state-subtext">Check back later for updates</div>
+        </div>
+      `;
+    }
+
+    todayFixturesContainer.innerHTML = html;
+    
+    // Update count
+    const todayCount = document.getElementById('todayCount');
+    if (todayCount) {
+      todayCount.textContent = `${this.fixturesData.today.length} matches today`;
+    }
+  }
+
+  renderTimeGroup(label, icon, fixtures) {
+    let html = `
+      <div class="time-group">
+        <div class="time-header">
+          <div class="time-label">
+            <div class="time-icon">${icon}</div>
+            <span>${label}</span>
+          </div>
+          <div class="match-count">${fixtures.length} matches</div>
+        </div>
+        <div class="time-matches">
+    `;
+
+    fixtures.forEach(fixture => {
+      html += this.renderMatchCard(fixture);
+    });
+
+    html += `
+        </div>
+      </div>
+    `;
+
+    return html;
+  }
+
+  renderLeagueFixtures() {
+    const leagueFixturesContainer = document.getElementById('leagueFixtures');
+    if (!leagueFixturesContainer) return;
+
+    // Group fixtures by league
+    const leagueGroups = {};
+    
+    this.fixturesData.upcoming.forEach(fixture => {
+      if (!leagueGroups[fixture.league]) {
+        leagueGroups[fixture.league] = [];
+      }
+      leagueGroups[fixture.league].push(fixture);
+    });
+
+    let html = '';
+
+    for (const [league, fixtures] of Object.entries(leagueGroups)) {
+      html += `
+        <div class="league-group">
+          <div class="league-header">
+            <div class="league-info">
+              <div class="league-logo">${league.substring(0, 3)}</div>
+              <div class="league-name">${league}</div>
+            </div>
+            <div class="match-count">${fixtures.length} upcoming</div>
+          </div>
+          <div class="league-matches">
+      `;
+
+      fixtures.forEach(fixture => {
+        html += this.renderMatchCard(fixture);
+      });
+
+      html += `
+          </div>
+        </div>
+      `;
+    }
+
+    leagueFixturesContainer.innerHTML = html;
+  }
+
+  renderTournaments() {
+    const tournamentsContainer = document.getElementById('tournamentsGrid');
+    if (!tournamentsContainer) return;
+
+    let html = '';
+
+    this.fixturesData.tournaments.forEach(tournament => {
+      const statusClass = tournament.status === 'ongoing' ? 'ongoing' : 'upcoming';
+      const statusText = tournament.status === 'ongoing' ? 'Ongoing' : 'Upcoming';
+      
+      html += `
+        <div class="tournament-card">
+          <div class="tournament-header">
+            <div class="tournament-sport">
+              <span class="sport-icon">${this.getSportIcon(tournament.sport)}</span>
+              <span>${tournament.sport}</span>
+            </div>
+            <div class="tournament-status-badge ${statusClass}">${statusText}</div>
+          </div>
+          <div class="tournament-name">${tournament.name}</div>
+          <div class="tournament-dates">
+            <i class="fas fa-calendar"></i>
+            ${tournament.startDate} - ${tournament.endDate}
+          </div>
+          <div class="tournament-teams">
+            <div class="team-avatars">
+              <div class="team-avatar">T1</div>
+              <div class="team-avatar">T2</div>
+              <div class="team-avatar">T3</div>
+              <div class="team-avatar">+${tournament.teams - 3}</div>
+            </div>
+            <div class="teams-count">${tournament.teams} teams</div>
+          </div>
+          <div class="tournament-details">
+            <div class="match-details">
+              <div>
+                <i class="fas fa-map-marker-alt"></i>
+                ${tournament.location}
+              </div>
+            </div>
+          </div>
+          <div class="tournament-actions">
+            <button class="btn btn-small reminder-btn" data-match-id="${tournament.id}">
+              <span class="btn-text">Follow Tournament</span>
+              <span class="hover-text">Unfollow</span>
+            </button>
+            <button class="btn btn-small ghost" data-tournament-id="${tournament.id}">Schedule</button>
+          </div>
+        </div>
+      `;
+    });
+
+    tournamentsContainer.innerHTML = html;
+  }
+
+  renderMatchCard(fixture) {
+    const isReminderSet = this.state.remindedMatches.has(fixture.id.toString());
+    const reminderClass = isReminderSet ? 'reminder-set' : '';
+    const reminderText = isReminderSet ? 'Reminder Set' : 'Remind Me';
+    
+    return `
+      <div class="match-card upcoming" data-sport="${fixture.sport}" data-match-id="${fixture.id}">
+        <div class="match-header">
+          <div class="match-sport">
+            <span class="sport-icon">${this.getSportIcon(fixture.sport)}</span>
+            <span>${fixture.sport}</span>
+          </div>
+          <div class="match-status">
+            <span>${fixture.time}</span>
+          </div>
+        </div>
+        <div class="match-competition">
+          ${fixture.league} • ${fixture.venue}
+        </div>
+        <div class="match-teams">
+          <div class="team home-team">
+            <div class="team-info">
+              <div class="team-logo">${fixture.homeTeam.substring(0, 3)}</div>
+              <div class="team-name">${fixture.homeTeam}</div>
+            </div>
+            <div class="team-score">-</div>
+          </div>
+          <div class="team away-team">
+            <div class="team-info">
+              <div class="team-logo">${fixture.awayTeam.substring(0, 3)}</div>
+              <div class="team-name">${fixture.awayTeam}</div>
+            </div>
+            <div class="team-score">-</div>
+          </div>
+        </div>
+        <div class="match-details">
+          <div class="match-venue">
+            <i class="fas fa-map-marker-alt"></i>
+            ${fixture.venue}
+          </div>
+          <div class="match-time">
+            <i class="fas fa-clock"></i>
+            ${this.formatMatchDate(fixture.date)}
+          </div>
+        </div>
+        <div class="match-actions">
+          <button class="btn btn-small reminder-btn ${reminderClass}" data-match-id="${fixture.id}">
+            <span class="btn-text">${reminderText}</span>
+            <span class="hover-text">Off Reminder</span>
+          </button>
+          <button class="btn btn-small ghost preview-btn" data-match-id="${fixture.id}">Preview</button>
+        </div>
+      </div>
+    `;
+  }
+
+  getSportIcon(sport) {
+    const icons = {
+      'Football': '⚽',
+      'Cricket': '🏏',
+      'Basketball': '🏀',
+      'Tennis': '🎾',
+      'Baseball': '⚾',
+      'Hockey': '🏒',
+      'Rugby': '🏉',
+      'Boxing': '🥊',
+      'Formula1': '🏎️',
+      'Golf': '⛳',
+      'MMA': '🥋',
+      'Olympics': '🏅'
+    };
+    
+    return icons[sport] || '🏆';
+  }
+
+  formatMatchDate(date) {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === tomorrow.toDateString()) {
+      return 'Tomorrow';
+    } else {
+      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+  }
+
+  getMatchData(matchCard) {
+    const sport = matchCard.dataset.sport;
+    const teams = matchCard.querySelectorAll('.team-name');
+    const competition = matchCard.querySelector('.match-competition').textContent;
+    const venueElement = matchCard.querySelector('.match-venue');
+    const timeElement = matchCard.querySelector('.match-time');
+    
+    // Extract venue from the venue element
+    let venue = 'Unknown Venue';
+    if (venueElement) {
+      venue = venueElement.textContent.replace('📍', '').trim();
+    }
+    
+    // Extract time from the time element
+    let time = new Date();
+    if (timeElement) {
+      // This is a simplified time extraction - you might want to enhance this
+      const timeText = timeElement.textContent;
+      if (timeText.includes('Today')) {
+        time = new Date();
+      } else if (timeText.includes('Tomorrow')) {
+        time = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      }
+    }
+    
+    return {
+      sport: sport,
+      homeTeam: teams[0].textContent,
+      awayTeam: teams[1].textContent,
+      league: competition.split('•')[0]?.trim() || 'Unknown League',
+      venue: venue,
+      time: time
+    };
+  }
+
+  filterFixtures() {
+    const matchCards = document.querySelectorAll('.match-card');
+    const tournamentCards = document.querySelectorAll('.tournament-card');
+    
+    let visibleCount = 0;
+    
+    matchCards.forEach(card => {
+      const sport = card.dataset.sport;
+      const league = card.querySelector('.match-competition').textContent.split('•')[0].trim();
+      const time = card.querySelector('.match-status').textContent;
+      const hour = parseInt(time.split(':')[0]);
+      
+      let show = true;
+      
+      // Sport filter
+      if (this.state.currentFilters.sport !== 'All' && this.state.currentFilters.sport !== sport) {
+        show = false;
+      }
+      
+      // League filter
+      if (this.state.currentFilters.league !== 'All') {
+        const leagueLower = this.state.currentFilters.league.toLowerCase();
+        if (!league.toLowerCase().includes(leagueLower)) {
+          show = false;
+        }
+      }
+      
+      // Time filter
+      if (this.state.currentFilters.time !== 'All') {
+        if (this.state.currentFilters.time === 'morning' && (hour < 6 || hour >= 12)) {
+          show = false;
+        } else if (this.state.currentFilters.time === 'afternoon' && (hour < 12 || hour >= 18)) {
+          show = false;
+        } else if (this.state.currentFilters.time === 'evening' && (hour < 18 || hour >= 24)) {
+          show = false;
+        }
+      }
+      
+      card.style.display = show ? 'block' : 'none';
+      if (show) visibleCount++;
+    });
+    
+    // Also filter tournaments by sport
+    tournamentCards.forEach(card => {
+      const sport = card.querySelector('.tournament-sport span:nth-child(2)').textContent;
+      
+      let show = true;
+      
+      // Sport filter
+      if (this.state.currentFilters.sport !== 'All' && this.state.currentFilters.sport !== sport) {
+        show = false;
+      }
+      
+      card.style.display = show ? 'block' : 'none';
+    });
+    
+    this.updateTodayCount(visibleCount);
+  }
+
+  resetFilters() {
+    this.state.currentFilters = {
+      sport: 'All',
+      league: 'All',
+      time: 'All'
+    };
+    
+    const sportFilter = document.getElementById('sportFilter');
+    const leagueFilter = document.getElementById('leagueFilter');
+    const timeFilter = document.getElementById('timeFilter');
+    
+    if (sportFilter) sportFilter.value = 'All';
+    if (leagueFilter) leagueFilter.value = 'All';
+    if (timeFilter) timeFilter.value = 'All';
+    
+    this.filterFixtures();
+  }
+
+  updateTodayCount(count) {
+    const todayCount = document.getElementById('todayCount');
+    if (todayCount) {
+      todayCount.textContent = `${count} matches today`;
+    }
+  }
+
+  showMatchDetails(matchId) {
+    const matchModal = document.getElementById('matchModal');
+    const matchModalTitle = document.getElementById('matchModalTitle');
+    const matchModalContent = document.getElementById('matchModalContent');
+    
+    // Find the match data
+    let matchData = null;
+    
+    // Check today's fixtures
+    for (const fixture of this.fixturesData.today) {
+      if (fixture.id.toString() === matchId) {
+        matchData = fixture;
+        break;
+      }
+    }
+    
+    // Check upcoming fixtures if not found in today's
+    if (!matchData) {
+      for (const fixture of this.fixturesData.upcoming) {
+        if (fixture.id.toString() === matchId) {
+          matchData = fixture;
+          break;
+        }
+      }
+    }
+    
+    if (!matchData) {
+      this.showToast('Match details not available');
+      return;
+    }
+    
+    matchModalTitle.textContent = `${matchData.homeTeam} vs ${matchData.awayTeam}`;
+    
+    const matchDetailsHTML = `
+      <div class="match-preview">
+        <div class="match-header" style="margin-bottom: 20px;">
+          <div class="match-sport">
+            <span class="sport-icon">${this.getSportIcon(matchData.sport)}</span>
+            <span>${matchData.sport}</span>
+          </div>
+          <div class="match-status">
+            <span>${matchData.time}</span>
+          </div>
+        </div>
+        
+        <div class="match-teams" style="margin-bottom: 20px;">
+          <div class="team home-team" style="margin-bottom: 15px;">
+            <div class="team-info">
+              <div class="team-logo">${matchData.homeTeam.substring(0, 3)}</div>
+              <div class="team-name" style="font-size: 18px;">${matchData.homeTeam}</div>
+            </div>
+          </div>
+          <div class="team away-team">
+            <div class="team-info">
+              <div class="team-logo">${matchData.awayTeam.substring(0, 3)}</div>
+              <div class="team-name" style="font-size: 18px;">${matchData.awayTeam}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="match-details" style="margin-bottom: 20px;">
+          <div class="match-venue">
+            <i class="fas fa-map-marker-alt"></i>
+            <strong>Venue:</strong> ${matchData.venue}
+          </div>
+          <div class="match-time">
+            <i class="fas fa-clock"></i>
+            <strong>Time:</strong> ${matchData.time}
+          </div>
+          <div class="match-competition">
+            <i class="fas fa-trophy"></i>
+            <strong>Competition:</strong> ${matchData.league}
+          </div>
+          <div class="match-date">
+            <i class="fas fa-calendar"></i>
+            <strong>Date:</strong> ${this.formatMatchDate(matchData.date)}
+          </div>
+        </div>
+        
+        <div class="match-actions">
+          <button class="btn reminder-btn" data-match-id="${matchData.id}" style="width: 100%; margin-bottom: 10px;">
+            <span class="btn-text">Set Reminder</span>
+            <span class="hover-text">Remove Reminder</span>
+          </button>
+          <button class="btn btn-secondary" style="width: 100%;">Add to Calendar</button>
+        </div>
+      </div>
+    `;
+    
+    matchModalContent.innerHTML = matchDetailsHTML;
+    matchModal.classList.add('active');
+    
+    // Update reminder button in modal
+    const modalReminderBtn = matchModalContent.querySelector('.reminder-btn');
+    const isReminderSet = this.state.remindedMatches.has(matchId);
+    
+    if (isReminderSet) {
+      modalReminderBtn.classList.add('reminder-set');
+      modalReminderBtn.querySelector('.btn-text').textContent = 'Reminder Set';
+    }
+    
+    // Add event listener to modal reminder button
+    modalReminderBtn.addEventListener('click', () => {
+      this.toggleReminder(matchId, matchData);
+      
+      // Update button state
+      const isNowReminded = this.state.remindedMatches.has(matchId);
+      if (isNowReminded) {
+        modalReminderBtn.classList.add('reminder-set');
+        modalReminderBtn.querySelector('.btn-text').textContent = 'Reminder Set';
+      } else {
+        modalReminderBtn.classList.remove('reminder-set');
+        modalReminderBtn.querySelector('.btn-text').textContent = 'Set Reminder';
+      }
+    });
+  }
+
+  showToast(message) {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
+}
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Fixtures page loaded");
+  window.fixturesApp = new FixturesApp();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>News Archive — SportSphereX</title>
+  <meta name="description" content="Browse through our comprehensive archive of sports news, match reports, and analysis on SportSphereX."/>
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="../games.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- Top Color Strip -->
+<div class="top-strip" aria-hidden="true"></div>
+
+<!-- Header -->
+<header class="site-header" role="banner" id="siteHeader">
+  <div class="header-inner">
+    <a class="brand" href="/" aria-label="SportSphereX home">
+      <div class="logo">
+        <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="SportSphereX Logo">
+      </div>
+      <div class="brand-text">
+        <h1>SportSphereX</h1>
+        <p>Latest sports news & live updates</p>
+      </div>
+    </a>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Primary navigation">
+      <ul class="nav-list" role="menubar">
+        <li role="none">
+          <a role="menuitem" href="../index.html" class="nav-link">Home</a>
+        </li>
+        
+        <!-- Sports Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="sportsMenu" aria-haspopup="true" aria-expanded="false">
+            Sports <span class="caret">▾</span>
+          </button>
+          <div id="sportsMenu" class="dropdown sports-dropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-grid" role="group" aria-label="Sports list">
+              <a role="menuitem" href="../games/football.html" class="dropdown-item">
+                <span class="sport-icon">⚽</span> Football
+              </a>
+              <a role="menuitem" href="../games/cricket.html" class="dropdown-item">
+                <span class="sport-icon">🏏</span> Cricket
+              </a>
+              <a role="menuitem" href="../games/basketball.html" class="dropdown-item">
+                <span class="sport-icon">🏀</span> Basketball
+              </a>
+              <a role="menuitem" href="../games/tennis.html" class="dropdown-item">
+                <span class="sport-icon">🎾</span> Tennis
+              </a>
+              <a role="menuitem" href="../games/baseball.html" class="dropdown-item">
+                <span class="sport-icon">⚾</span> Baseball
+              </a>
+              <a role="menuitem" href="../games/hockey.html" class="dropdown-item">
+                <span class="sport-icon">🏒</span> Hockey
+              </a>
+              <a role="menuitem" href="../games/golf.html" class="dropdown-item">
+                <span class="sport-icon">⛳</span> Golf
+              </a>
+              <a role="menuitem" href="../games/rugby.html" class="dropdown-item">
+                <span class="sport-icon">🏉</span> Rugby
+              </a>
+              <a role="menuitem" href="../games/formula1.html" class="dropdown-item">
+                <span class="sport-icon">🏎️</span> Formula 1
+              </a>
+              <a role="menuitem" href="../games/boxing.html" class="dropdown-item">
+                <span class="sport-icon">🥊</span> Boxing
+              </a>
+              <a role="menuitem" href="../games/mma.html" class="dropdown-item">
+                <span class="sport-icon">🥋</span> MMA
+              </a>
+              <a role="menuitem" href="../games/olympics.html" class="dropdown-item">
+                <span class="sport-icon">🏅</span> Olympics
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../scores.html" class="nav-link">Scores</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../watch.html" class="nav-link">Watch</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../teams.html" class="nav-link">Teams</a>
+        </li>
+
+        <li role="none">
+          <a role="menuitem" href="../players.html" class="nav-link">Players</a>
+        </li>
+
+
+        <li role="none">
+          <a role="menuitem" href="../fixtures.html" class="nav-link">Fixtures</a>
+        </li>
+
+        <!-- More Dropdown -->
+        <li role="none" class="has-dropdown" aria-haspopup="true">
+          <button class="nav-link nav-button" aria-controls="moreMenu" aria-haspopup="true" aria-expanded="false">
+            More <span class="caret">▾</span>
+          </button>
+          <div id="moreMenu" class="dropdown" role="menu" aria-hidden="true">
+            <a role="menuitem" href="podcasts.html" class="dropdown-item">Podcasts</a>
+            <a role="menuitem" href="highlights.html" class="dropdown-item">Video Highlights</a>
+            <a role="menuitem" href="news-archive.html" class="dropdown-item nav-active">News Archive</a>
+            <a role="menuitem" href="statistics.html" class="dropdown-item">Statistics</a>
+            <a role="menuitem" href="transfers.html" class="dropdown-item">Transfers</a>
+            <a role="menuitem" href="injury-news.html" class="dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Search and User Area -->
+    <div class="header-actions">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input 
+          id="searchInput" 
+          placeholder="Search archive..." 
+          aria-label="Search archive"
+          type="text"
+        >
+        <div class="search-results" id="searchResults"></div>
+      </div>
+      
+      <!-- User menu -->
+      <div class="user-menu">
+        <button class="btn btn-login" id="loginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="loginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown" style="display: none;">
+          <a href="#" id="logoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Hamburger -->
+    <button id="mobileToggle" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Panel -->
+  <div id="mobileMenu" class="mobile-panel" aria-hidden="true" role="dialog" aria-label="Mobile navigation">
+    <div class="mobile-panel-header">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="SportSphereX Logo">
+        </div>
+        <div class="brand-text">
+          <h2>SportSphereX</h2>
+        </div>
+      </div>
+      <button class="mobile-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <nav class="mobile-nav" role="navigation" aria-label="Mobile navigation">
+      <ul class="mobile-nav-list">
+        <li><a href="../index.html" class="mobile-nav-link">Home</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            Sports <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="../games/football.html" class="mobile-dropdown-item">⚽ Football</a>
+            <a href="../games/cricket.html" class="mobile-dropdown-item">🏏 Cricket</a>
+            <a href="../games/basketball.html" class="mobile-dropdown-item">🏀 Basketball</a>
+            <a href="../games/tennis.html" class="mobile-dropdown-item">🎾 Tennis</a>
+            <a href="../games/baseball.html" class="mobile-dropdown-item">⚾ Baseball</a>
+            <a href="../games/hockey.html" class="mobile-dropdown-item">🏒 Hockey</a>
+            <a href="../games/golf.html" class="mobile-dropdown-item">⛳ Golf</a>
+            <a href="../games/rugby.html" class="mobile-dropdown-item">🏉 Rugby</a>
+            <a href="../games/formula1.html" class="mobile-dropdown-item">🏎️ Formula 1</a>
+            <a href="../games/boxing.html" class="mobile-dropdown-item">🥊 Boxing</a>
+            <a href="../games/mma.html" class="mobile-dropdown-item">🥋 MMA</a>
+            <a href="../games/olympics.html" class="mobile-dropdown-item">🏅 Olympics</a>
+          </div>
+        </li>
+        
+        <li><a href="../scores.html" class="mobile-nav-link">Scores</a></li>
+        <li><a href="../watch.html" class="mobile-nav-link">Watch</a></li>
+        <li><a href="../teams.html" class="mobile-nav-link">Teams</a></li>
+        <li><a href="../fixtures.html" class="mobile-nav-link">Fixtures</a></li>
+        
+        <li class="mobile-dropdown">
+          <button class="mobile-nav-link mobile-nav-button" aria-expanded="false">
+            More <span class="mobile-caret">▾</span>
+          </button>
+          <div class="mobile-dropdown-menu" aria-hidden="true">
+            <a href="podcasts.html" class="mobile-dropdown-item">Podcasts</a>
+            <a href="highlights.html" class="mobile-dropdown-item">Video Highlights</a>
+            <a href="news-archive.html" class="mobile-dropdown-item mobile-nav-active">News Archive</a>
+            <a href="statistics.html" class="mobile-dropdown-item">Statistics</a>
+            <a href="transfers.html" class="mobile-dropdown-item">Transfers</a>
+            <a href="injury-news.html" class="mobile-dropdown-item">Injury News</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mobile-actions">
+      <div class="search mobile-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <input placeholder="Search archive..." aria-label="Search archive" id="mobileSearchInput">
+      </div>
+      
+      <div class="user-menu">
+        <button class="btn btn-login mobile-login" id="mobileLoginBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <span id="mobileLoginText">Login</span>
+        </button>
+        <div class="user-dropdown" id="mobileUserDropdown" style="display: none;">
+          <a href="#" id="mobileLogoutBtn">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">News Archive</h1>
+    <p class="page-subtitle">Browse through our comprehensive collection of sports news, match reports, and analysis from around the world</p>
+  </div>
+
+  <!-- Archive Filters -->
+  <div class="advanced-filters">
+    <div class="filter-group">
+      <label for="dateFilter">Date Range</label>
+      <select id="dateFilter" class="filter-select">
+        <option value="all">All Time</option>
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+        <option value="year">This Year</option>
+        <option value="custom">Custom Range</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="sportFilter">Sport</label>
+      <select id="sportFilter" class="filter-select">
+        <option value="all">All Sports</option>
+        <option value="football">⚽ Football</option>
+        <option value="basketball">🏀 Basketball</option>
+        <option value="cricket">🏏 Cricket</option>
+        <option value="tennis">🎾 Tennis</option>
+        <option value="formula1">🏎️ Formula 1</option>
+        <option value="boxing">🥊 Boxing</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="leagueFilter">League/Tournament</label>
+      <select id="leagueFilter" class="filter-select">
+        <option value="all">All Leagues</option>
+        <option value="premier-league">Premier League</option>
+        <option value="champions-league">Champions League</option>
+        <option value="nba">NBA</option>
+        <option value="ipl">IPL</option>
+        <option value="world-cup">World Cup</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <button class="btn btn-secondary" id="applyFiltersBtn">Apply Filters</button>
+    </div>
+  </div>
+
+  <main class="main-grid">
+    <!-- Left: Archive Content -->
+    <section>
+      <!-- Archive Stats -->
+      <div class="archive-stats">
+        <div class="stat-card">
+          <div class="stat-number">12,458</div>
+          <div class="stat-label">Total Articles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">284</div>
+          <div class="stat-label">Featured Stories</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">48</div>
+          <div class="stat-label">Sports Covered</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">2018</div>
+          <div class="stat-label">Archive Since</div>
+        </div>
+      </div>
+
+      <!-- Archive Timeline -->
+      <section id="archiveTimeline" aria-label="News archive timeline">
+        <div class="section-header">
+          <h3 class="section-title">Browse by Date</h3>
+          <div class="timeline-nav">
+            <button class="btn btn-small">← Older</button>
+            <button class="btn btn-small">Newer →</button>
+          </div>
+        </div>
+
+        <!-- Month Section -->
+        <div class="timeline-month">
+          <h4 class="month-header">March 2024</h4>
+          
+          <div class="archive-news-grid">
+            <!-- Archive Article 1 -->
+            <div class="card archive-card">
+              <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                <div class="archive-date">Mar 28</div>
+              </div>
+              <div class="c-body">
+                <div class="sport-league">
+                  <div class="league-tag">Premier League</div>
+                </div>
+                <h3>Arsenal Secure Top Spot with Victory Over Chelsea</h3>
+                <p>Gunners dominate London derby with impressive second-half performance to go three points clear.</p>
+                <div class="archive-meta">
+                  <span>By Alex Morgan</span>
+                  <span>•</span>
+                  <span>⚽ Football</span>
+                  <span>•</span>
+                  <span>1,248 views</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Archive Article 2 -->
+            <div class="card archive-card">
+              <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1550461716-dbf266b2a8a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                <div class="archive-date">Mar 25</div>
+              </div>
+              <div class="c-body">
+                <div class="sport-league">
+                  <div class="league-tag">NBA</div>
+                </div>
+                <h3>Warriors Extend Winning Streak to 8 Games</h3>
+                <p>Curry scores 42 points in spectacular shooting display against Miami Heat in overtime thriller.</p>
+                <div class="archive-meta">
+                  <span>By Mike Johnson</span>
+                  <span>•</span>
+                  <span>🏀 Basketball</span>
+                  <span>•</span>
+                  <span>892 views</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Archive Article 3 -->
+            <div class="card archive-card">
+              <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                <div class="archive-date">Mar 22</div>
+              </div>
+              <div class="c-body">
+                <div class="sport-league">
+                  <div class="league-tag">ICC World Cup</div>
+                </div>
+                <h3>India Set Massive Target Against Australia</h3>
+                <p>Kohli and Rohit partnership of 189 runs puts India in commanding position at Melbourne.</p>
+                <div class="archive-meta">
+                  <span>By Sarah Patel</span>
+                  <span>•</span>
+                  <span>🏏 Cricket</span>
+                  <span>•</span>
+                  <span>1,567 views</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Archive Article 4 -->
+            <div class="card archive-card">
+              <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1626248801379-51a0748a5f96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                <div class="archive-date">Mar 18</div>
+              </div>
+              <div class="c-body">
+                <div class="sport-league">
+                  <div class="league-tag">Miami Open</div>
+                </div>
+                <h3>Alcaraz Defends Miami Open Title</h3>
+                <p>Spanish sensation overcomes Sinner in three-set thriller to claim back-to-back Miami titles.</p>
+                <div class="archive-meta">
+                  <span>By David Chen</span>
+                  <span>•</span>
+                  <span>🎾 Tennis</span>
+                  <span>•</span>
+                  <span>734 views</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Previous Month -->
+        <div class="timeline-month">
+          <h4 class="month-header">February 2024</h4>
+          
+          <div class="archive-news-grid">
+            <!-- Archive Article 5 -->
+            <div class="card archive-card">
+              <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                <div class="archive-date">Feb 15</div>
+              </div>
+              <div class="c-body">
+                <div class="sport-league">
+                  <div class="league-tag">Formula 1</div>
+                </div>
+                <h3>Verstappen Dominates Season Opener in Bahrain</h3>
+                <p>Red Bull driver starts 2024 campaign with commanding victory, finishing 20 seconds ahead of Perez.</p>
+                <div class="archive-meta">
+                  <span>By Maria Rodriguez</span>
+                  <span>•</span>
+                  <span>🏎️ Formula 1</span>
+                  <span>•</span>
+                  <span>2,134 views</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Archive Article 6 -->
+            <div class="card archive-card">
+              <div class="thumb" style="background-image: url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80')">
+                <div class="archive-date">Feb 8</div>
+              </div>
+              <div class="c-body">
+                <div class="sport-league">
+                  <div class="league-tag">Heavyweight Boxing</div>
+                </div>
+                <h3>Joshua Returns with Spectacular Knockout</h3>
+                <p>Former champion stops Whyte in seventh round with devastating right hand at O2 Arena.</p>
+                <div class="archive-meta">
+                  <span>By James Wilson</span>
+                  <span>•</span>
+                  <span>🥊 Boxing</span>
+                  <span>•</span>
+                  <span>3,456 views</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Load More -->
+      <div class="load-more-wrap">
+        <button class="btn ghost" id="loadMoreArchiveBtn">
+          Load More Articles
+        </button>
+      </div>
+    </section>
+
+    <!-- Right: Sidebar -->
+    <aside class="sidebar" aria-label="Archive sidebar">
+      <!-- Popular Archive Articles -->
+      <div class="panel">
+        <h4>Most Viewed Archive</h4>
+        <div class="popular-archive">
+          <div class="popular-item">
+            <div class="popular-thumb" style="background-image: url('https://images.unsplash.com/photo-1547949003-9792a18a2601?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+            <div class="popular-info">
+              <strong>2022 World Cup Final</strong>
+              <div class="muted">⚽ Football • 45K views</div>
+            </div>
+          </div>
+          <div class="popular-item">
+            <div class="popular-thumb" style="background-image: url('https://images.unsplash.com/photo-1461896836934-ffe607ba8211?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+            <div class="popular-info">
+              <strong>Warriors 2022 Championship</strong>
+              <div class="muted">🏀 Basketball • 38K views</div>
+            </div>
+          </div>
+          <div class="popular-item">
+            <div class="popular-thumb" style="background-image: url('https://images.unsplash.com/photo-1552667466-07770ae5d10e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80')"></div>
+            <div class="popular-info">
+              <strong>India T20 World Cup Win</strong>
+              <div class="muted">🏏 Cricket • 42K views</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Archive Years -->
+      <div class="panel">
+        <h4>Browse by Year</h4>
+        <div class="year-grid">
+          <button class="year-btn">2024</button>
+          <button class="year-btn">2023</button>
+          <button class="year-btn">2022</button>
+          <button class="year-btn">2021</button>
+          <button class="year-btn">2020</button>
+          <button class="year-btn">2019</button>
+          <button class="year-btn">2018</button>
+        </div>
+      </div>
+
+      <!-- Featured Writers -->
+      <div class="panel">
+        <h4>Featured Writers</h4>
+        <div class="writers-list">
+          <div class="writer-item">
+            <div class="writer-avatar">AM</div>
+            <div class="writer-info">
+              <strong>Alex Morgan</strong>
+              <div class="muted">Chief Football Correspondent</div>
+            </div>
+          </div>
+          <div class="writer-item">
+            <div class="writer-avatar">SJ</div>
+            <div class="writer-info">
+              <strong>Sarah Johnson</strong>
+              <div class="muted">NBA Senior Analyst</div>
+            </div>
+          </div>
+          <div class="writer-item">
+            <div class="writer-avatar">MR</div>
+            <div class="writer-info">
+              <strong>Mike Roberts</strong>
+              <div class="muted">Cricket Editor</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Archive Newsletter -->
+      <div class="panel">
+        <h4>Archive Digest</h4>
+        <p class="muted">Get weekly highlights from our archives delivered to your inbox</p>
+        <div class="newsletter-row">
+          <input type="email" id="archiveEmail" placeholder="you@example.com" aria-label="Email for archive digest"/>
+          <button class="btn" id="subscribeArchiveBtn">Subscribe</button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer role="contentinfo">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h5>SportSphereX</h5>
+        <p>Your premier destination for sports news, live scores, and video highlights.</p>
+      </div>
+      <div class="footer-section">
+        <h5>Sports</h5>
+        <a href="../games/football.html">Football</a>
+        <a href="../games/cricket.html">Cricket</a>
+        <a href="../games/basketball.html">Basketball</a>
+        <a href="../games/tennis.html">Tennis</a>
+      </div>
+      <div class="footer-section">
+        <h5>Company</h5>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2024 SportSphereX — Built with ❤️ for sports fans worldwide
+    </div>
+  </footer>
+</div>
+
+<!-- Article Modal -->
+<div class="modal" id="articleModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" id="articleModalBackdrop"></div>
+  <div class="modal-content" role="document">
+    <div class="modal-header">
+      <h3 id="modalTitle">Archive Article</h3>
+      <button class="modal-close" aria-label="Close" id="articleModalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalContent">
+      <!-- Article content injected by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+// Authentication state management
+class AuthManager {
+  constructor() {
+    this.state = {
+      user: JSON.parse(localStorage.getItem('user')) || null
+    };
+    this.init();
+  }
+
+  init() {
+    this.updateLoginUI();
+    this.setupEventListeners();
+  }
+
+  updateLoginUI() {
+    const loginText = document.getElementById('loginText');
+    const mobileLoginText = document.getElementById('mobileLoginText');
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+
+    if (this.state.user) {
+      if (loginText) loginText.textContent = 'Logged';
+      if (mobileLoginText) mobileLoginText.textContent = 'Logged';
+      if (loginBtn) loginBtn.classList.add('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.add('logged-in');
+      if (userDropdown) userDropdown.style.display = 'block';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'block';
+    } else {
+      if (loginText) loginText.textContent = 'Login';
+      if (mobileLoginText) mobileLoginText.textContent = 'Login';
+      if (loginBtn) loginBtn.classList.remove('logged-in');
+      if (mobileLoginBtn) mobileLoginBtn.classList.remove('logged-in');
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'none';
+    }
+  }
+
+  setupEventListeners() {
+    // Login buttons
+    document.getElementById('loginBtn')?.addEventListener('click', () => this.handleLoginClick());
+    document.getElementById('mobileLoginBtn')?.addEventListener('click', () => this.handleLoginClick());
+
+    // Logout buttons
+    document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+
+    document.getElementById('mobileLogoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.logout();
+    });
+  }
+
+  handleLoginClick() {
+    if (this.state.user) {
+      // User is logged in, do nothing (dropdown will handle logout)
+      return;
+    } else {
+      // Simulate login for demo purposes
+      this.state.user = { 
+        name: 'John Doe', 
+        email: 'john@example.com',
+        id: 'user123'
+      };
+      localStorage.setItem('user', JSON.stringify(this.state.user));
+      this.updateLoginUI();
+      this.showToast('Successfully logged in!');
+    }
+  }
+
+  logout() {
+    this.state.user = null;
+    localStorage.removeItem('user');
+    this.updateLoginUI();
+    this.showToast('Successfully logged out!');
+  }
+
+  showToast(message) {
+    // Create toast element if it doesn't exist
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-weight: 500;
+        pointer-events: none;
+      `;
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 3000);
+  }
+}
+
+// Initialize auth manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  window.authManager = new AuthManager();
+  
+  // Filter functionality
+  const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', function() {
+      const sportFilter = document.getElementById('sportFilter');
+      const dateFilter = document.getElementById('dateFilter');
+      const leagueFilter = document.getElementById('leagueFilter');
+      
+      const sport = sportFilter ? sportFilter.value : 'all';
+      const date = dateFilter ? dateFilter.value : 'all';
+      const league = leagueFilter ? leagueFilter.value : 'all';
+      
+      window.authManager.showToast(`Filters applied: ${sport}, ${date}, ${league}`);
+    });
+  }
+
+  // Year buttons
+  const yearButtons = document.querySelectorAll('.year-btn');
+  yearButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      yearButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      window.authManager.showToast(`Showing archive for ${this.textContent}`);
+    });
+  });
+
+  // Newsletter subscription
+  const subscribeBtn = document.getElementById('subscribeArchiveBtn');
+  if (subscribeBtn) {
+    subscribeBtn.addEventListener('click', function() {
+      const emailInput = document.getElementById('archiveEmail');
+      const email = emailInput.value;
+      
+      if (email && isValidEmail(email)) {
+        window.authManager.showToast('Thanks for subscribing to our archive digest!');
+        emailInput.value = '';
+      } else {
+        window.authManager.showToast('Please enter a valid email address');
+      }
+    });
+  }
+
+  // Load more button
+  const loadMoreBtn = document.getElementById('loadMoreArchiveBtn');
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', function() {
+      this.textContent = 'Loading...';
+      this.disabled = true;
+      
+      setTimeout(() => {
+        window.authManager.showToast('More articles loaded!');
+        this.textContent = 'Load More Articles';
+        this.disabled = false;
+      }, 1500);
+    });
+  }
+
+  // Mobile menu functionality
+  const mobileToggle = document.getElementById('mobileToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileClose = document.querySelector('.mobile-close');
+
+  if (mobileToggle && mobileMenu) {
+    mobileToggle.addEventListener('click', function() {
+      mobileMenu.classList.add('open');
+      this.setAttribute('aria-expanded', 'true');
+    });
+  }
+
+  if (mobileClose) {
+    mobileClose.addEventListener('click', function() {
+      mobileMenu.classList.remove('open');
+      mobileToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  // Mobile dropdown functionality
+  const mobileDropdownButtons = document.querySelectorAll('.mobile-nav-button');
+  
+  mobileDropdownButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      
+      const dropdownMenu = this.nextElementSibling;
+      if (dropdownMenu) {
+        dropdownMenu.setAttribute('aria-hidden', isExpanded);
+        dropdownMenu.style.maxHeight = isExpanded ? '0' : '500px';
+      }
+    });
+  });
+
+  // Timeline navigation
+  const timelineNavButtons = document.querySelectorAll('.timeline-nav .btn');
+  timelineNavButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const direction = this.textContent.includes('Older') ? 'older' : 'newer';
+      window.authManager.showToast(`Loading ${direction} articles...`);
+    });
+  });
+
+  // Email validation helper
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+});
+</script>
+</body>
+</html>
