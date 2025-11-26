@@ -1,25 +1,1008 @@
-/**
- * AllSports - Complete Sports Website JavaScript
- * Enhanced with comprehensive sports follow functionality including unfollow
- * ALL EXISTING FEATURES PRESERVED
- */
+// games.js - Enhanced with dynamic data from database + all existing features
 
-// Global variables
-let currentUser = null;
-let searchDebounceTimer = null;
-let mockNewsData = [];
-let mockUsers = [];
-let scrollTimer = null;
-let followedSports = [];
+class SportPageManager {
+    constructor() {
+        this.sport = this.getCurrentSport();
+        this.currentUser = null;
+        this.isLoading = false;
+        this.cache = new Map();
+        this.init();
+    }
 
-// Mock database functions
+    getCurrentSport() {
+        const path = window.location.pathname;
+        const filename = path.split('/').pop().replace('.html', '');
+        return filename || 'football';
+    }
+
+    async init() {
+        console.log(`Initializing ${this.sport} page manager`);
+        await this.checkAuthStatus();
+        this.setupEventListeners();
+        await this.loadPageData();
+        this.initSportsFollowFunctionality();
+        
+        // Setup existing UI features
+        this.setupCardInteractions();
+        this.setupLiveScoreUpdates();
+        this.setupVideoPlayers();
+        this.setupRightSidebar();
+    }
+
+    setupRightSidebar() {
+        // Ensure right sidebar containers exist
+        this.ensureRightSidebarContainers();
+        
+        // Load followed sports widget if user is logged in - with better timing
+        if (this.currentUser) {
+            // Wait for AllSportsApp to be fully initialized
+            const initSportsWidget = () => {
+                if (window.AllSportsApp && typeof window.AllSportsApp.createSportsFollowWidget === 'function') {
+                    window.AllSportsApp.createSportsFollowWidget();
+                } else {
+                    // Retry after a short delay if not ready
+                    setTimeout(initSportsWidget, 100);
+                }
+            };
+            
+            // Start the initialization check
+            setTimeout(initSportsWidget, 500);
+        }
+    }
+
+    ensureRightSidebarContainers() {
+        const rightColumn = document.querySelector('.right-column');
+        if (!rightColumn) {
+            console.warn('Right column not found');
+            return;
+        }
+
+        // Create featured teams container if it doesn't exist
+        if (!document.getElementById('featuredTeamsContainer')) {
+            const teamsWidget = document.createElement('div');
+            teamsWidget.className = 'widget';
+            teamsWidget.innerHTML = `
+                <h3>Featured Teams</h3>
+                <div id="featuredTeamsContainer" class="top-picks-grid">
+                    <div class="top-pick">
+                        <div class="top-pick-content">
+                            <h4>Loading teams...</h4>
+                            <div class="top-pick-meta">Loading data</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            rightColumn.appendChild(teamsWidget);
+        }
+
+        // Create news container if it doesn't exist
+        if (!document.getElementById('newsContainer')) {
+            const newsWidget = document.createElement('div');
+            newsWidget.className = 'widget';
+            newsWidget.innerHTML = `
+                <h3>Top News</h3>
+                <div id="newsContainer" class="top-picks-grid">
+                    <div class="top-pick">
+                        <div class="top-pick-content">
+                            <h4>Loading news...</h4>
+                            <div class="top-pick-meta">Loading data</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            rightColumn.appendChild(newsWidget);
+        }
+
+        // Create standings container if it doesn't exist
+        if (!document.getElementById('standingsContainer')) {
+            const standingsWidget = document.createElement('div');
+            standingsWidget.className = 'widget';
+            standingsWidget.innerHTML = `
+                <h3>Standings</h3>
+                <div id="standingsContainer">
+                    <div style="font-size: 14px; color: #666; text-align: center; padding: 20px;">
+                        Loading standings...
+                    </div>
+                </div>
+            `;
+            rightColumn.appendChild(standingsWidget);
+        }
+    }
+
+    setupCardInteractions() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-8px) scale(1.02)';
+                card.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.4)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+                card.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.3)';
+            });
+        });
+    }
+
+    setupLiveScoreUpdates() {
+        const scores = document.querySelectorAll('.live-score');
+        scores.forEach((score, index) => {
+            if (score.querySelector('.live-indicator')) {
+                setTimeout(() => {
+                    const scoreElement = score.querySelector('.score');
+                    if (scoreElement) {
+                        const [home, away] = scoreElement.textContent.split('-').map(num => parseInt(num.trim()));
+                        if (!isNaN(home) && !isNaN(away)) {
+                            const homeChange = Math.random() > 0.7 ? 1 : 0;
+                            const awayChange = Math.random() > 0.7 ? 1 : 0;
+                            const newHome = Math.min(home + homeChange, 5);
+                            const newAway = Math.min(away + awayChange, 5);
+                            scoreElement.textContent = `${newHome}-${newAway}`;
+                            scoreElement.style.transform = 'scale(1.2)';
+                            setTimeout(() => {
+                                scoreElement.style.transform = 'scale(1)';
+                            }, 300);
+                        }
+                    }
+                }, 5000 + (index * 2000));
+            }
+        });
+        setTimeout(() => this.setupLiveScoreUpdates(), 10000);
+    }
+
+    setupVideoPlayers() {
+        const videoCards = document.querySelectorAll('.card[href*="youtube.com"], .card[href*="youtu.be"]');
+        videoCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (window.AllSportsApp && window.AllSportsApp.state.user) {
+                    const videoId = this.href.split('v=')[1]?.split('&')[0];
+                    if (videoId) {
+                        fetch('/api/user/track-watch', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            credentials: 'include',
+                            body: JSON.stringify({
+                                videoId: videoId,
+                                title: this.querySelector('h3')?.textContent || 'Unknown Video',
+                                duration: this.querySelector('.card-badge')?.textContent || '0:00'
+                            })
+                        }).catch(console.error);
+                    }
+                }
+            });
+        });
+    }
+
+    async checkAuthStatus() {
+        try {
+            const response = await fetch('/api/user', {
+                credentials: 'include'
+            });
+            const result = await response.json();
+            if (result.success && result.user) {
+                this.currentUser = result.user;
+            }
+        } catch (error) {
+            console.error('Error checking auth status:', error);
+        }
+    }
+
+    setupEventListeners() {
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', this.debounce((e) => {
+                this.handleSearch(e.target.value);
+            }, 300));
+        }
+
+        // Follow button events
+        this.setupFollowButtonEvents();
+
+        // Refresh button if exists
+        const refreshBtn = document.getElementById('refreshData');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => this.loadPageData());
+        }
+
+        // Hero image lazy loading
+        this.setupLazyLoading();
+    }
+
+    setupLazyLoading() {
+        const images = document.querySelectorAll('img[data-src]');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+
+        images.forEach(img => imageObserver.observe(img));
+    }
+
+    setupFollowButtonEvents() {
+        const heroFollowBtn = document.getElementById('footballFollowBtn');
+        if (heroFollowBtn) {
+            heroFollowBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleHeroFollowClick(heroFollowBtn);
+            });
+        }
+    }
+
+    async loadPageData() {
+        if (this.isLoading) return;
+        
+        this.isLoading = true;
+        this.showLoadingState();
+
+        try {
+            await Promise.all([
+                this.loadVideos(),
+                this.loadLiveScores(),
+                this.loadStandings(),
+                this.loadTeams(),
+                this.loadNews(),
+                this.loadHeroContent()
+            ]);
+        } catch (error) {
+            console.error('Error loading page data:', error);
+            this.showError('Failed to load content. Please try again.');
+        } finally {
+            this.isLoading = false;
+            this.hideLoadingState();
+        }
+    }
+
+    async loadHeroContent() {
+        try {
+            console.log('Loading hero content for sport:', this.sport);
+            
+            // Try to get featured videos first
+            const videosResponse = await fetch(`/api/sports/${this.sport}/videos?featured=true&limit=1`);
+            const videosResult = await videosResponse.json();
+
+            let heroData = null;
+
+            if (videosResult.success && videosResult.videos.length > 0) {
+                heroData = videosResult.videos[0];
+                console.log('Found featured video for hero:', heroData);
+            } else {
+                // Fallback to fixtures
+                const fixturesResponse = await fetch(`/api/sports/${this.sport}/fixtures?featured=true&limit=1`);
+                const fixturesResult = await fixturesResponse.json();
+                
+                if (fixturesResult.success && fixturesResult.fixtures.length > 0) {
+                    heroData = fixturesResult.fixtures[0];
+                    console.log('Found featured fixture for hero:', heroData);
+                } else {
+                    // Final fallback - get any video
+                    const allVideosResponse = await fetch(`/api/sports/${this.sport}/videos?limit=1`);
+                    const allVideosResult = await allVideosResponse.json();
+                    
+                    if (allVideosResult.success && allVideosResult.videos.length > 0) {
+                        heroData = allVideosResult.videos[0];
+                        console.log('Found any video for hero:', heroData);
+                    }
+                }
+            }
+
+            if (heroData) {
+                this.updateHeroContent(heroData);
+            } else {
+                console.warn('No hero content found for sport:', this.sport);
+                this.updateHeroWithFallback();
+            }
+        } catch (error) {
+            console.error('Error loading hero content:', error);
+            this.updateHeroWithFallback();
+        }
+    }
+
+    updateHeroWithFallback() {
+        const heroImage = document.getElementById('heroImage');
+        const heroTitle = document.getElementById('heroTitle');
+        const heroDescription = document.getElementById('heroDescription');
+        
+        if (heroImage) {
+            heroImage.src = 'https://i.pinimg.com/736x/14/31/56/143156d98ce3004bbd0d18ab9d0ee1a1.jpg';
+            heroImage.alt = `${this.sport} action`;
+        }
+        
+        if (heroTitle) {
+            heroTitle.textContent = `Latest ${this.sport.charAt(0).toUpperCase() + this.sport.slice(1)} Action`;
+        }
+        
+        if (heroDescription) {
+            heroDescription.textContent = 'Watch the latest highlights and matches';
+        }
+    }
+
+    updateHeroContent(data) {
+        const heroImage = document.getElementById('heroImage');
+        const heroTitle = document.getElementById('heroTitle');
+        const heroDescription = document.getElementById('heroDescription');
+        const heroWatchLink = document.getElementById('heroWatchLink');
+        const heroBadge = document.getElementById('heroBadge');
+
+        if (heroImage && data.thumbnail) {
+            heroImage.src = data.thumbnail;
+            heroImage.alt = data.title || data.name || `${this.sport} content`;
+        }
+
+        if (heroTitle) {
+            heroTitle.textContent = data.title || `${data.homeTeam?.name} vs ${data.awayTeam?.name}` || `Featured ${this.sport} Content`;
+        }
+
+        if (heroDescription) {
+            heroDescription.textContent = data.description || data.venue || 'Live coverage and highlights';
+        }
+
+        if (heroWatchLink) {
+            if (data.videoId) {
+                heroWatchLink.href = `https://youtu.be/${data.videoId}`;
+                heroWatchLink.style.display = 'flex';
+            } else {
+                heroWatchLink.style.display = 'none';
+            }
+        }
+
+        if (heroBadge) {
+            if (data.status === 'live' || data.type === 'live') {
+                heroBadge.textContent = 'LIVE';
+                heroBadge.style.display = 'block';
+            } else {
+                heroBadge.style.display = 'none';
+            }
+        }
+    }
+
+    async loadVideos() {
+        try {
+            console.log(`Loading videos for sport: ${this.sport}`);
+            const response = await fetch(`/api/sports/${this.sport}/videos?limit=12`);
+            const result = await response.json();
+            
+            console.log('Videos API response:', result);
+            
+            if (result.success) {
+                this.renderVideos(result.videos);
+            } else {
+                throw new Error(result.message || 'Failed to load videos');
+            }
+        } catch (error) {
+            console.error('Error loading videos:', error);
+            this.showSectionError('videos-section', 'Failed to load videos');
+            this.renderFallbackVideos();
+        }
+    }
+
+    renderFallbackVideos() {
+        const highlightsContainer = document.getElementById('highlightsContainer');
+        const featuresContainer = document.getElementById('featuresContainer');
+        
+        if (highlightsContainer) {
+            highlightsContainer.innerHTML = `
+                <div class="card">
+                    <div class="card-image">
+                        <img src="https://i.pinimg.com/736x/14/31/56/143156d98ce3004bbd0d18ab9d0ee1a1.jpg" alt="Football Highlights" loading="lazy">
+                        <div class="card-badge">8:45</div>
+                        <div class="youtube-overlay">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>${this.sport.charAt(0).toUpperCase() + this.sport.slice(1)} Highlights</h3>
+                        <div class="card-meta">
+                            <span class="sport-badge badge-${this.sport}">Highlights</span>
+                            <span>Recently</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-image">
+                        <img src="https://i.pinimg.com/736x/02/12/58/021258c035d77f92b2f873fafab2f097.jpg" alt="Match Analysis" loading="lazy">
+                        <div class="card-badge">12:30</div>
+                        <div class="youtube-overlay">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Match Analysis & Features</h3>
+                        <div class="card-meta">
+                            <span class="sport-badge badge-${this.sport}">Analysis</span>
+                            <span>Recently</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (featuresContainer) {
+            featuresContainer.innerHTML = `
+                <div class="card">
+                    <div class="card-image">
+                        <img src="https://i.pinimg.com/736x/95/c3/81/95c3815b8907724df588110224d2aff0.jpg" alt="Tactical Analysis" loading="lazy">
+                        <div class="card-badge">15:20</div>
+                        <div class="youtube-overlay">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Tactical Breakdown</h3>
+                        <div class="card-meta">
+                            <span class="sport-badge badge-${this.sport}">Tactics</span>
+                            <span>Recently</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-image">
+                        <img src="https://i.pinimg.com/736x/4e/05/ba/4e05baa52f89b44efda2c702c12fddd2.jpg" alt="Player Focus" loading="lazy">
+                        <div class="card-badge">10:15</div>
+                        <div class="youtube-overlay">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Player Spotlight</h3>
+                        <div class="card-meta">
+                            <span class="sport-badge badge-${this.sport}">Feature</span>
+                            <span>Recently</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    renderVideos(videos) {
+        const highlightsContainer = document.getElementById('highlightsContainer');
+        const featuresContainer = document.getElementById('featuresContainer');
+        
+        console.log('Rendering videos:', videos);
+        
+        if (highlightsContainer && videos.length > 0) {
+            // Filter for highlights (category === 'Highlights' or type includes 'highlight')
+            const highlights = videos.filter(video => 
+                video.category === 'Highlights' || 
+                video.type?.includes('highlight') ||
+                video.tags?.some(tag => tag.toLowerCase().includes('highlight'))
+            ).slice(0, 4);
+            
+            if (highlights.length > 0) {
+                highlightsContainer.innerHTML = highlights.map(video => this.createVideoCard(video)).join('');
+            } else {
+                // If no specific highlights, use first few videos
+                highlightsContainer.innerHTML = videos.slice(0, 4).map(video => this.createVideoCard(video)).join('');
+            }
+        }
+
+        if (featuresContainer && videos.length > 0) {
+            // Filter for features/analysis (category === 'Feature' or 'Analysis')
+            const features = videos.filter(video => 
+                video.category === 'Feature' || 
+                video.category === 'Analysis' ||
+                video.type?.includes('feature') ||
+                video.tags?.some(tag => tag.toLowerCase().includes('analysis') || tag.toLowerCase().includes('feature'))
+            ).slice(0, 4);
+            
+            if (features.length > 0) {
+                featuresContainer.innerHTML = features.map(video => this.createVideoCard(video)).join('');
+            } else {
+                // If no specific features, use next set of videos
+                featuresContainer.innerHTML = videos.slice(4, 8).map(video => this.createVideoCard(video)).join('');
+            }
+        }
+    }
+
+    createVideoCard(video) {
+        const videoId = video.videoId || video.youtubeId;
+        const youtubeUrl = videoId ? `https://youtu.be/${videoId}` : '#';
+        
+        return `
+            <a href="${youtubeUrl}" target="_blank" class="card">
+                <div class="card-image">
+                    <img src="${video.thumbnail}" alt="${video.title}" loading="lazy" data-src="${video.thumbnail}">
+                    <div class="card-badge">${video.duration || '0:00'}</div>
+                    <div class="youtube-overlay">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
+                            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h3>${video.title}</h3>
+                    <div class="card-meta">
+                        <span class="sport-badge badge-${this.sport}">${video.category || 'Video'}</span>
+                        <span>${this.formatTimeAgo(video.createdAt)}</span>
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+
+    async loadLiveScores() {
+        try {
+            console.log(`Loading live scores for sport: ${this.sport}`);
+            const response = await fetch(`/api/sports/${this.sport}/scores?status=live&limit=5`);
+            const result = await response.json();
+            
+            console.log('Live scores API response:', result);
+            
+            if (result.success) {
+                this.renderLiveScores(result.scores);
+            } else {
+                this.renderFallbackLiveScores();
+            }
+        } catch (error) {
+            console.error('Error loading live scores:', error);
+            this.renderFallbackLiveScores();
+        }
+    }
+
+    renderFallbackLiveScores() {
+        const container = document.getElementById('liveScoresContainer');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="live-score">
+                <div class="teams">Loading live matches...</div>
+                <div class="score">-</div>
+                <div class="live-indicator live-pulse">Loading</div>
+            </div>
+        `;
+    }
+
+    renderLiveScores(scores) {
+        const container = document.getElementById('liveScoresContainer');
+        if (!container) return;
+
+        if (scores && scores.length > 0) {
+            container.innerHTML = scores.map(score => `
+                <div class="live-score">
+                    <div class="teams">${score.teams.home.name} vs ${score.teams.away.name}</div>
+                    <div class="score">${score.teams.home.score}-${score.teams.away.score}</div>
+                    <div class="${score.status === 'live' ? 'live-indicator live-pulse' : 'match-status'}">
+                        ${score.minute || score.status}
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            container.innerHTML = `
+                <div class="live-score">
+                    <div class="teams">No live matches currently</div>
+                    <div class="score">-</div>
+                    <div class="match-status">Check later</div>
+                </div>
+            `;
+        }
+    }
+
+    async loadStandings() {
+        try {
+            console.log(`Loading standings for sport: ${this.sport}`);
+            const response = await fetch(`/api/sports/${this.sport}/standings`);
+            const result = await response.json();
+            
+            console.log('Standings API response:', result);
+            
+            if (result.success && result.standings.length > 0) {
+                this.renderStandings(result.standings[0]);
+            } else {
+                this.renderFallbackStandings();
+            }
+        } catch (error) {
+            console.error('Error loading standings:', error);
+            this.renderFallbackStandings();
+        }
+    }
+
+    renderFallbackStandings() {
+        const container = document.getElementById('standingsContainer');
+        if (!container) {
+            console.warn('Standings container not found');
+            return;
+        }
+
+        container.innerHTML = `
+            <div style="font-size: 14px; color: #666; text-align: center; padding: 20px;">
+                Loading standings data...
+            </div>
+        `;
+    }
+
+    renderStandings(standings) {
+        const container = document.getElementById('standingsContainer');
+        if (!container) {
+            console.warn('Standings container not found');
+            return;
+        }
+
+        if (standings && standings.table && standings.table.length > 0) {
+            container.innerHTML = `
+                <div class="standings-table">
+                    <div class="standings-header">
+                        <span>Team</span>
+                        <span>Pts</span>
+                    </div>
+                    ${standings.table.slice(0, 5).map(team => `
+                        <div class="standings-row">
+                            <div class="team-name">
+                                <span class="team-position">${team.position}.</span>
+                                <span class="team-name-text">${team.team}</span>
+                            </div>
+                            <span class="team-points">${team.points || team.wins || 0}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            this.renderFallbackStandings();
+        }
+    }
+
+    async loadTeams() {
+        try {
+            console.log(`Loading teams for sport: ${this.sport}`);
+            const response = await fetch(`/api/sports/${this.sport}/teams?featured=true&limit=3`);
+            const result = await response.json();
+            
+            console.log('Teams API response:', result);
+            
+            if (result.success && result.teams.length > 0) {
+                this.renderFeaturedTeams(result.teams);
+            } else {
+                this.renderFallbackTeams();
+            }
+        } catch (error) {
+            console.error('Error loading teams:', error);
+            this.renderFallbackTeams();
+        }
+    }
+
+    renderFallbackTeams() {
+        const container = document.getElementById('featuredTeamsContainer');
+        if (!container) {
+            console.warn('Featured teams container not found');
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="top-pick">
+                <div class="top-pick-content">
+                    <h4>Top ${this.sport.charAt(0).toUpperCase() + this.sport.slice(1)} Teams</h4>
+                    <div class="top-pick-meta">Loading teams data...</div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderFeaturedTeams(teams) {
+        const container = document.getElementById('featuredTeamsContainer');
+        if (!container) {
+            console.warn('Featured teams container not found');
+            return;
+        }
+
+        if (teams && teams.length > 0) {
+            container.innerHTML = teams.map(team => `
+                <div class="top-pick">
+                    <div class="top-pick-content">
+                        <h4>${team.name}</h4>
+                        <div class="top-pick-meta">${team.league} • ${team.stats?.overall?.wins || 0}-${team.stats?.overall?.losses || 0}</div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            this.renderFallbackTeams();
+        }
+    }
+
+    async loadNews() {
+        try {
+            console.log(`Loading news for sport: ${this.sport}`);
+            const response = await fetch(`/api/news?sport=${this.sport}&limit=3`);
+            const result = await response.json();
+            
+            console.log('News API response:', result);
+            
+            if (result.success && result.news.length > 0) {
+                this.renderNews(result.news);
+            } else {
+                this.renderFallbackNews();
+            }
+        } catch (error) {
+            console.error('Error loading news:', error);
+            this.renderFallbackNews();
+        }
+    }
+
+    renderFallbackNews() {
+        const container = document.getElementById('newsContainer');
+        if (!container) {
+            console.warn('News container not found');
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="top-pick">
+                <div class="top-pick-content">
+                    <h4>Latest ${this.sport.charAt(0).toUpperCase() + this.sport.slice(1)} News</h4>
+                    <div class="top-pick-meta">Loading news updates...</div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderNews(news) {
+        const container = document.getElementById('newsContainer');
+        if (!container) {
+            console.warn('News container not found');
+            return;
+        }
+
+        if (news && news.length > 0) {
+            container.innerHTML = news.map(article => `
+                <div class="top-pick">
+                    <div class="top-pick-content">
+                        <h4>${article.title}</h4>
+                        <div class="top-pick-meta">${this.formatTimeAgo(article.date)}</div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            this.renderFallbackNews();
+        }
+    }
+
+    async handleHeroFollowClick(button) {
+        if (!this.currentUser) {
+            this.showToast('Please log in to follow sports', 'error');
+            return;
+        }
+
+        const sportId = button.getAttribute('data-sport-id');
+        const sportName = button.getAttribute('data-sport-name');
+        const sportIcon = button.getAttribute('data-sport-icon');
+
+        button.classList.add('loading', 'btn-loading');
+        button.disabled = true;
+
+        try {
+            const isCurrentlyFollowed = await this.isSportFollowed(sportId);
+            let result;
+
+            if (isCurrentlyFollowed) {
+                result = await this.unfollowSport(sportId);
+            } else {
+                result = await this.followSport(sportId, sportName, sportIcon);
+            }
+
+            if (result.success) {
+                this.showToast(result.message, 'success');
+                this.updateFollowButtonState(button, !isCurrentlyFollowed);
+                
+                if (window.AllSportsApp && window.AllSportsApp.updateSportFollowButtons) {
+                    window.AllSportsApp.updateSportFollowButtons();
+                }
+            } else {
+                this.showToast(result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error handling sport follow:', error);
+            this.showToast('Error updating follow status', 'error');
+        } finally {
+            button.classList.remove('loading', 'btn-loading');
+            button.disabled = false;
+        }
+    }
+
+    async isSportFollowed(sportId) {
+        try {
+            const response = await fetch('/api/user/followed-sports', {
+                credentials: 'include'
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                return result.followedSports.some(sport => sport.sportId === sportId);
+            }
+            return false;
+        } catch (error) {
+            console.error('Error checking followed sports:', error);
+            return false;
+        }
+    }
+
+    async followSport(sportId, sportName, sportIcon) {
+        const response = await fetch('/api/user/follow-sport', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                sportId,
+                sportName,
+                icon: sportIcon,
+                category: 'Team Sport',
+                action: 'follow'
+            })
+        });
+        return await response.json();
+    }
+
+    async unfollowSport(sportId) {
+        const response = await fetch('/api/user/follow-sport', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                sportId,
+                action: 'unfollow'
+            })
+        });
+        return await response.json();
+    }
+
+    updateFollowButtonState(button, isFollowing) {
+        const followText = button.querySelector('.follow-text');
+        const followIcon = button.querySelector('.follow-icon-hero');
+
+        if (isFollowing) {
+            button.classList.add('following');
+            followText.textContent = 'Followed';
+            followIcon.textContent = '❤️';
+        } else {
+            button.classList.remove('following');
+            followText.textContent = 'Follow';
+            followIcon.textContent = '🤍';
+        }
+    }
+
+    async initSportsFollowFunctionality() {
+        const heroFollowBtn = document.getElementById('footballFollowBtn');
+        if (heroFollowBtn && this.currentUser) {
+            const sportId = heroFollowBtn.getAttribute('data-sport-id');
+            const isFollowed = await this.isSportFollowed(sportId);
+            this.updateFollowButtonState(heroFollowBtn, isFollowed);
+        }
+    }
+
+    async handleSearch(query) {
+        if (!query || query.length < 2) return;
+
+        try {
+            const response = await fetch(`/api/search/fixtures?query=${encodeURIComponent(query)}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                this.displaySearchResults(result.fixtures);
+            }
+        } catch (error) {
+            console.error('Error searching:', error);
+        }
+    }
+
+    displaySearchResults(fixtures) {
+        if (window.AllSportsApp && window.AllSportsApp.showSearchResults) {
+            window.AllSportsApp.showSearchResults(fixtures);
+        }
+    }
+
+    showLoadingState() {
+        document.body.classList.add('content-loading');
+    }
+
+    hideLoadingState() {
+        document.body.classList.remove('content-loading');
+    }
+
+    showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = `
+            ${message}
+            <button class="retry-button" onclick="sportPageManager.loadPageData()">Retry</button>
+        `;
+        
+        const main = document.querySelector('main');
+        if (main) {
+            main.prepend(errorDiv);
+        }
+    }
+
+    showSectionError(sectionId, message) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `
+                ${message}
+                <button class="retry-button" onclick="sportPageManager.loadPageData()">Retry</button>
+            `;
+            section.appendChild(errorDiv);
+        }
+    }
+
+    showToast(message, type = 'success') {
+        if (window.AllSportsApp && window.AllSportsApp.showToast) {
+            window.AllSportsApp.showToast(message, type);
+        } else {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#ff4444' : '#34a853'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    }
+
+    formatTimeAgo(dateString) {
+        if (!dateString) return 'Recently';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+        
+        return date.toLocaleDateString();
+    }
+
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+}
+
+// Database and Authentication Management
 const Database = {
-  // Initialize mock database
   init: function() {
-    // Check if users exist in localStorage
     const storedUsers = localStorage.getItem('allsports_users');
     if (!storedUsers) {
-      // Create initial mock users
       mockUsers = [
         {
           id: 1,
@@ -53,42 +1036,35 @@ const Database = {
       mockUsers = JSON.parse(storedUsers);
     }
 
-    // Check if current session exists
     const currentSession = localStorage.getItem('allsports_current_user');
     if (currentSession) {
       currentUser = JSON.parse(currentSession);
     }
 
-    // Load followed sports from localStorage for demo
     const storedFollowedSports = localStorage.getItem('allsports_followed_sports');
     if (storedFollowedSports) {
       followedSports = JSON.parse(storedFollowedSports);
     }
   },
 
-  // Get all users
   getUsers: function() {
     return JSON.parse(localStorage.getItem('allsports_users') || '[]');
   },
 
-  // Save users
   saveUsers: function(users) {
     localStorage.setItem('allsports_users', JSON.stringify(users));
   },
 
-  // Find user by credentials
   findUserByCredentials: function(email, password) {
     const users = this.getUsers();
     return users.find(user => user.email === email && user.password === password);
   },
 
-  // Find user by email
   findUserByEmail: function(email) {
     const users = this.getUsers();
     return users.find(user => user.email === email);
   },
 
-  // Create new user
   createUser: function(userData) {
     const users = this.getUsers();
     const newUser = {
@@ -107,7 +1083,6 @@ const Database = {
     return newUser;
   },
 
-  // Update user
   updateUser: function(userId, updates) {
     const users = this.getUsers();
     const userIndex = users.findIndex(user => user.id === userId);
@@ -119,7 +1094,6 @@ const Database = {
     return null;
   },
 
-  // Set current user session
   setCurrentUser: function(user) {
     currentUser = user;
     if (user) {
@@ -129,33 +1103,27 @@ const Database = {
     }
   },
 
-  // Get current user
   getCurrentUser: function() {
     const storedUser = localStorage.getItem('allsports_current_user');
     return storedUser ? JSON.parse(storedUser) : null;
   },
 
-  // Clear current user session
   clearCurrentUser: function() {
     currentUser = null;
     localStorage.removeItem('allsports_current_user');
   },
 
-  // Save followed sports to localStorage for demo
   saveFollowedSports: function(sports) {
     followedSports = sports;
     localStorage.setItem('allsports_followed_sports', JSON.stringify(sports));
   },
 
-  // Get followed sports from localStorage for demo
   getFollowedSports: function() {
     return followedSports;
   }
 };
 
-// Authentication Manager
 const AuthManager = {
-  // Login function
   login: function(email, password) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -174,15 +1142,13 @@ const AuthManager = {
             message: 'Invalid email or password'
           });
         }
-      }, 1000); // Simulate API delay
+      }, 1000);
     });
   },
 
-  // Register function
   register: function(userData) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        // Check if user already exists
         const existingUser = Database.findUserByEmail(userData.email);
         if (existingUser) {
           reject({
@@ -192,7 +1158,6 @@ const AuthManager = {
           return;
         }
 
-        // Create new user
         const newUser = Database.createUser(userData);
         Database.setCurrentUser(newUser);
         currentUser = newUser;
@@ -202,11 +1167,10 @@ const AuthManager = {
           user: newUser,
           message: 'Registration successful!'
         });
-      }, 1000); // Simulate API delay
+      }, 1000);
     });
   },
 
-  // Logout function
   logout: function() {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -220,17 +1184,14 @@ const AuthManager = {
     });
   },
 
-  // Check if user is authenticated
   isAuthenticated: function() {
     return currentUser !== null;
   },
 
-  // Get current user
   getCurrentUser: function() {
     return currentUser;
   },
 
-  // Update user profile
   updateProfile: function(userId, updates) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -256,12 +1217,9 @@ const AuthManager = {
   }
 };
 
-// Sports Manager with Database Integration
 const SportsManager = {
-  // Follow a sport with database integration
   followSport: async function(sportId, sportName, icon = '🏆', category = 'General') {
     try {
-      // First try to use the actual API endpoint
       if (currentUser) {
         try {
           const response = await fetch('/api/user/follow-sport', {
@@ -283,7 +1241,6 @@ const SportsManager = {
           if (response.ok) {
             const result = await response.json();
             if (result.success) {
-              // Update local state
               const newSport = {
                 sportId,
                 sportName,
@@ -304,7 +1261,6 @@ const SportsManager = {
         }
       }
 
-      // Fallback to localStorage if API fails or no user
       return new Promise((resolve) => {
         setTimeout(() => {
           const newSport = {
@@ -335,10 +1291,8 @@ const SportsManager = {
     }
   },
 
-  // Unfollow a sport with database integration
   unfollowSport: async function(sportId) {
     try {
-      // First try to use the actual API endpoint
       if (currentUser) {
         try {
           const response = await fetch('/api/user/follow-sport', {
@@ -355,7 +1309,6 @@ const SportsManager = {
           if (response.ok) {
             const result = await response.json();
             if (result.success) {
-              // Update local state
               const currentFollowed = Database.getFollowedSports();
               const sportToRemove = currentFollowed.find(sport => sport.sportId === sportId);
               const updatedFollowed = currentFollowed.filter(sport => sport.sportId !== sportId);
@@ -369,7 +1322,6 @@ const SportsManager = {
         }
       }
 
-      // Fallback to localStorage if API fails or no user
       return new Promise((resolve) => {
         setTimeout(() => {
           const currentFollowed = Database.getFollowedSports();
@@ -393,10 +1345,8 @@ const SportsManager = {
     }
   },
 
-  // Get followed sports with database integration
   getFollowedSports: async function() {
     try {
-      // First try to use the actual API endpoint
       if (currentUser) {
         try {
           const response = await fetch('/api/user/followed-sports');
@@ -412,7 +1362,6 @@ const SportsManager = {
         }
       }
 
-      // Fallback to localStorage if API fails or no user
       return new Promise((resolve) => {
         setTimeout(() => {
           const followedSports = Database.getFollowedSports();
@@ -431,10 +1380,8 @@ const SportsManager = {
     }
   },
 
-  // Get all available sports
   getAllSports: async function() {
     try {
-      // Try to use the actual API endpoint
       try {
         const response = await fetch('/api/sports');
         if (response.ok) {
@@ -447,7 +1394,6 @@ const SportsManager = {
         console.log('API call failed, using mock data:', apiError);
       }
 
-      // Fallback to mock data
       return new Promise((resolve) => {
         setTimeout(() => {
           const allSports = [
@@ -563,19 +1509,16 @@ const SportsManager = {
     }
   },
 
-  // Check if sport is followed
   isSportFollowed: function(sportId) {
     return followedSports.some(sport => sport.sportId === sportId);
   },
 
-  // Update followed sports cache
   updateFollowedSportsCache: function(sports) {
     followedSports = sports || [];
     Database.saveFollowedSports(sports);
   }
 };
 
-// Login Page Handler
 class LoginPageHandler {
   constructor() {
     this.init();
@@ -587,7 +1530,6 @@ class LoginPageHandler {
   }
 
   setupEventListeners() {
-    // Login form submission
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
       loginForm.addEventListener('submit', (e) => {
@@ -596,7 +1538,6 @@ class LoginPageHandler {
       });
     }
 
-    // Registration form submission
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
       registerForm.addEventListener('submit', (e) => {
@@ -605,7 +1546,6 @@ class LoginPageHandler {
       });
     }
 
-    // Tab switching
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => {
       button.addEventListener('click', (e) => {
@@ -613,7 +1553,6 @@ class LoginPageHandler {
       });
     });
 
-    // Password visibility toggle
     const toggleButtons = document.querySelectorAll('.password-toggle');
     toggleButtons.forEach(button => {
       button.addEventListener('click', (e) => {
@@ -621,7 +1560,6 @@ class LoginPageHandler {
       });
     });
 
-    // Enter key support
     document.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         const activeForm = document.querySelector('.auth-form.active');
@@ -638,7 +1576,6 @@ class LoginPageHandler {
   checkExistingSession() {
     const user = AuthManager.getCurrentUser();
     if (user && window.location.pathname.includes('../login.html')) {
-      // User is already logged in, redirect to home page
       this.redirectToHome();
     }
   }
@@ -648,7 +1585,6 @@ class LoginPageHandler {
     const password = document.getElementById('loginPassword').value;
     const rememberMe = document.getElementById('rememberMe') ? document.getElementById('rememberMe').checked : false;
 
-    // Basic validation
     if (!email || !password) {
       this.showMessage('Please fill in all fields', 'error');
       return;
@@ -667,14 +1603,12 @@ class LoginPageHandler {
       if (result.success) {
         this.showMessage(result.message, 'success');
         
-        // Store remember me preference
         if (rememberMe) {
           localStorage.setItem('allsports_remember_me', 'true');
         } else {
           localStorage.removeItem('allsports_remember_me');
         }
 
-        // Redirect to home page after successful login
         setTimeout(() => {
           this.redirectToHome();
         }, 1000);
@@ -693,7 +1627,6 @@ class LoginPageHandler {
     const confirmPassword = document.getElementById('confirmPassword').value;
     const agreeTerms = document.getElementById('agreeTerms').checked;
 
-    // Validation
     if (!username || !email || !password || !confirmPassword) {
       this.showMessage('Please fill in all fields', 'error');
       return;
@@ -731,7 +1664,6 @@ class LoginPageHandler {
       if (result.success) {
         this.showMessage(result.message, 'success');
         
-        // Redirect to home page after successful registration
         setTimeout(() => {
           this.redirectToHome();
         }, 1500);
@@ -744,30 +1676,25 @@ class LoginPageHandler {
   }
 
   switchTab(tabName) {
-    // Update active tab button
     document.querySelectorAll('.tab-button').forEach(button => {
       button.classList.remove('active');
     });
     document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
-    // Update active form
     document.querySelectorAll('.auth-form').forEach(form => {
       form.classList.remove('active');
     });
     document.getElementById(`${tabName}Form`).classList.add('active');
 
-    // Reset forms
     this.resetForms();
   }
 
   resetForms() {
-    // Clear all form fields
     const forms = document.querySelectorAll('.auth-form');
     forms.forEach(form => {
       form.reset();
     });
 
-    // Hide any messages
     this.hideMessage();
   }
 
@@ -776,7 +1703,6 @@ class LoginPageHandler {
     const type = input.type === 'password' ? 'text' : 'password';
     input.type = type;
     
-    // Update button text
     button.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
   }
 
@@ -797,10 +1723,8 @@ class LoginPageHandler {
   }
 
   showMessage(message, type) {
-    // Remove existing message
     this.hideMessage();
 
-    // Create message element
     const messageDiv = document.createElement('div');
     messageDiv.className = `auth-message auth-message-${type}`;
     messageDiv.innerHTML = `
@@ -808,12 +1732,10 @@ class LoginPageHandler {
       <button class="auth-message-close" onclick="this.parentElement.remove()">×</button>
     `;
 
-    // Add to page
     const authContainer = document.querySelector('.auth-container');
     if (authContainer) {
       authContainer.insertBefore(messageDiv, authContainer.firstChild);
 
-      // Auto-remove after 5 seconds
       setTimeout(() => {
         if (messageDiv.parentElement) {
           messageDiv.remove();
@@ -839,7 +1761,6 @@ class LoginPageHandler {
   }
 }
 
-// Main AllSportsApp Class
 class AllSportsApp {
     constructor() {
         this.state = {
@@ -896,13 +1817,10 @@ class AllSportsApp {
         this.updateLoginUI();
         this.setupFollowFunctionality();
         
-        // Initialize page-specific functionality
         this.initPageSpecific();
         
-        // Load and initialize sports follow functionality
         await this.initSportsFollowFunctionality();
         
-        // Initialize hero follow button
         this.initHeroFollowButton();
     }
 
@@ -937,21 +1855,17 @@ class AllSportsApp {
     }
 
     initLoginPage() {
-        // Initialize login page handler
         new LoginPageHandler();
     }
 
-    // NEW: Initialize hero follow button
     initHeroFollowButton() {
         const heroFollowBtn = document.getElementById('footballFollowBtn');
         if (heroFollowBtn) {
             const sportId = heroFollowBtn.getAttribute('data-sport-id');
             const isFollowed = this.isSportFollowed(sportId);
             
-            // Set initial state
             this.updateHeroFollowButton(heroFollowBtn, isFollowed);
             
-            // Add click event
             heroFollowBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -960,12 +1874,9 @@ class AllSportsApp {
         }
     }
 
-    // NEW: Handle hero follow button click
     async handleHeroFollowClick(button) {
         if (!this.state.user) {
             this.showToast('Please log in to follow sports', 'error');
-            // Optionally redirect to login page
-            // window.location.href = 'login.html';
             return;
         }
 
@@ -974,7 +1885,6 @@ class AllSportsApp {
         const sportIcon = button.getAttribute('data-sport-icon');
         const isCurrentlyFollowed = this.isSportFollowed(sportId);
 
-        // Add loading state
         button.classList.add('loading');
         button.disabled = true;
 
@@ -989,20 +1899,15 @@ class AllSportsApp {
             if (result.success) {
                 this.showToast(result.message, 'success');
                 
-                // Add animation
                 button.classList.add('animating');
                 setTimeout(() => button.classList.remove('animating'), 500);
                 
-                // Update button state
                 this.updateHeroFollowButton(button, !isCurrentlyFollowed);
                 
-                // Reload followed sports to get updated list
                 await this.loadFollowedSports();
                 
-                // Update all sport follow buttons
                 this.updateSportFollowButtons();
                 
-                // Update sports widget if it exists
                 this.updateSportsWidget();
             } else {
                 this.showToast(result.message, 'error');
@@ -1016,7 +1921,6 @@ class AllSportsApp {
         }
     }
 
-    // NEW: Update hero follow button appearance
     updateHeroFollowButton(button, isFollowed) {
         if (isFollowed) {
             button.classList.add('following');
@@ -1038,7 +1942,6 @@ class AllSportsApp {
                 this.state.user = result.user;
                 console.log('User authenticated:', result.user.username);
             } else {
-                // Fallback to localStorage
                 const user = Database.getCurrentUser();
                 if (user) {
                     this.state.user = user;
@@ -1047,7 +1950,6 @@ class AllSportsApp {
             }
         } catch (error) {
             console.error('Error checking auth status:', error);
-            // Fallback to localStorage
             const user = Database.getCurrentUser();
             if (user) {
                 this.state.user = user;
@@ -1056,7 +1958,6 @@ class AllSportsApp {
     }
 
     setupEventListeners() {
-        // Initialize all core functionality
         this.initDropdowns();
         this.initMobileMenu();
         this.initScrollEffects();
@@ -1064,29 +1965,21 @@ class AllSportsApp {
         this.initCarousel();
         this.initUserPreferences();
         
-        // Enhanced card interactions
         this.enhanceCards();
         
-        // Live scores updates
         this.updateLiveScores();
         
-        // News ticker
         this.initTicker();
     }
 
-    // Initialize sports follow functionality
     async initSportsFollowFunctionality() {
-        // Load followed sports
         await this.loadFollowedSports();
         
-        // Add follow buttons to sports dropdown
         this.addFollowButtonsToSports();
         
-        // Add sports follow section to user profile/dashboard
         this.addSportsFollowSection();
     }
 
-    // Load followed sports
     async loadFollowedSports() {
         try {
             const result = await SportsManager.getFollowedSports();
@@ -1101,7 +1994,6 @@ class AllSportsApp {
         }
     }
 
-    // Add follow buttons to sports dropdown
     addFollowButtonsToSports() {
         const sportsDropdown = document.querySelector('.sports-dropdown .dropdown-grid');
         const mobileSportsDropdown = document.querySelector('.mobile-dropdown-menu');
@@ -1121,7 +2013,6 @@ class AllSportsApp {
         }
     }
 
-    // Add follow button to desktop sport item
     addFollowButtonToSportItem(sportItem) {
         const sportLink = sportItem.querySelector('a');
         if (!sportLink) return;
@@ -1131,7 +2022,6 @@ class AllSportsApp {
         const sportHref = sportLink.getAttribute('href');
         const sportId = sportHref ? sportHref.replace('.html', '') : sportName.toLowerCase();
         
-        // Create follow button
         const followButton = document.createElement('button');
         followButton.className = 'sport-follow-btn';
         followButton.setAttribute('data-sport-id', sportId);
@@ -1141,18 +2031,15 @@ class AllSportsApp {
         const isFollowed = this.isSportFollowed(sportId);
         this.updateFollowButtonAppearance(followButton, isFollowed);
         
-        // Add click event
         followButton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.handleSportFollowClick(followButton);
         });
         
-        // Add to sport item
         sportItem.appendChild(followButton);
     }
 
-    // Add follow button to mobile sport item
     addFollowButtonToMobileSportItem(sportItem) {
         const sportLink = sportItem.querySelector('a');
         if (!sportLink) return;
@@ -1162,7 +2049,6 @@ class AllSportsApp {
         const sportHref = sportLink.getAttribute('href');
         const sportId = sportHref ? sportHref.replace('.html', '') : sportName.toLowerCase();
         
-        // Create follow button
         const followButton = document.createElement('button');
         followButton.className = 'sport-follow-btn mobile';
         followButton.setAttribute('data-sport-id', sportId);
@@ -1172,18 +2058,15 @@ class AllSportsApp {
         const isFollowed = this.isSportFollowed(sportId);
         this.updateFollowButtonAppearance(followButton, isFollowed);
         
-        // Add click event
         followButton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             this.handleSportFollowClick(followButton);
         });
         
-        // Add to sport item
         sportItem.appendChild(followButton);
     }
 
-    // Handle sport follow button click
     async handleSportFollowClick(button) {
         if (!this.state.user) {
             this.showToast('Please log in to follow sports', 'error');
@@ -1195,7 +2078,6 @@ class AllSportsApp {
         const sportIcon = button.getAttribute('data-sport-icon');
         const isCurrentlyFollowed = this.isSportFollowed(sportId);
 
-        // Add loading state
         button.classList.add('loading');
         const icon = button.querySelector('.follow-icon');
         if (icon) {
@@ -1212,33 +2094,26 @@ class AllSportsApp {
 
             if (result.success) {
                 this.showToast(result.message, 'success');
-                // Reload followed sports to get updated list
                 await this.loadFollowedSports();
-                // Update all sport follow buttons
                 this.updateSportFollowButtons();
-                // Update sports widget if it exists
                 this.updateSportsWidget();
             } else {
                 this.showToast(result.message, 'error');
-                // Revert button appearance on error
                 this.updateFollowButtonAppearance(button, isCurrentlyFollowed);
             }
         } catch (error) {
             console.error('Error handling sport follow:', error);
             this.showToast('Error updating sport follow status', 'error');
-            // Revert button appearance on error
             this.updateFollowButtonAppearance(button, isCurrentlyFollowed);
         } finally {
             button.classList.remove('loading');
         }
     }
 
-    // Check if sport is followed
     isSportFollowed(sportId) {
         return followedSports.some(sport => sport.sportId === sportId);
     }
 
-    // Update follow button appearance
     updateFollowButtonAppearance(button, isFollowed) {
         const icon = button.querySelector('.follow-icon');
         if (icon) {
@@ -1254,9 +2129,7 @@ class AllSportsApp {
         }
     }
 
-    // Update all sport follow buttons
     updateSportFollowButtons() {
-        // Update dropdown buttons
         const followButtons = document.querySelectorAll('.sport-follow-btn');
         followButtons.forEach(button => {
             const sportId = button.getAttribute('data-sport-id');
@@ -1264,7 +2137,6 @@ class AllSportsApp {
             this.updateFollowButtonAppearance(button, isFollowed);
         });
 
-        // Update hero button
         const heroFollowBtn = document.getElementById('footballFollowBtn');
         if (heroFollowBtn) {
             const sportId = heroFollowBtn.getAttribute('data-sport-id');
@@ -1272,7 +2144,6 @@ class AllSportsApp {
             this.updateHeroFollowButton(heroFollowBtn, isFollowed);
         }
 
-        // Also update management modal buttons if open
         const toggleButtons = document.querySelectorAll('.follow-toggle-btn');
         toggleButtons.forEach(button => {
             const sportId = button.getAttribute('data-sport-id');
@@ -1281,7 +2152,6 @@ class AllSportsApp {
         });
     }
 
-    // Update toggle button appearance in management modal
     updateToggleButtonAppearance(button, isFollowed) {
         if (isFollowed) {
             button.classList.add('following');
@@ -1300,21 +2170,19 @@ class AllSportsApp {
         }
     }
 
-    // Add sports follow section to user profile
     addSportsFollowSection() {
-        // This would be added to a user profile or dashboard page
-        // For now, we'll add it to the main page if user is logged in
         if (this.state.user && this.currentPage === 'home') {
             this.createSportsFollowWidget();
         }
     }
 
-    // Create sports follow widget
     createSportsFollowWidget() {
         const rightColumn = document.querySelector('.right-column');
-        if (!rightColumn) return;
+        if (!rightColumn) {
+            console.warn('Right column not found for sports follow widget');
+            return;
+        }
 
-        // Check if widget already exists
         if (document.getElementById('followedSportsWidget')) {
             return;
         }
@@ -1345,7 +2213,6 @@ class AllSportsApp {
             </div>
         `;
 
-        // Insert after the first widget
         const firstWidget = rightColumn.querySelector('.widget');
         if (firstWidget) {
             rightColumn.insertBefore(sportsWidget, firstWidget.nextSibling);
@@ -1353,13 +2220,10 @@ class AllSportsApp {
             rightColumn.prepend(sportsWidget);
         }
 
-        // Add event listeners
         this.setupSportsWidgetEvents();
     }
 
-    // Setup sports widget events
     setupSportsWidgetEvents() {
-        // Unfollow buttons
         const unfollowButtons = document.querySelectorAll('.unfollow-btn');
         unfollowButtons.forEach(button => {
             button.addEventListener('click', async (e) => {
@@ -1370,7 +2234,6 @@ class AllSportsApp {
             });
         });
 
-        // Manage sports button
         const manageSportsBtn = document.getElementById('manageSportsBtn');
         if (manageSportsBtn) {
             manageSportsBtn.addEventListener('click', () => {
@@ -1379,7 +2242,6 @@ class AllSportsApp {
         }
     }
 
-    // Handle sport unfollow from widget
     async handleSportUnfollow(sportId, sportName) {
         if (!this.state.user) return;
 
@@ -1399,7 +2261,6 @@ class AllSportsApp {
         }
     }
 
-    // Update sports widget
     updateSportsWidget() {
         const followedSportsList = document.getElementById('followedSportsList');
         if (followedSportsList) {
@@ -1419,7 +2280,6 @@ class AllSportsApp {
                     </div>
                 `).join('');
 
-                // Reattach event listeners
                 const unfollowButtons = followedSportsList.querySelectorAll('.unfollow-btn');
                 unfollowButtons.forEach(button => {
                     button.addEventListener('click', async (e) => {
@@ -1433,7 +2293,6 @@ class AllSportsApp {
         }
     }
 
-    // Show sports management modal
     async showSportsManagementModal() {
         const allSportsResult = await SportsManager.getAllSports();
         if (!allSportsResult.success) {
@@ -1502,13 +2361,10 @@ class AllSportsApp {
         document.body.appendChild(modal);
         document.body.style.overflow = 'hidden';
 
-        // Add event listeners
         this.setupSportsManagementEvents();
     }
 
-    // Setup sports management modal events
     setupSportsManagementEvents() {
-        // Follow toggle buttons
         const followToggleBtns = document.querySelectorAll('.follow-toggle-btn');
         followToggleBtns.forEach(button => {
             button.addEventListener('click', async (e) => {
@@ -1542,7 +2398,6 @@ class AllSportsApp {
             });
         });
 
-        // Search functionality
         const sportsSearch = document.getElementById('sportsSearch');
         if (sportsSearch) {
             sportsSearch.addEventListener('input', (e) => {
@@ -1551,7 +2406,6 @@ class AllSportsApp {
         }
     }
 
-    // Filter sports in management modal
     filterSportsManagement(query) {
         const sportItems = document.querySelectorAll('.sport-management-item');
         const searchTerm = query.toLowerCase().trim();
@@ -1569,7 +2423,6 @@ class AllSportsApp {
         });
     }
 
-    // Update sports management modal
     updateSportsManagementModal() {
         const sportItems = document.querySelectorAll('.sport-management-item');
         sportItems.forEach(item => {
@@ -1581,7 +2434,6 @@ class AllSportsApp {
             this.updateToggleButtonAppearance(button, isFollowed);
         });
 
-        // Update stats
         const allSportsResult = SportsManager.getAllSports();
         const stats = document.querySelector('.sports-stats');
         if (stats && allSportsResult.sports) {
@@ -1602,7 +2454,6 @@ class AllSportsApp {
         }
     }
 
-    // Dropdown functionality
     initDropdowns() {
         const dropdownButtons = document.querySelectorAll('.has-dropdown .nav-button');
         
@@ -1643,14 +2494,12 @@ class AllSportsApp {
             dropdown.classList.remove('dropdown-active');
         });
         
-        // Close user dropdown
         const userMenu = document.querySelector('.user-menu');
         if (userMenu) {
             userMenu.classList.remove('active');
         }
     }
 
-    // Mobile menu functionality
     initMobileMenu() {
         const mobileToggle = document.getElementById('mobileToggle');
         const mobileMenu = document.getElementById('mobileMenu');
@@ -1684,7 +2533,6 @@ class AllSportsApp {
         if (menu) menu.setAttribute('aria-hidden', isExpanded);
     }
 
-    // Scroll effects
     initScrollEffects() {
         let scrollTimer;
         window.addEventListener('scroll', function() {
@@ -1700,12 +2548,10 @@ class AllSportsApp {
         });
     }
 
-    // Search functionality
     initSearchFunctionality() {
         const searchInput = document.getElementById('searchInput');
         const mobileSearchInput = document.getElementById('mobileSearchInput');
         
-        // Create search results container if it doesn't exist
         if (!document.getElementById('searchResults')) {
             const searchContainer = document.querySelector('.search');
             if (searchContainer) {
@@ -1716,7 +2562,6 @@ class AllSportsApp {
             }
         }
         
-        // Main search input
         if (searchInput) {
             searchInput.addEventListener('focus', function() {
                 this.parentElement.classList.add('focused');
@@ -1742,7 +2587,6 @@ class AllSportsApp {
             });
         }
         
-        // Mobile search input
         if (mobileSearchInput) {
             mobileSearchInput.addEventListener('input', (e) => {
                 this.handleSearchInput(e.target.value);
@@ -1753,7 +2597,6 @@ class AllSportsApp {
                     this.performSearch(e.target.value);
                     AllSportsApp.closeMobileMenu();
                     mobileSearchInput.blur();
-                    // Transfer focus to main search input
                     const mainSearchInput = document.getElementById('searchInput');
                     if (mainSearchInput) {
                         mainSearchInput.focus();
@@ -1791,12 +2634,10 @@ class AllSportsApp {
             return;
         }
 
-        // Initialize mock data if not already done
         if (mockNewsData.length === 0) {
             mockNewsData = this.getMockNewsData();
         }
 
-        // Filter news based on advanced search algorithm
         const scoredResults = mockNewsData.map(item => {
             let score = 0;
             const fields = {
@@ -1810,15 +2651,12 @@ class AllSportsApp {
                 author: item.author?.toLowerCase() || ''
             };
 
-            // Calculate relevance score for each search term
             searchTerms.forEach(term => {
-                // Exact matches get highest score
                 if (fields.title === term) score += 10;
                 if (fields.sport === term) score += 8;
                 if (fields.league === term) score += 7;
                 if (fields.homeTeam === term || fields.awayTeam === term) score += 9;
                 
-                // Word boundary matches
                 const wordBoundaryRegex = new RegExp(`\\b${term}\\b`, 'gi');
                 
                 if (wordBoundaryRegex.test(item.title)) score += 6;
@@ -1829,7 +2667,6 @@ class AllSportsApp {
                 if (wordBoundaryRegex.test(item.excerpt)) score += 3;
                 if (wordBoundaryRegex.test(item.venue || '')) score += 2;
                 
-                // Partial matches
                 if (fields.title.includes(term)) score += 2;
                 if (fields.sport.includes(term)) score += 1;
                 if (fields.league.includes(term)) score += 1;
@@ -1837,10 +2674,8 @@ class AllSportsApp {
                 if (fields.excerpt.includes(term)) score += 1;
             });
 
-            // Boost score for live matches
             if (item.status === 'Live') score += 3;
             
-            // Boost score for recent matches
             const articleDate = new Date(item.date);
             const now = new Date();
             const daysAgo = (now - articleDate) / (1000 * 60 * 60 * 24);
@@ -1855,7 +2690,6 @@ class AllSportsApp {
 
         if (scoredResults.length > 0) {
             searchResults.innerHTML = scoredResults.map(item => {
-                // Highlight matching terms in the title
                 let highlightedTitle = item.title;
                 searchTerms.forEach(term => {
                     const regex = new RegExp(`(${term})`, 'gi');
@@ -1877,7 +2711,6 @@ class AllSportsApp {
                 `;
             }).join('');
 
-            // Add click event listeners
             searchResults.querySelectorAll('.search-result-item').forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -1889,7 +2722,6 @@ class AllSportsApp {
                         this.openArticleModal(article);
                         this.hideSearchResults();
                         
-                        // Clear search input
                         const searchInput = document.getElementById('searchInput');
                         const mobileSearchInput = document.getElementById('mobileSearchInput');
                         if (searchInput) searchInput.value = '';
@@ -1933,10 +2765,8 @@ class AllSportsApp {
             console.log('Performing search for:', query);
             this.hideSearchResults();
             
-            // Show search results page or filter content
             this.showToast(`Searching for: ${query}`);
             
-            // Update search input in mobile if needed
             const mobileSearchInput = document.getElementById('mobileSearchInput');
             if (mobileSearchInput && mobileSearchInput.value !== query) {
                 mobileSearchInput.value = query;
@@ -1944,7 +2774,6 @@ class AllSportsApp {
         }
     }
 
-    // Carousel functionality
     initCarousel() {
         const carousels = document.querySelectorAll('.hero-carousel');
         carousels.forEach(carousel => {
@@ -1963,7 +2792,6 @@ class AllSportsApp {
         });
     }
 
-    // Live scores functionality
     updateLiveScores() {
         const scores = document.querySelectorAll('.live-score');
         scores.forEach((score, index) => {
@@ -1990,7 +2818,6 @@ class AllSportsApp {
         setTimeout(() => this.updateLiveScores(), 10000);
     }
 
-    // Card enhancement
     enhanceCards() {
         const cards = document.querySelectorAll('.card');
         cards.forEach(card => {
@@ -2013,7 +2840,6 @@ class AllSportsApp {
         });
     }
 
-    // Ticker functionality
     initTicker() {
         const tickerContent = [
             "⚽ Man Utd 2-1 Liverpool (75') - Rashford scores!",
@@ -2043,7 +2869,6 @@ class AllSportsApp {
         }
     }
 
-    // User preferences
     initUserPreferences() {
         if (this.state.user) {
             const preferences = this.state.user.preferences || {
@@ -2053,18 +2878,15 @@ class AllSportsApp {
                 theme: 'dark'
             };
             
-            // Apply theme
             document.documentElement.setAttribute('data-theme', preferences.theme);
         }
     }
 
-    // Authentication and user management
     updateLoginUI() {
         const loginBtn = document.getElementById('loginBtn');
         const mobileLoginBtn = document.getElementById('mobileLoginBtn');
         
         if (this.state.user) {
-            // Update desktop header - show username with hover dropdown
             if (loginBtn) {
                 loginBtn.innerHTML = `
                 <div class="user-dropdown">
@@ -2089,7 +2911,6 @@ class AllSportsApp {
                 this.initUserDropdown();
             }
             
-            // Update mobile header
             if (mobileLoginBtn) {
                 mobileLoginBtn.innerHTML = `
                 <div class="user-info-mobile">
@@ -2104,7 +2925,6 @@ class AllSportsApp {
                 `;
             }
         } else {
-            // Not logged in - show login button with hover redirect
             if (loginBtn) {
                 loginBtn.innerHTML = `
                 <div class="user-dropdown">
@@ -2144,7 +2964,6 @@ class AllSportsApp {
             const userMenu = userButton.nextElementSibling;
             
             if (userButton && userMenu) {
-                // Show on hover
                 userButton.addEventListener('mouseenter', function() {
                     userMenu.classList.add('active');
                 });
@@ -2179,12 +2998,10 @@ class AllSportsApp {
             if (result.success) {
                 AllSportsApp.showToast(result.message, 'success');
                 
-                // Update UI
                 const app = new AllSportsApp();
                 app.state.user = null;
                 app.updateLoginUI();
                 
-                // Redirect to home page after a short delay
                 setTimeout(() => {
                     window.location.href = '../index.html';
                 }, 1000);
@@ -2195,7 +3012,6 @@ class AllSportsApp {
         }
     }
 
-    // Modal functionality
     openArticleModal(article) {
         const modal = document.createElement('div');
         modal.className = 'modal active';
@@ -2286,9 +3102,7 @@ class AllSportsApp {
         document.body.style.overflow = '';
     }
 
-    // Toast notification
     static showToast(message, type = 'success') {
-        // Create toast element if it doesn't exist
         let toast = document.getElementById('toast');
         if (!toast) {
             toast = document.createElement('div');
@@ -2322,7 +3136,6 @@ class AllSportsApp {
         }, 3000);
     }
 
-    // Format date utility
     formatDate(dateString) {
         if (!dateString) return 'Recently';
         const date = new Date(dateString);
@@ -2341,7 +3154,6 @@ class AllSportsApp {
         });
     }
 
-    // Mock data
     getMockNewsData() {
         return [
             {
@@ -2415,9 +3227,7 @@ class AllSportsApp {
         ];
     }
 
-    // Additional methods for page-specific functionality
     async loadInitialData() {
-        // Simulate API call
         return new Promise(resolve => {
             setTimeout(() => {
                 mockNewsData = this.getMockNewsData();
@@ -2428,26 +3238,22 @@ class AllSportsApp {
     }
 
     startLiveUpdates() {
-        // Start live updates for scores and news
         setInterval(() => {
             this.updateLiveScores();
         }, 15000);
     }
 
     initializeLeagueFilters() {
-        // Initialize league filter options
         console.log('League filters initialized');
     }
 
     applyUserPreferences() {
-        // Apply user preferences to the UI
         if (this.state.userPreferences.theme) {
             document.documentElement.setAttribute('data-theme', this.state.userPreferences.theme);
         }
     }
 
     setupBackToTop() {
-        // Setup back to top button functionality
         const backToTop = document.createElement('button');
         backToTop.id = 'backToTop';
         backToTop.innerHTML = '↑';
@@ -2485,55 +3291,64 @@ class AllSportsApp {
     }
 
     setupFollowFunctionality() {
-        // Setup follow/unfollow functionality for teams and players
         console.log('Follow functionality initialized');
     }
 
-    // Page-specific initialization methods
     initScoresPage() {
         console.log('Initializing scores page');
-        // Scores page specific functionality
     }
 
     initWatchPage() {
         console.log('Initializing watch page');
-        // Watch page specific functionality
     }
 
     initTeamsPage() {
         console.log('Initializing teams page');
-        // Teams page specific functionality
     }
 
     initFixturesPage() {
         console.log('Initializing fixtures page');
-        // Fixtures page specific functionality
     }
 
-    // Helper method to show toast
     showToast(message, type = 'success') {
         AllSportsApp.showToast(message, type);
     }
 }
 
-// Global initialization
+// Global variables
+let currentUser = null;
+let mockNewsData = [];
+let mockUsers = [];
+let followedSports = [];
+let sportPageManager;
+
+// Global initialization - UPDATED with better timing
 document.addEventListener('DOMContentLoaded', function() {
     console.log("AllSports site loaded");
 
-    // Check if we're on login page
     const isLoginPage = window.location.pathname.includes('login.html');
     
     if (isLoginPage) {
-        // Initialize login page handler
         new LoginPageHandler();
     } else {
-        // Initialize the main app
+        // Initialize AllSportsApp first and make it available globally
         const app = new AllSportsApp();
+        window.AllSportsApp = app;
+        
+        // Then initialize SportPageManager for individual sport pages with a small delay
+        if (document.getElementById('footballFollowBtn')) {
+            setTimeout(() => {
+                sportPageManager = new SportPageManager();
+                window.sportPageManager = sportPageManager;
+            }, 100);
+        }
+        
+        // Initialize the main app
         app.init();
     }
 });
 
-// Make methods available globally for HTML onclick handlers
+// Make methods available globally
 window.AllSportsApp = AllSportsApp;
 window.closeMobileMenu = AllSportsApp.closeMobileMenu;
 window.toggleMobileDropdown = AllSportsApp.toggleMobileDropdown;

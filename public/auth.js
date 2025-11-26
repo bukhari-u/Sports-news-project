@@ -1,4 +1,4 @@
-// Authentication JavaScript for login and signup pages
+// auth.js - UPDATED
 class AuthApp {
     constructor() {
         this.currentPage = window.location.pathname.split('/').pop();
@@ -22,8 +22,10 @@ class AuthApp {
             const data = await response.json();
             
             if (data.success && data.user) {
+                // User is logged in, redirect to home page
                 window.location.href = 'index.html';
             }
+            // If not logged in, stay on login/signup page
         } catch (error) {
             console.error('Error checking auth status:', error);
         }
@@ -31,21 +33,15 @@ class AuthApp {
 
     setupLogin() {
         const loginForm = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        
         loginForm.addEventListener('submit', (e) => this.handleLogin(e));
     }
 
     setupSignup() {
         const signupForm = document.getElementById('signupForm');
-        const signupBtn = document.getElementById('signupBtn');
-        
         signupForm.addEventListener('submit', (e) => this.handleSignup(e));
         
         // Real-time password confirmation validation
-        const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirmPassword');
-        
         confirmPassword.addEventListener('input', () => {
             this.validatePasswordMatch();
         });

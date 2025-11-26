@@ -245,6 +245,7 @@
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
+      cursor: pointer;
     }
     
     .match-card:hover {
@@ -610,7 +611,7 @@
       background: var(--card);
       border-radius: var(--radius);
       width: 90%;
-      max-width: 600px;
+      max-width: 800px;
       max-height: 90vh;
       overflow-y: auto;
       position: relative;
@@ -658,6 +659,120 @@
     
     .modal-body {
       padding: var(--space-4);
+    }
+    
+    /* Tournament Schedule Styles */
+    .tournament-schedule {
+      margin-top: 20px;
+    }
+    
+    .schedule-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .schedule-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .schedule-filters {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .schedule-stage {
+      margin-bottom: 25px;
+    }
+    
+    .stage-header {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .stage-name {
+      font-size: 16px;
+    }
+    
+    .stage-date {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .schedule-matches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 15px;
+    }
+    
+    .schedule-match {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .schedule-match-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .match-date {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .match-time {
+      font-size: 14px;
+      color: var(--text-secondary);
+      background: rgba(255,255,255,0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    
+    .schedule-teams {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    
+    .schedule-team {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .schedule-team-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .schedule-team-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    
+    .schedule-venue {
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-align: center;
     }
     
     /* Search Results Styles */
@@ -820,6 +935,10 @@
       }
       
       .match-details {
+        grid-template-columns: 1fr;
+      }
+      
+      .schedule-matches {
         grid-template-columns: 1fr;
       }
     }
@@ -1149,11 +1268,14 @@
     <section class="fixtures-section">
       <div class="section-header">
         <h2 class="section-title">Today's Fixtures</h2>
-        <div class="fixtures-count" id="todayCount">8 matches today</div>
+        <div class="fixtures-count" id="todayCount">Loading matches...</div>
       </div>
       
       <div class="fixtures-timeline" id="todayFixtures">
-        <!-- Today's fixtures will be populated by JavaScript -->
+        <div class="empty-state">
+          <div class="empty-state-icon">⏳</div>
+          <div class="empty-state-text">Loading today's fixtures...</div>
+        </div>
       </div>
     </section>
 
@@ -1168,7 +1290,10 @@
       </div>
       
       <div class="league-fixtures" id="leagueFixtures">
-        <!-- League fixtures will be populated by JavaScript -->
+        <div class="empty-state">
+          <div class="empty-state-icon">⏳</div>
+          <div class="empty-state-text">Loading upcoming fixtures...</div>
+        </div>
       </div>
     </section>
 
@@ -1180,7 +1305,10 @@
       </div>
       
       <div class="tournaments-grid" id="tournamentsGrid">
-        <!-- Tournaments will be populated by JavaScript -->
+        <div class="empty-state">
+          <div class="empty-state-icon">⏳</div>
+          <div class="empty-state-text">Loading tournaments...</div>
+        </div>
       </div>
     </section>
   </main>
@@ -1226,256 +1354,56 @@
   </div>
 </div>
 
+<!-- Tournament Modal -->
+<div class="modal" id="tournamentModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="tournamentModalTitle">Tournament Details</h3>
+      <button class="modal-close" id="tournamentModalClose">&times;</button>
+    </div>
+    <div class="modal-body" id="tournamentModalContent">
+      <!-- Tournament details will be dynamically inserted here -->
+    </div>
+  </div>
+</div>
+
+<!-- Tournament Schedule Modal -->
+<div class="modal" id="tournamentScheduleModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="tournamentScheduleModalTitle">Tournament Schedule</h3>
+      <button class="modal-close" id="tournamentScheduleModalClose">&times;</button>
+    </div>
+    <div class="modal-body" id="tournamentScheduleModalContent">
+      <!-- Tournament schedule will be dynamically inserted here -->
+    </div>
+  </div>
+</div>
+
 <!-- Toast Notification -->
 <div id="toast" class="toast"></div>
 
 <script>
-// Fixtures App with Enhanced Search
+// Fixtures App with Sample Data (Fixed Version)
 class FixturesApp {
   constructor() {
     this.state = {
       user: null,
       remindedMatches: new Set(),
+      remindedTournaments: new Set(),
       currentDate: new Date(),
       currentFilters: {
         sport: 'All',
         league: 'All',
         time: 'All'
       },
-      viewMode: 'list' // 'list' or 'calendar'
+      viewMode: 'list'
     };
     
-    // Search data
-    this.searchData = [];
-    
-    // Sample fixtures data
     this.fixturesData = {
-      today: [
-        {
-          id: 401,
-          sport: 'Football',
-          league: 'Champions League',
-          time: '19:45',
-          homeTeam: 'Bayern Munich',
-          awayTeam: 'Paris SG',
-          venue: 'Allianz Arena',
-          date: new Date()
-        },
-        {
-          id: 402,
-          sport: 'Basketball',
-          league: 'NBA',
-          time: '02:30',
-          homeTeam: 'Golden State Warriors',
-          awayTeam: 'Phoenix Suns',
-          venue: 'Chase Center',
-          date: new Date()
-        },
-        {
-          id: 403,
-          sport: 'Cricket',
-          league: 'T20 World Cup',
-          time: '08:00',
-          homeTeam: 'England',
-          awayTeam: 'Pakistan',
-          venue: 'Dubai International',
-          date: new Date()
-        },
-        {
-          id: 404,
-          sport: 'Tennis',
-          league: 'Australian Open',
-          time: '14:00',
-          homeTeam: 'Rafael Nadal',
-          awayTeam: 'Daniil Medvedev',
-          venue: 'Rod Laver Arena',
-          date: new Date()
-        },
-        {
-          id: 405,
-          sport: 'MMA',
-          league: 'UFC',
-          time: '23:00',
-          homeTeam: 'Israel Adesanya',
-          awayTeam: 'Alex Pereira',
-          venue: 'T-Mobile Arena',
-          date: new Date()
-        },
-        {
-          id: 406,
-          sport: 'Football',
-          league: 'Premier League',
-          time: '20:00',
-          homeTeam: 'Chelsea',
-          awayTeam: 'Arsenal',
-          venue: 'Stamford Bridge',
-          date: new Date()
-        },
-        {
-          id: 407,
-          sport: 'Baseball',
-          league: 'MLB',
-          time: '01:05',
-          homeTeam: 'NY Yankees',
-          awayTeam: 'Boston Red Sox',
-          venue: 'Yankee Stadium',
-          date: new Date()
-        },
-        {
-          id: 408,
-          sport: 'Hockey',
-          league: 'NHL',
-          time: '00:00',
-          homeTeam: 'Toronto Maple Leafs',
-          awayTeam: 'Montreal Canadiens',
-          venue: 'Scotiabank Arena',
-          date: new Date()
-        }
-      ],
-      upcoming: [
-        {
-          id: 409,
-          sport: 'Football',
-          league: 'Premier League',
-          time: '15:00',
-          homeTeam: 'Manchester United',
-          awayTeam: 'Liverpool',
-          venue: 'Old Trafford',
-          date: new Date(Date.now() + 86400000) // Tomorrow
-        },
-        {
-          id: 410,
-          sport: 'Cricket',
-          league: 'IPL',
-          time: '19:30',
-          homeTeam: 'Mumbai Indians',
-          awayTeam: 'Chennai Super Kings',
-          venue: 'Wankhede Stadium',
-          date: new Date(Date.now() + 86400000)
-        },
-        {
-          id: 411,
-          sport: 'Basketball',
-          league: 'NBA',
-          time: '23:00',
-          homeTeam: 'LA Lakers',
-          awayTeam: 'Boston Celtics',
-          venue: 'Staples Center',
-          date: new Date(Date.now() + 172800000) // Day after tomorrow
-        },
-        {
-          id: 412,
-          sport: 'Tennis',
-          league: 'Wimbledon',
-          time: '13:00',
-          homeTeam: 'Novak Djokovic',
-          awayTeam: 'Roger Federer',
-          venue: 'Centre Court',
-          date: new Date(Date.now() + 259200000) // 3 days
-        },
-        {
-          id: 413,
-          sport: 'Rugby',
-          league: 'Six Nations',
-          time: '14:30',
-          homeTeam: 'England',
-          awayTeam: 'Wales',
-          venue: 'Twickenham Stadium',
-          date: new Date(Date.now() + 345600000) // 4 days
-        },
-        {
-          id: 414,
-          sport: 'Golf',
-          league: 'Masters Tournament',
-          time: '08:00',
-          homeTeam: 'Tiger Woods',
-          awayTeam: 'Rory McIlroy',
-          venue: 'Augusta National',
-          date: new Date(Date.now() + 432000000) // 5 days
-        },
-        {
-          id: 415,
-          sport: 'Boxing',
-          league: 'WBC Heavyweight',
-          time: '22:00',
-          homeTeam: 'Tyson Fury',
-          awayTeam: 'Anthony Joshua',
-          venue: 'Wembley Stadium',
-          date: new Date(Date.now() + 518400000) // 6 days
-        },
-        {
-          id: 416,
-          sport: 'Formula1',
-          league: 'Monaco Grand Prix',
-          time: '14:00',
-          homeTeam: 'Lewis Hamilton',
-          awayTeam: 'Max Verstappen',
-          venue: 'Circuit de Monaco',
-          date: new Date(Date.now() + 604800000) // 7 days
-        }
-      ],
-      tournaments: [
-        {
-          id: 501,
-          name: 'FIFA World Cup 2026',
-          sport: 'Football',
-          status: 'upcoming',
-          startDate: 'June 8, 2026',
-          endDate: 'July 3, 2026',
-          teams: 48,
-          location: 'USA, Canada & Mexico'
-        },
-        {
-          id: 502,
-          name: 'ICC Cricket World Cup',
-          sport: 'Cricket',
-          status: 'ongoing',
-          startDate: 'October 5, 2024',
-          endDate: 'November 19, 2024',
-          teams: 10,
-          location: 'India'
-        },
-        {
-          id: 503,
-          name: 'NBA Playoffs',
-          sport: 'Basketball',
-          status: 'upcoming',
-          startDate: 'April 15, 2024',
-          endDate: 'June 18, 2024',
-          teams: 16,
-          location: 'USA & Canada'
-        },
-        {
-          id: 504,
-          name: 'Wimbledon',
-          sport: 'Tennis',
-          status: 'upcoming',
-          startDate: 'July 1, 2024',
-          endDate: 'July 14, 2024',
-          teams: 128,
-          location: 'London, UK'
-        },
-        {
-          id: 505,
-          name: 'Summer Olympics',
-          sport: 'Olympics',
-          status: 'upcoming',
-          startDate: 'July 26, 2024',
-          endDate: 'August 11, 2024',
-          teams: 206,
-          location: 'Paris, France'
-        },
-        {
-          id: 506,
-          name: 'UFC 300',
-          sport: 'MMA',
-          status: 'upcoming',
-          startDate: 'April 13, 2024',
-          endDate: 'April 13, 2024',
-          teams: 24,
-          location: 'Las Vegas, USA'
-        }
-      ]
+      today: [],
+      upcoming: [],
+      tournaments: []
     };
     
     this.init();
@@ -1485,29 +1413,327 @@ class FixturesApp {
     console.log('Fixtures App Initializing...');
     await this.checkAuthStatus();
     await this.loadRemindedMatches();
+    await this.loadRemindedTournaments();
     this.setupEventListeners();
+    await this.loadFixturesData();
     this.renderFixtures();
     this.updateReminderButtons();
+    this.updateTournamentButtons();
     this.setupModalListeners();
     this.setupSearch();
   }
 
-  // ========== SEARCH FUNCTIONALITY ==========
-  setupSearch() {
-    // Initialize search data from fixturesData
-    this.prepareSearchData();
+  async loadFixturesData() {
+    try {
+      console.log('📥 Loading fixtures data from sample data...');
+      
+      // Use the sample data that's already in the HTML
+      const sampleData = [
+        // Today's fixtures
+        {
+          fixtureId: 'FIX-401',
+          sport: 'Football',
+          league: 'Champions League',
+          homeTeam: { name: 'Bayern Munich', shortCode: 'BAY' },
+          awayTeam: { name: 'Paris SG', shortCode: 'PSG' },
+          date: new Date(),
+          time: '19:45',
+          venue: 'Allianz Arena',
+          status: 'Scheduled',
+          round: 'Group Stage',
+          competition: 'UEFA Champions League',
+          isFeatured: true,
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-402',
+          sport: 'Basketball',
+          league: 'NBA',
+          homeTeam: { name: 'Golden State Warriors', shortCode: 'GSW' },
+          awayTeam: { name: 'Phoenix Suns', shortCode: 'PHX' },
+          date: new Date(),
+          time: '02:30',
+          venue: 'Chase Center',
+          status: 'Scheduled',
+          round: 'Regular Season',
+          competition: 'National Basketball Association',
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-403',
+          sport: 'Cricket',
+          league: 'T20 World Cup',
+          homeTeam: { name: 'England', shortCode: 'ENG' },
+          awayTeam: { name: 'Pakistan', shortCode: 'PAK' },
+          date: new Date(),
+          time: '08:00',
+          venue: 'Dubai International Stadium',
+          status: 'Scheduled',
+          round: 'Semi Final',
+          competition: 'ICC T20 World Cup',
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-404',
+          sport: 'Tennis',
+          league: 'Australian Open',
+          homeTeam: { name: 'Rafael Nadal', shortCode: 'RNA' },
+          awayTeam: { name: 'Daniil Medvedev', shortCode: 'DME' },
+          date: new Date(),
+          time: '14:00',
+          venue: 'Rod Laver Arena',
+          status: 'Scheduled',
+          round: 'Quarter Final',
+          competition: 'Australian Open',
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-405',
+          sport: 'MMA',
+          league: 'UFC',
+          homeTeam: { name: 'Israel Adesanya', shortCode: 'IAD' },
+          awayTeam: { name: 'Alex Pereira', shortCode: 'APE' },
+          date: new Date(),
+          time: '23:00',
+          venue: 'T-Mobile Arena',
+          status: 'Scheduled',
+          round: 'Main Event',
+          competition: 'UFC 287',
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-406',
+          sport: 'Football',
+          league: 'Premier League',
+          homeTeam: { name: 'Chelsea', shortCode: 'CHE' },
+          awayTeam: { name: 'Arsenal', shortCode: 'ARS' },
+          date: new Date(),
+          time: '20:00',
+          venue: 'Stamford Bridge',
+          status: 'Scheduled',
+          round: 'Matchweek 15',
+          competition: 'English Premier League',
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-407',
+          sport: 'Baseball',
+          league: 'MLB',
+          homeTeam: { name: 'NY Yankees', shortCode: 'NYY' },
+          awayTeam: { name: 'Boston Red Sox', shortCode: 'BOS' },
+          date: new Date(),
+          time: '01:05',
+          venue: 'Yankee Stadium',
+          status: 'Scheduled',
+          round: 'Regular Season',
+          competition: 'Major League Baseball',
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-408',
+          sport: 'Hockey',
+          league: 'NHL',
+          homeTeam: { name: 'Toronto Maple Leafs', shortCode: 'TOR' },
+          awayTeam: { name: 'Montreal Canadiens', shortCode: 'MTL' },
+          date: new Date(),
+          time: '00:00',
+          venue: 'Scotiabank Arena',
+          status: 'Scheduled',
+          round: 'Regular Season',
+          competition: 'National Hockey League',
+          isActive: true
+        },
+        // Upcoming fixtures
+        {
+          fixtureId: 'FIX-409',
+          sport: 'Football',
+          league: 'Premier League',
+          homeTeam: { name: 'Manchester United', shortCode: 'MUN' },
+          awayTeam: { name: 'Liverpool', shortCode: 'LIV' },
+          date: new Date(Date.now() + 86400000),
+          time: '15:00',
+          venue: 'Old Trafford',
+          status: 'Scheduled',
+          round: 'Matchweek 16',
+          competition: 'English Premier League',
+          isFeatured: true,
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-410',
+          sport: 'Cricket',
+          league: 'IPL',
+          homeTeam: { name: 'Mumbai Indians', shortCode: 'MI' },
+          awayTeam: { name: 'Chennai Super Kings', shortCode: 'CSK' },
+          date: new Date(Date.now() + 86400000),
+          time: '19:30',
+          venue: 'Wankhede Stadium',
+          status: 'Scheduled',
+          round: 'Group Stage',
+          competition: 'Indian Premier League',
+          isActive: true
+        },
+        {
+          fixtureId: 'FIX-411',
+          sport: 'Basketball',
+          league: 'NBA',
+          homeTeam: { name: 'LA Lakers', shortCode: 'LAL' },
+          awayTeam: { name: 'Boston Celtics', shortCode: 'BOS' },
+          date: new Date(Date.now() + 172800000),
+          time: '23:00',
+          venue: 'Staples Center',
+          status: 'Scheduled',
+          round: 'Regular Season',
+          competition: 'National Basketball Association',
+          isActive: true
+        }
+      ];
+
+      // Separate today's fixtures from upcoming
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      this.fixturesData.today = sampleData.filter(fixture => {
+        const fixtureDate = new Date(fixture.date);
+        fixtureDate.setHours(0, 0, 0, 0);
+        return fixtureDate.getTime() === today.getTime();
+      });
+
+      this.fixturesData.upcoming = sampleData.filter(fixture => {
+        const fixtureDate = new Date(fixture.date);
+        fixtureDate.setHours(0, 0, 0, 0);
+        return fixtureDate.getTime() > today.getTime();
+      });
+
+      // For tournaments, we'll use sample data
+      this.fixturesData.tournaments = this.getSampleTournaments();
+      
+      console.log('✅ Fixtures data loaded:', {
+        today: this.fixturesData.today.length,
+        upcoming: this.fixturesData.upcoming.length,
+        tournaments: this.fixturesData.tournaments.length
+      });
+      
+    } catch (error) {
+      console.error('❌ Error loading fixtures data:', error);
+      // Fallback to minimal sample data
+      this.loadSampleData();
+    }
+  }
+
+  getSampleTournaments() {
+    return [
+      {
+        id: 501,
+        name: 'FIFA World Cup 2026',
+        sport: 'Football',
+        status: 'upcoming',
+        startDate: 'June 8, 2026',
+        endDate: 'July 3, 2026',
+        teams: 48,
+        location: 'USA, Canada & Mexico'
+      },
+      {
+        id: 502,
+        name: 'ICC Cricket World Cup',
+        sport: 'Cricket',
+        status: 'ongoing',
+        startDate: 'October 5, 2024',
+        endDate: 'November 19, 2024',
+        teams: 10,
+        location: 'India'
+      },
+      {
+        id: 503,
+        name: 'NBA Playoffs',
+        sport: 'Basketball',
+        status: 'upcoming',
+        startDate: 'April 15, 2024',
+        endDate: 'June 18, 2024',
+        teams: 16,
+        location: 'USA & Canada'
+      },
+      {
+        id: 504,
+        name: 'Wimbledon',
+        sport: 'Tennis',
+        status: 'upcoming',
+        startDate: 'July 1, 2024',
+        endDate: 'July 14, 2024',
+        teams: 128,
+        location: 'London, UK'
+      },
+      {
+        id: 505,
+        name: 'Summer Olympics',
+        sport: 'Olympics',
+        status: 'upcoming',
+        startDate: 'July 26, 2024',
+        endDate: 'August 11, 2024',
+        teams: 206,
+        location: 'Paris, France'
+      },
+      {
+        id: 506,
+        name: 'UFC 300',
+        sport: 'MMA',
+        status: 'upcoming',
+        startDate: 'April 13, 2024',
+        endDate: 'April 13, 2024',
+        teams: 24,
+        location: 'Las Vegas, USA'
+      }
+    ];
+  }
+
+  loadSampleData() {
+    console.log('📋 Loading minimal sample data as fallback...');
+    // Minimal sample data as backup
+    this.fixturesData.today = [
+      {
+        fixtureId: '401',
+        sport: 'Football',
+        league: 'Champions League',
+        time: '19:45',
+        homeTeam: { name: 'Bayern Munich', shortCode: 'BAY' },
+        awayTeam: { name: 'Paris SG', shortCode: 'PSG' },
+        venue: 'Allianz Arena',
+        date: new Date()
+      }
+    ];
     
+    this.fixturesData.upcoming = [
+      {
+        fixtureId: '409',
+        sport: 'Football',
+        league: 'Premier League',
+        time: '15:00',
+        homeTeam: { name: 'Manchester United', shortCode: 'MUN' },
+        awayTeam: { name: 'Liverpool', shortCode: 'LIV' },
+        venue: 'Old Trafford',
+        date: new Date(Date.now() + 86400000)
+      }
+    ];
+    
+    this.fixturesData.tournaments = this.getSampleTournaments();
+  }
+
+  // Update the search setup to use sample data
+  setupSearch() {
     // Desktop search
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
+        const query = e.target.value.trim();
+        if (query.length < 2) {
+          searchResults.classList.remove('active');
+          return;
+        }
         this.handleSearch(query, searchResults);
       });
       
-      // Close search results when clicking outside
       document.addEventListener('click', (e) => {
         if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
           searchResults.classList.remove('active');
@@ -1521,180 +1747,53 @@ class FixturesApp {
     
     if (mobileSearchInput) {
       mobileSearchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
+        const query = e.target.value.trim();
+        if (query.length < 2) {
+          mobileSearchResults.classList.remove('active');
+          return;
+        }
         this.handleSearch(query, mobileSearchResults);
       });
-      
-      // Close mobile search results when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!mobileSearchInput.contains(e.target) && !mobileSearchResults.contains(e.target)) {
-          mobileSearchResults.classList.remove('active');
-        }
-      });
     }
-  }
-
-  prepareSearchData() {
-    this.searchData = [];
-    
-    // Add matches from today and upcoming fixtures
-    [...this.fixturesData.today, ...this.fixturesData.upcoming].forEach(match => {
-      this.searchData.push({
-        id: `match-${match.id}`,
-        title: `${match.homeTeam} vs ${match.awayTeam}`,
-        subtitle: `${match.league} • ${match.venue}`,
-        type: 'Match',
-        icon: this.getSportIcon(match.sport),
-        data: match,
-        category: 'matches'
-      });
-    });
-    
-    // Add tournaments
-    this.fixturesData.tournaments.forEach(tournament => {
-      this.searchData.push({
-        id: `tournament-${tournament.id}`,
-        title: tournament.name,
-        subtitle: `${tournament.sport} • ${tournament.location}`,
-        type: 'Tournament',
-        icon: this.getSportIcon(tournament.sport),
-        data: tournament,
-        category: 'tournaments'
-      });
-    });
-    
-    // Add sports categories
-    const sports = [
-      { name: 'Football', icon: '⚽' },
-      { name: 'Basketball', icon: '🏀' },
-      { name: 'Cricket', icon: '🏏' },
-      { name: 'Tennis', icon: '🎾' },
-      { name: 'Baseball', icon: '⚾' },
-      { name: 'Hockey', icon: '🏒' },
-      { name: 'Rugby', icon: '🏉' },
-      { name: 'Boxing', icon: '🥊' },
-      { name: 'Formula 1', icon: '🏎️' },
-      { name: 'Golf', icon: '⛳' },
-      { name: 'MMA', icon: '🥋' },
-      { name: 'Olympics', icon: '🏅' }
-    ];
-    
-    sports.forEach(sport => {
-      this.searchData.push({
-        id: `sport-${sport.name.toLowerCase()}`,
-        title: sport.name,
-        subtitle: 'Sports Category',
-        type: 'Sport',
-        icon: sport.icon,
-        category: 'sports'
-      });
-    });
-    
-    // Add leagues
-    const leagues = [
-      { name: 'Premier League', sport: 'Football' },
-      { name: 'Champions League', sport: 'Football' },
-      { name: 'NBA', sport: 'Basketball' },
-      { name: 'IPL', sport: 'Cricket' },
-      { name: 'T20 World Cup', sport: 'Cricket' },
-      { name: 'UFC', sport: 'MMA' },
-      { name: 'Formula 1', sport: 'Formula 1' },
-      { name: 'MLB', sport: 'Baseball' },
-      { name: 'NHL', sport: 'Hockey' },
-      { name: 'Six Nations', sport: 'Rugby' },
-      { name: 'Wimbledon', sport: 'Tennis' },
-      { name: 'Australian Open', sport: 'Tennis' },
-      { name: 'Masters Tournament', sport: 'Golf' }
-    ];
-    
-    leagues.forEach(league => {
-      this.searchData.push({
-        id: `league-${league.name.toLowerCase().replace(/\s+/g, '-')}`,
-        title: league.name,
-        subtitle: `${league.sport} League`,
-        type: 'League',
-        icon: this.getSportIcon(league.sport),
-        category: 'leagues'
-      });
-    });
-    
-    // Add teams
-    const teams = [
-      { name: 'Bayern Munich', sport: 'Football' },
-      { name: 'Paris SG', sport: 'Football' },
-      { name: 'Chelsea', sport: 'Football' },
-      { name: 'Arsenal', sport: 'Football' },
-      { name: 'Manchester United', sport: 'Football' },
-      { name: 'Liverpool', sport: 'Football' },
-      { name: 'Golden State Warriors', sport: 'Basketball' },
-      { name: 'Phoenix Suns', sport: 'Basketball' },
-      { name: 'LA Lakers', sport: 'Basketball' },
-      { name: 'Boston Celtics', sport: 'Basketball' },
-      { name: 'England', sport: 'Cricket' },
-      { name: 'Pakistan', sport: 'Cricket' },
-      { name: 'Mumbai Indians', sport: 'Cricket' },
-      { name: 'Chennai Super Kings', sport: 'Cricket' },
-      { name: 'NY Yankees', sport: 'Baseball' },
-      { name: 'Boston Red Sox', sport: 'Baseball' },
-      { name: 'Toronto Maple Leafs', sport: 'Hockey' },
-      { name: 'Montreal Canadiens', sport: 'Hockey' }
-    ];
-    
-    teams.forEach(team => {
-      this.searchData.push({
-        id: `team-${team.name.toLowerCase().replace(/\s+/g, '-')}`,
-        title: team.name,
-        subtitle: `${team.sport} Team`,
-        type: 'Team',
-        icon: this.getSportIcon(team.sport),
-        category: 'teams'
-      });
-    });
   }
 
   handleSearch(query, resultsContainer) {
-    if (!query) {
-      resultsContainer.classList.remove('active');
-      return;
-    }
-    
-    const searchWords = query.split(/\s+/).filter(word => word.length > 0);
-    
-    if (searchWords.length === 0) {
-      resultsContainer.classList.remove('active');
-      return;
-    }
-    
-    const results = this.searchData.filter(item => {
-      // Check if every search word matches in title, subtitle, or type
-      return searchWords.every(word => {
-        const searchableText = `${item.title} ${item.subtitle} ${item.type} ${item.category}`.toLowerCase();
-        return searchableText.includes(word);
-      });
+    // Search through all fixtures data
+    const allFixtures = [...this.fixturesData.today, ...this.fixturesData.upcoming];
+    const results = allFixtures.filter(fixture => {
+      const searchText = `${fixture.homeTeam.name} ${fixture.awayTeam.name} ${fixture.league} ${fixture.sport} ${fixture.venue}`.toLowerCase();
+      return searchText.includes(query.toLowerCase());
     });
     
     this.displaySearchResults(results, resultsContainer, query);
   }
 
-  displaySearchResults(results, container, query) {
-    if (results.length === 0) {
+  displaySearchResults(fixtures, container, query) {
+    if (fixtures.length === 0) {
       container.innerHTML = `
         <div class="no-results">
           <p>No results found for "<strong>${query}</strong>"</p>
-          <p style="font-size: 12px; margin-top: 8px;">Try searching for matches, teams, leagues, or tournaments</p>
+          <p style="font-size: 12px; margin-top: 8px;">Try searching for matches, teams, or leagues</p>
         </div>
       `;
     } else {
-      container.innerHTML = results.map(result => `
-        <div class="search-result-item" data-id="${result.id}" data-type="${result.category}">
-          <div class="search-result-icon">${result.icon}</div>
-          <div class="search-result-content">
-            <div class="search-result-title">${this.highlightText(result.title, query)}</div>
-            <div class="search-result-subtitle">${result.subtitle}</div>
+      let html = '';
+      
+      // Add fixtures to results
+      fixtures.forEach(fixture => {
+        html += `
+          <div class="search-result-item" data-id="${fixture.fixtureId}" data-type="matches">
+            <div class="search-result-icon">${this.getSportIcon(fixture.sport)}</div>
+            <div class="search-result-content">
+              <div class="search-result-title">${fixture.homeTeam.name} vs ${fixture.awayTeam.name}</div>
+              <div class="search-result-subtitle">${fixture.league} • ${fixture.venue}</div>
+            </div>
+            <div class="search-result-type">Match</div>
           </div>
-          <div class="search-result-type">${result.type}</div>
-        </div>
-      `).join('');
+        `;
+      });
+      
+      container.innerHTML = html;
       
       // Add click handlers
       container.querySelectorAll('.search-result-item').forEach(item => {
@@ -1708,18 +1807,6 @@ class FixturesApp {
     container.classList.add('active');
   }
 
-  highlightText(text, query) {
-    const words = query.split(/\s+/).filter(word => word.length > 0);
-    let highlighted = text;
-    
-    words.forEach(word => {
-      const regex = new RegExp(`(${word})`, 'gi');
-      highlighted = highlighted.replace(regex, '<mark>$1</mark>');
-    });
-    
-    return highlighted;
-  }
-
   handleSearchResultClick(id, type) {
     const searchInput = document.getElementById('searchInput');
     const mobileSearchInput = document.getElementById('mobileSearchInput');
@@ -1731,87 +1818,8 @@ class FixturesApp {
     // Handle based on type
     switch (type) {
       case 'matches':
-        const matchId = id.replace('match-', '');
-        this.showMatchDetails(matchId);
+        this.showMatchDetails(id);
         break;
-      case 'tournaments':
-        const tournamentId = id.replace('tournament-', '');
-        this.showTournamentDetails(tournamentId);
-        break;
-      case 'sports':
-        const sportName = id.replace('sport-', '');
-        this.filterBySport(sportName);
-        break;
-      case 'leagues':
-        const leagueName = id.replace('league-', '').replace(/-/g, ' ');
-        this.filterByLeague(leagueName);
-        break;
-      case 'teams':
-        const teamName = id.replace('team-', '').replace(/-/g, ' ');
-        this.filterByTeam(teamName);
-        break;
-    }
-  }
-
-  filterBySport(sportName) {
-    const sportFilter = document.getElementById('sportFilter');
-    if (sportFilter) {
-      sportFilter.value = sportName;
-      this.state.currentFilters.sport = sportName;
-      this.filterFixtures();
-    }
-  }
-
-  filterByLeague(leagueName) {
-    const leagueFilter = document.getElementById('leagueFilter');
-    if (leagueFilter) {
-      // Find the closest matching option
-      const options = Array.from(leagueFilter.options);
-      const matchingOption = options.find(option => 
-        option.text.toLowerCase().includes(leagueName.toLowerCase())
-      );
-      if (matchingOption) {
-        leagueFilter.value = matchingOption.value;
-        this.state.currentFilters.league = matchingOption.value;
-        this.filterFixtures();
-      }
-    }
-  }
-
-  filterByTeam(teamName) {
-    // Show all fixtures first
-    this.resetFilters();
-    
-    // Then filter by team
-    const matchCards = document.querySelectorAll('.match-card');
-    let foundMatches = false;
-    
-    matchCards.forEach(card => {
-      const homeTeam = card.querySelector('.home-team .team-name')?.textContent;
-      const awayTeam = card.querySelector('.away-team .team-name')?.textContent;
-      
-      if (homeTeam && awayTeam && 
-          (homeTeam.toLowerCase().includes(teamName.toLowerCase()) || 
-           awayTeam.toLowerCase().includes(teamName.toLowerCase()))) {
-        card.style.display = 'block';
-        foundMatches = true;
-      } else {
-        card.style.display = 'none';
-      }
-    });
-    
-    if (foundMatches) {
-      this.showToast(`Showing matches for ${teamName}`);
-    } else {
-      this.showToast(`No matches found for ${teamName}`);
-    }
-  }
-
-  showTournamentDetails(tournamentId) {
-    const tournament = this.fixturesData.tournaments.find(t => t.id.toString() === tournamentId);
-    if (tournament) {
-      this.showToast(`Showing details for ${tournament.name}`);
-      // In a real app, you would open a tournament details modal or page
     }
   }
 
@@ -1829,72 +1837,66 @@ class FixturesApp {
         matchModal.classList.remove('active');
       }
     });
+    
+    // Tournament modal
+    const tournamentModal = document.getElementById('tournamentModal');
+    const closeTournamentModal = document.getElementById('tournamentModalClose');
+    
+    closeTournamentModal.addEventListener('click', () => {
+      tournamentModal.classList.remove('active');
+    });
+    
+    tournamentModal.addEventListener('click', (e) => {
+      if (e.target === tournamentModal) {
+        tournamentModal.classList.remove('active');
+      }
+    });
+    
+    // Tournament Schedule modal
+    const tournamentScheduleModal = document.getElementById('tournamentScheduleModal');
+    const closeTournamentScheduleModal = document.getElementById('tournamentScheduleModalClose');
+    
+    closeTournamentScheduleModal.addEventListener('click', () => {
+      tournamentScheduleModal.classList.remove('active');
+    });
+    
+    tournamentScheduleModal.addEventListener('click', (e) => {
+      if (e.target === tournamentScheduleModal) {
+        tournamentScheduleModal.classList.remove('active');
+      }
+    });
   }
 
   async checkAuthStatus() {
     try {
-      // Check if user is logged in using the same method as scores page
-      const response = await fetch('/api/user');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.user) {
-          this.state.user = data.user;
-          this.updateAuthUI();
-          console.log('User authenticated:', this.state.user.username);
-        } else {
-          console.log('User not authenticated');
-          this.state.user = null;
-          this.updateAuthUI();
-        }
-      } else {
-        // Fallback to localStorage for demo purposes
-        const userData = localStorage.getItem('allsports_user');
-        if (userData) {
-          this.state.user = JSON.parse(userData);
-          this.updateAuthUI();
-          console.log('User authenticated (localStorage):', this.state.user.username);
-        } else {
-          console.log('User not authenticated');
-          this.state.user = null;
-          this.updateAuthUI();
-        }
-      }
-    } catch (error) {
-      console.error('Error checking auth status:', error);
-      // Fallback to localStorage for demo purposes
+      // For demo purposes, check localStorage
       const userData = localStorage.getItem('allsports_user');
       if (userData) {
         this.state.user = JSON.parse(userData);
         this.updateAuthUI();
-        console.log('User authenticated (localStorage fallback):', this.state.user.username);
+        console.log('User authenticated (localStorage):', this.state.user.username);
       } else {
+        console.log('User not authenticated');
         this.state.user = null;
         this.updateAuthUI();
       }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      this.state.user = null;
+      this.updateAuthUI();
     }
   }
 
   async loadRemindedMatches() {
     try {
-      // Try API first, then fallback to localStorage
-      const response = await fetch('/api/user/reminded-matches');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          const matchIds = data.remindedMatches.map(match => match.matchId);
-          this.state.remindedMatches = new Set(matchIds);
-          console.log('Loaded reminded matches from API:', matchIds);
-        }
+      // Fallback to localStorage
+      const remindedMatches = localStorage.getItem('allsports_reminded_matches');
+      if (remindedMatches) {
+        const matchIds = JSON.parse(remindedMatches);
+        this.state.remindedMatches = new Set(matchIds);
+        console.log('Loaded reminded matches from localStorage:', matchIds);
       } else {
-        // Fallback to localStorage
-        const remindedMatches = localStorage.getItem('allsports_reminded_matches');
-        if (remindedMatches) {
-          const matchIds = JSON.parse(remindedMatches);
-          this.state.remindedMatches = new Set(matchIds);
-          console.log('Loaded reminded matches from localStorage:', matchIds);
-        } else {
-          console.log('No reminded matches found');
-        }
+        console.log('No reminded matches found');
       }
     } catch (error) {
       console.error('Error loading reminded matches:', error);
@@ -1903,6 +1905,28 @@ class FixturesApp {
       if (remindedMatches) {
         const matchIds = JSON.parse(remindedMatches);
         this.state.remindedMatches = new Set(matchIds);
+      }
+    }
+  }
+
+  async loadRemindedTournaments() {
+    try {
+      // Fallback to localStorage
+      const remindedTournaments = localStorage.getItem('allsports_reminded_tournaments');
+      if (remindedTournaments) {
+        const tournamentIds = JSON.parse(remindedTournaments);
+        this.state.remindedTournaments = new Set(tournamentIds);
+        console.log('Loaded reminded tournaments from localStorage:', tournamentIds);
+      } else {
+        console.log('No reminded tournaments found');
+      }
+    } catch (error) {
+      console.error('Error loading reminded tournaments:', error);
+      // Fallback to localStorage
+      const remindedTournaments = localStorage.getItem('allsports_reminded_tournaments');
+      if (remindedTournaments) {
+        const tournamentIds = JSON.parse(remindedTournaments);
+        this.state.remindedTournaments = new Set(tournamentIds);
       }
     }
   }
@@ -1945,6 +1969,25 @@ class FixturesApp {
     });
   }
 
+  updateTournamentButtons() {
+    const tournamentReminderButtons = document.querySelectorAll('.tournament-actions .reminder-btn');
+    
+    tournamentReminderButtons.forEach(button => {
+      const tournamentId = button.dataset.tournamentId;
+      const isReminderSet = this.state.remindedTournaments.has(tournamentId);
+      
+      if (isReminderSet) {
+        button.classList.remove('ghost');
+        button.classList.add('reminder-set');
+        button.querySelector('.btn-text').textContent = 'Following';
+      } else {
+        button.classList.add('ghost');
+        button.classList.remove('reminder-set');
+        button.querySelector('.btn-text').textContent = 'Follow Tournament';
+      }
+    });
+  }
+
   async toggleReminder(matchId, matchData) {
     // Check if user is logged in
     if (!this.state.user) {
@@ -1966,45 +2009,17 @@ class FixturesApp {
     });
 
     try {
-        const response = await fetch('/api/user/set-reminder', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                matchId: parseInt(matchId),
-                ...matchData,
-                action
-            })
-        });
-
-        // Check if response is OK
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-        }
-
-        const result = await response.json();
-        console.log('Server response:', result);
-
-        if (result.success) {
-            // Update local state based on the action that was actually performed
-            if (result.action === 'reminder_set') {
-                this.state.remindedMatches.add(matchId);
-                this.showToast('Reminder set successfully! You will be notified before the match starts.');
-            } else if (result.action === 'reminder_removed') {
-                this.state.remindedMatches.delete(matchId);
-                this.showToast('Reminder removed successfully');
-            }
-
-            // Update UI
-            this.updateReminderButtons();
-            
-            console.log(`Match ${matchId} reminder ${result.action} successfully`);
+        // For demo, use localStorage
+        if (action === 'add') {
+            this.state.remindedMatches.add(matchId);
+            localStorage.setItem('allsports_reminded_matches', JSON.stringify([...this.state.remindedMatches]));
+            this.showToast('Reminder set successfully! You will be notified before the match starts.');
         } else {
-            this.showToast(result.message || 'Error updating reminder status');
+            this.state.remindedMatches.delete(matchId);
+            localStorage.setItem('allsports_reminded_matches', JSON.stringify([...this.state.remindedMatches]));
+            this.showToast('Reminder removed successfully');
         }
+        this.updateReminderButtons();
     } catch (error) {
         console.error('Error toggling reminder:', error);
         // Fallback to localStorage for demo
@@ -2018,6 +2033,54 @@ class FixturesApp {
             this.showToast('Reminder removed successfully');
         }
         this.updateReminderButtons();
+    }
+  }
+
+  async toggleTournamentReminder(tournamentId, tournamentData) {
+    // Check if user is logged in
+    if (!this.state.user) {
+        this.showToast('Please log in to follow tournaments');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
+        return;
+    }
+
+    // Determine the correct action based on current reminder state
+    const isCurrentlyReminded = this.state.remindedTournaments.has(tournamentId);
+    const action = isCurrentlyReminded ? 'remove' : 'add';
+
+    console.log('Toggle tournament reminder:', {
+        tournamentId,
+        currentState: isCurrentlyReminded ? 'following' : 'not following',
+        action
+    });
+
+    try {
+        // For demo, use localStorage
+        if (action === 'add') {
+            this.state.remindedTournaments.add(tournamentId);
+            localStorage.setItem('allsports_reminded_tournaments', JSON.stringify([...this.state.remindedTournaments]));
+            this.showToast(`You're now following ${tournamentData.name}!`);
+        } else {
+            this.state.remindedTournaments.delete(tournamentId);
+            localStorage.setItem('allsports_reminded_tournaments', JSON.stringify([...this.state.remindedTournaments]));
+            this.showToast(`You've unfollowed ${tournamentData.name}`);
+        }
+        this.updateTournamentButtons();
+    } catch (error) {
+        console.error('Error toggling tournament reminder:', error);
+        // Fallback to localStorage for demo
+        if (action === 'add') {
+            this.state.remindedTournaments.add(tournamentId);
+            localStorage.setItem('allsports_reminded_tournaments', JSON.stringify([...this.state.remindedTournaments]));
+            this.showToast(`You're now following ${tournamentData.name}!`);
+        } else {
+            this.state.remindedTournaments.delete(tournamentId);
+            localStorage.setItem('allsports_reminded_tournaments', JSON.stringify([...this.state.remindedTournaments]));
+            this.showToast(`You've unfollowed ${tournamentData.name}`);
+        }
+        this.updateTournamentButtons();
     }
   }
 
@@ -2145,13 +2208,45 @@ class FixturesApp {
 
     // Reminder buttons (delegated event handling)
     document.addEventListener('click', (e) => {
-      if (e.target.closest('.reminder-btn')) {
+      // Match reminder buttons
+      if (e.target.closest('.match-actions .reminder-btn')) {
         const button = e.target.closest('.reminder-btn');
         const matchId = button.dataset.matchId;
         const matchCard = button.closest('.match-card');
         const matchData = this.getMatchData(matchCard);
         
         this.toggleReminder(matchId, matchData);
+        e.stopPropagation(); // Prevent triggering match card click
+      }
+      
+      // Tournament reminder buttons
+      if (e.target.closest('.tournament-actions .reminder-btn')) {
+        const button = e.target.closest('.reminder-btn');
+        const tournamentId = button.dataset.tournamentId;
+        const tournamentCard = button.closest('.tournament-card');
+        const tournamentData = this.getTournamentData(tournamentCard);
+        
+        this.toggleTournamentReminder(tournamentId, tournamentData);
+        e.stopPropagation(); // Prevent triggering tournament card click
+      }
+      
+      // Preview buttons on match cards
+      if (e.target.closest('.preview-btn')) {
+        const button = e.target.closest('.preview-btn');
+        const matchId = button.dataset.matchId;
+        this.showMatchDetails(matchId);
+        e.stopPropagation(); // Prevent triggering match card click
+      }
+      
+      // Schedule buttons on tournament cards
+      if (e.target.closest('.tournament-actions .btn.ghost')) {
+        const button = e.target.closest('.btn.ghost');
+        const tournamentId = button.dataset.tournamentId;
+        const tournamentCard = button.closest('.tournament-card');
+        const tournamentData = this.getTournamentData(tournamentCard);
+        
+        this.showTournamentSchedule(tournamentId, tournamentData);
+        e.stopPropagation(); // Prevent triggering tournament card click
       }
       
       // Match card click for details
@@ -2160,34 +2255,41 @@ class FixturesApp {
         const matchId = matchCard.dataset.matchId;
         this.showMatchDetails(matchId);
       }
+      
+      // Tournament card click for details
+      if (e.target.closest('.tournament-card') && !e.target.closest('.btn')) {
+        const tournamentCard = e.target.closest('.tournament-card');
+        const tournamentId = tournamentCard.dataset.tournamentId;
+        this.showTournamentDetails(tournamentId);
+      }
     });
   }
 
   async handleLogout() {
     try {
-      const response = await fetch('/api/user/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          this.state.user = null;
-          this.updateAuthUI();
-          this.showToast('You have been logged out');
-          console.log('User logged out successfully');
-        }
-      }
+      // For demo, clear localStorage
+      localStorage.removeItem('allsports_user');
+      localStorage.removeItem('allsports_reminded_matches');
+      localStorage.removeItem('allsports_reminded_tournaments');
+      this.state.user = null;
+      this.state.remindedMatches = new Set();
+      this.state.remindedTournaments = new Set();
+      this.updateAuthUI();
+      this.updateReminderButtons();
+      this.updateTournamentButtons();
+      this.showToast('You have been logged out');
     } catch (error) {
       console.error('Error during logout:', error);
       // Fallback to localStorage clearing
       localStorage.removeItem('allsports_user');
       localStorage.removeItem('allsports_reminded_matches');
+      localStorage.removeItem('allsports_reminded_tournaments');
       this.state.user = null;
       this.state.remindedMatches = new Set();
+      this.state.remindedTournaments = new Set();
       this.updateAuthUI();
       this.updateReminderButtons();
+      this.updateTournamentButtons();
       this.showToast('You have been logged out');
     }
   }
@@ -2367,7 +2469,7 @@ class FixturesApp {
       const statusText = tournament.status === 'ongoing' ? 'Ongoing' : 'Upcoming';
       
       html += `
-        <div class="tournament-card">
+        <div class="tournament-card" data-tournament-id="${tournament.id}">
           <div class="tournament-header">
             <div class="tournament-sport">
               <span class="sport-icon">${this.getSportIcon(tournament.sport)}</span>
@@ -2398,7 +2500,7 @@ class FixturesApp {
             </div>
           </div>
           <div class="tournament-actions">
-            <button class="btn btn-small reminder-btn" data-match-id="${tournament.id}">
+            <button class="btn btn-small reminder-btn" data-tournament-id="${tournament.id}">
               <span class="btn-text">Follow Tournament</span>
               <span class="hover-text">Unfollow</span>
             </button>
@@ -2412,12 +2514,12 @@ class FixturesApp {
   }
 
   renderMatchCard(fixture) {
-    const isReminderSet = this.state.remindedMatches.has(fixture.id.toString());
+    const isReminderSet = this.state.remindedMatches.has(fixture.fixtureId);
     const reminderClass = isReminderSet ? 'reminder-set' : '';
     const reminderText = isReminderSet ? 'Reminder Set' : 'Remind Me';
     
     return `
-      <div class="match-card upcoming" data-sport="${fixture.sport}" data-match-id="${fixture.id}">
+      <div class="match-card upcoming" data-sport="${fixture.sport}" data-match-id="${fixture.fixtureId}">
         <div class="match-header">
           <div class="match-sport">
             <span class="sport-icon">${this.getSportIcon(fixture.sport)}</span>
@@ -2433,15 +2535,15 @@ class FixturesApp {
         <div class="match-teams">
           <div class="team home-team">
             <div class="team-info">
-              <div class="team-logo">${fixture.homeTeam.substring(0, 3)}</div>
-              <div class="team-name">${fixture.homeTeam}</div>
+              <div class="team-logo">${fixture.homeTeam.shortCode || fixture.homeTeam.name.substring(0, 3)}</div>
+              <div class="team-name">${fixture.homeTeam.name}</div>
             </div>
             <div class="team-score">-</div>
           </div>
           <div class="team away-team">
             <div class="team-info">
-              <div class="team-logo">${fixture.awayTeam.substring(0, 3)}</div>
-              <div class="team-name">${fixture.awayTeam}</div>
+              <div class="team-logo">${fixture.awayTeam.shortCode || fixture.awayTeam.name.substring(0, 3)}</div>
+              <div class="team-name">${fixture.awayTeam.name}</div>
             </div>
             <div class="team-score">-</div>
           </div>
@@ -2457,11 +2559,11 @@ class FixturesApp {
           </div>
         </div>
         <div class="match-actions">
-          <button class="btn btn-small reminder-btn ${reminderClass}" data-match-id="${fixture.id}">
+          <button class="btn btn-small reminder-btn ${reminderClass}" data-match-id="${fixture.fixtureId}">
             <span class="btn-text">${reminderText}</span>
             <span class="hover-text">Off Reminder</span>
           </button>
-          <button class="btn btn-small ghost preview-btn" data-match-id="${fixture.id}">Preview</button>
+          <button class="btn btn-small ghost preview-btn" data-match-id="${fixture.fixtureId}">Preview</button>
         </div>
       </div>
     `;
@@ -2487,16 +2589,24 @@ class FixturesApp {
   }
 
   formatMatchDate(date) {
+    // Ensure date is a Date object - handle both Date objects and date strings
+    const dateObj = date instanceof Date ? date : new Date(date);
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     
-    if (date.toDateString() === today.toDateString()) {
+    // Reset time part for date comparison
+    const compareDate = new Date(dateObj);
+    compareDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    if (compareDate.getTime() === today.getTime()) {
       return 'Today';
-    } else if (date.toDateString() === tomorrow.toDateString()) {
+    } else if (compareDate.getTime() === tomorrow.getTime()) {
       return 'Tomorrow';
     } else {
-      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      return dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     }
   }
 
@@ -2531,7 +2641,27 @@ class FixturesApp {
       awayTeam: teams[1].textContent,
       league: competition.split('•')[0]?.trim() || 'Unknown League',
       venue: venue,
-      time: time
+      date: time
+    };
+  }
+
+  getTournamentData(tournamentCard) {
+    const tournamentId = tournamentCard.dataset.tournamentId;
+    const name = tournamentCard.querySelector('.tournament-name').textContent;
+    const sport = tournamentCard.querySelector('.tournament-sport span:nth-child(2)').textContent;
+    const dates = tournamentCard.querySelector('.tournament-dates').textContent;
+    const location = tournamentCard.querySelector('.match-details div').textContent.replace('📍', '').trim();
+    
+    // Extract dates
+    const [startDate, endDate] = dates.split(' - ');
+    
+    return {
+      id: tournamentId,
+      name: name,
+      sport: sport,
+      startDate: startDate,
+      endDate: endDate,
+      location: location
     };
   }
 
@@ -2620,61 +2750,56 @@ class FixturesApp {
   }
 
   showMatchDetails(matchId) {
+    // Find the match in our sample data
+    const allFixtures = [...this.fixturesData.today, ...this.fixturesData.upcoming];
+    const fixture = allFixtures.find(f => f.fixtureId === matchId);
+    
+    if (fixture) {
+      this.displayMatchModal(fixture);
+    } else {
+      this.showToast('Match details not available');
+    }
+  }
+
+  displayMatchModal(fixture) {
     const matchModal = document.getElementById('matchModal');
     const matchModalTitle = document.getElementById('matchModalTitle');
     const matchModalContent = document.getElementById('matchModalContent');
     
-    // Find the match data
-    let matchData = null;
+    matchModalTitle.textContent = `${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`;
     
-    // Check today's fixtures
-    for (const fixture of this.fixturesData.today) {
-      if (fixture.id.toString() === matchId) {
-        matchData = fixture;
-        break;
-      }
-    }
-    
-    // Check upcoming fixtures if not found in today's
-    if (!matchData) {
-      for (const fixture of this.fixturesData.upcoming) {
-        if (fixture.id.toString() === matchId) {
-          matchData = fixture;
-          break;
-        }
-      }
-    }
-    
-    if (!matchData) {
-      this.showToast('Match details not available');
-      return;
-    }
-    
-    matchModalTitle.textContent = `${matchData.homeTeam} vs ${matchData.awayTeam}`;
+    // Ensure date is a Date object
+    const matchDate = fixture.date instanceof Date ? fixture.date : new Date(fixture.date);
+    const formattedDate = matchDate.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
     
     const matchDetailsHTML = `
       <div class="match-preview">
         <div class="match-header" style="margin-bottom: 20px;">
           <div class="match-sport">
-            <span class="sport-icon">${this.getSportIcon(matchData.sport)}</span>
-            <span>${matchData.sport}</span>
+            <span class="sport-icon">${this.getSportIcon(fixture.sport)}</span>
+            <span>${fixture.sport}</span>
           </div>
           <div class="match-status">
-            <span>${matchData.time}</span>
+            <span>${fixture.time}</span>
           </div>
         </div>
         
         <div class="match-teams" style="margin-bottom: 20px;">
           <div class="team home-team" style="margin-bottom: 15px;">
             <div class="team-info">
-              <div class="team-logo">${matchData.homeTeam.substring(0, 3)}</div>
-              <div class="team-name" style="font-size: 18px;">${matchData.homeTeam}</div>
+              <div class="team-logo">${fixture.homeTeam.shortCode || fixture.homeTeam.name.substring(0, 3)}</div>
+              <div class="team-name" style="font-size: 18px;">${fixture.homeTeam.name}</div>
             </div>
           </div>
           <div class="team away-team">
             <div class="team-info">
-              <div class="team-logo">${matchData.awayTeam.substring(0, 3)}</div>
-              <div class="team-name" style="font-size: 18px;">${matchData.awayTeam}</div>
+              <div class="team-logo">${fixture.awayTeam.shortCode || fixture.awayTeam.name.substring(0, 3)}</div>
+              <div class="team-name" style="font-size: 18px;">${fixture.awayTeam.name}</div>
             </div>
           </div>
         </div>
@@ -2682,28 +2807,33 @@ class FixturesApp {
         <div class="match-details" style="margin-bottom: 20px;">
           <div class="match-venue">
             <i class="fas fa-map-marker-alt"></i>
-            <strong>Venue:</strong> ${matchData.venue}
+            <strong>Venue:</strong> ${fixture.venue}
           </div>
           <div class="match-time">
             <i class="fas fa-clock"></i>
-            <strong>Time:</strong> ${matchData.time}
+            <strong>Time:</strong> ${fixture.time}
           </div>
           <div class="match-competition">
             <i class="fas fa-trophy"></i>
-            <strong>Competition:</strong> ${matchData.league}
+            <strong>Competition:</strong> ${fixture.competition || fixture.league}
           </div>
           <div class="match-date">
             <i class="fas fa-calendar"></i>
-            <strong>Date:</strong> ${this.formatMatchDate(matchData.date)}
+            <strong>Date:</strong> ${formattedDate}
           </div>
+          ${fixture.round ? `
+          <div class="match-round">
+            <i class="fas fa-flag"></i>
+            <strong>Round:</strong> ${fixture.round}
+          </div>
+          ` : ''}
         </div>
         
         <div class="match-actions">
-          <button class="btn reminder-btn" data-match-id="${matchData.id}" style="width: 100%; margin-bottom: 10px;">
+          <button class="btn reminder-btn" data-match-id="${fixture.fixtureId}" style="width: 100%; margin-bottom: 10px;">
             <span class="btn-text">Set Reminder</span>
             <span class="hover-text">Remove Reminder</span>
           </button>
-          <button class="btn btn-secondary" style="width: 100%;">Add to Calendar</button>
         </div>
       </div>
     `;
@@ -2712,16 +2842,28 @@ class FixturesApp {
     matchModal.classList.add('active');
     
     // Update reminder button in modal
-    const modalReminderBtn = matchModalContent.querySelector('.reminder-btn');
+    this.updateModalReminderButton(fixture.fixtureId);
+  }
+
+  updateModalReminderButton(matchId) {
+    const modalReminderBtn = document.querySelector('#matchModalContent .reminder-btn');
+    if (!modalReminderBtn) return;
+    
     const isReminderSet = this.state.remindedMatches.has(matchId);
     
     if (isReminderSet) {
       modalReminderBtn.classList.add('reminder-set');
       modalReminderBtn.querySelector('.btn-text').textContent = 'Reminder Set';
+    } else {
+      modalReminderBtn.classList.remove('reminder-set');
+      modalReminderBtn.querySelector('.btn-text').textContent = 'Set Reminder';
     }
     
     // Add event listener to modal reminder button
     modalReminderBtn.addEventListener('click', () => {
+      const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
+      const matchData = this.getMatchData(matchCard);
+      
       this.toggleReminder(matchId, matchData);
       
       // Update button state
@@ -2734,6 +2876,302 @@ class FixturesApp {
         modalReminderBtn.querySelector('.btn-text').textContent = 'Set Reminder';
       }
     });
+  }
+
+  showTournamentDetails(tournamentId) {
+    // In a real app, you would fetch tournament details from an API
+    // For now, we'll use the local data
+    const tournament = this.fixturesData.tournaments.find(t => t.id == tournamentId);
+    
+    if (!tournament) {
+      this.showToast('Tournament details not available');
+      return;
+    }
+    
+    this.displayTournamentModal(tournament);
+  }
+
+  displayTournamentModal(tournament) {
+    const tournamentModal = document.getElementById('tournamentModal');
+    const tournamentModalTitle = document.getElementById('tournamentModalTitle');
+    const tournamentModalContent = document.getElementById('tournamentModalContent');
+    
+    tournamentModalTitle.textContent = tournament.name;
+    
+    const tournamentDetailsHTML = `
+      <div class="tournament-preview">
+        <div class="tournament-header" style="margin-bottom: 20px;">
+          <div class="tournament-sport">
+            <span class="sport-icon">${this.getSportIcon(tournament.sport)}</span>
+            <span>${tournament.sport}</span>
+          </div>
+          <div class="tournament-status-badge ${tournament.status === 'ongoing' ? 'ongoing' : 'upcoming'}">
+            ${tournament.status === 'ongoing' ? 'Ongoing' : 'Upcoming'}
+          </div>
+        </div>
+        
+        <div class="tournament-details" style="margin-bottom: 20px;">
+          <div class="tournament-dates">
+            <i class="fas fa-calendar"></i>
+            <strong>Dates:</strong> ${tournament.startDate} - ${tournament.endDate}
+          </div>
+          <div class="tournament-location">
+            <i class="fas fa-map-marker-alt"></i>
+            <strong>Location:</strong> ${tournament.location}
+          </div>
+          <div class="tournament-teams">
+            <i class="fas fa-users"></i>
+            <strong>Teams:</strong> ${tournament.teams}
+          </div>
+        </div>
+        
+        <div class="tournament-description" style="margin-bottom: 20px;">
+          <p>${tournament.name} is a major ${tournament.sport.toLowerCase()} tournament featuring ${tournament.teams} teams competing for the championship title.</p>
+        </div>
+        
+        <div class="tournament-actions">
+          <button class="btn reminder-btn" data-tournament-id="${tournament.id}" style="width: 100%; margin-bottom: 10px;">
+            <span class="btn-text">Follow Tournament</span>
+            <span class="hover-text">Unfollow</span>
+          </button>
+          <button class="btn btn-secondary" style="width: 100%;" data-tournament-id="${tournament.id}">View Full Schedule</button>
+        </div>
+      </div>
+    `;
+    
+    tournamentModalContent.innerHTML = tournamentDetailsHTML;
+    tournamentModal.classList.add('active');
+    
+    // Update reminder button in modal
+    this.updateTournamentModalReminderButton(tournament.id);
+    
+    // Add event listener to schedule button in modal
+    const scheduleButton = tournamentModalContent.querySelector('.btn-secondary');
+    if (scheduleButton) {
+      scheduleButton.addEventListener('click', () => {
+        this.showTournamentSchedule(tournament.id, tournament);
+        tournamentModal.classList.remove('active');
+      });
+    }
+  }
+
+  updateTournamentModalReminderButton(tournamentId) {
+    const modalReminderBtn = document.querySelector('#tournamentModalContent .reminder-btn');
+    if (!modalReminderBtn) return;
+    
+    const isReminderSet = this.state.remindedTournaments.has(tournamentId);
+    
+    if (isReminderSet) {
+      modalReminderBtn.classList.add('reminder-set');
+      modalReminderBtn.querySelector('.btn-text').textContent = 'Following';
+    } else {
+      modalReminderBtn.classList.remove('reminder-set');
+      modalReminderBtn.querySelector('.btn-text').textContent = 'Follow Tournament';
+    }
+    
+    // Add event listener to modal reminder button
+    modalReminderBtn.addEventListener('click', () => {
+      const tournamentCard = document.querySelector(`[data-tournament-id="${tournamentId}"]`);
+      const tournamentData = this.getTournamentData(tournamentCard);
+      
+      this.toggleTournamentReminder(tournamentId, tournamentData);
+      
+      // Update button state
+      const isNowReminded = this.state.remindedTournaments.has(tournamentId);
+      if (isNowReminded) {
+        modalReminderBtn.classList.add('reminder-set');
+        modalReminderBtn.querySelector('.btn-text').textContent = 'Following';
+      } else {
+        modalReminderBtn.classList.remove('reminder-set');
+        modalReminderBtn.querySelector('.btn-text').textContent = 'Follow Tournament';
+      }
+    });
+  }
+
+  showTournamentSchedule(tournamentId, tournamentData) {
+    // Show the tournament schedule in a modal
+    const tournamentScheduleModal = document.getElementById('tournamentScheduleModal');
+    const tournamentScheduleModalTitle = document.getElementById('tournamentScheduleModalTitle');
+    const tournamentScheduleModalContent = document.getElementById('tournamentScheduleModalContent');
+    
+    tournamentScheduleModalTitle.textContent = `${tournamentData.name} - Full Schedule`;
+    
+    // Generate sample schedule data
+    const scheduleData = this.generateTournamentSchedule(tournamentData);
+    
+    let scheduleHTML = `
+      <div class="tournament-schedule">
+        <div class="schedule-header">
+          <div class="schedule-title">Complete Tournament Schedule</div>
+        </div>
+    `;
+    
+    // Add each stage of the tournament
+    scheduleData.forEach(stage => {
+      scheduleHTML += `
+        <div class="schedule-stage">
+          <div class="stage-header">
+            <div class="stage-name">${stage.name}</div>
+            <div class="stage-date">${stage.date}</div>
+          </div>
+          <div class="schedule-matches">
+      `;
+      
+      // Add matches for this stage
+      stage.matches.forEach(match => {
+        scheduleHTML += `
+          <div class="schedule-match">
+            <div class="schedule-match-header">
+              <div class="match-date">${match.date}</div>
+              <div class="match-time">${match.time}</div>
+            </div>
+            <div class="schedule-teams">
+              <div class="schedule-team">
+                <div class="schedule-team-info">
+                  <div class="team-logo">${match.homeTeam.substring(0, 3)}</div>
+                  <div class="schedule-team-name">${match.homeTeam}</div>
+                </div>
+              </div>
+              <div class="schedule-team">
+                <div class="schedule-team-info">
+                  <div class="team-logo">${match.awayTeam.substring(0, 3)}</div>
+                  <div class="schedule-team-name">${match.awayTeam}</div>
+                </div>
+              </div>
+            </div>
+            <div class="schedule-venue">${match.venue}</div>
+          </div>
+        `;
+      });
+      
+      scheduleHTML += `
+          </div>
+        </div>
+      `;
+    });
+    
+    scheduleHTML += `</div>`;
+    
+    tournamentScheduleModalContent.innerHTML = scheduleHTML;
+    tournamentScheduleModal.classList.add('active');
+  }
+
+  generateTournamentSchedule(tournament) {
+    // Generate sample schedule data based on tournament type
+    let stages = [];
+    
+    if (tournament.sport === 'Football') {
+      stages = [
+        {
+          name: 'Group Stage',
+          date: 'June 8 - June 20, 2026',
+          matches: [
+            { date: 'June 8', time: '15:00', homeTeam: 'Brazil', awayTeam: 'Germany', venue: 'MetLife Stadium' },
+            { date: 'June 9', time: '18:00', homeTeam: 'Argentina', awayTeam: 'France', venue: 'SoFi Stadium' },
+            { date: 'June 10', time: '12:00', homeTeam: 'Spain', awayTeam: 'Italy', venue: 'AT&T Stadium' },
+            { date: 'June 11', time: '21:00', homeTeam: 'England', awayTeam: 'Portugal', venue: 'Mercedes-Benz Stadium' }
+          ]
+        },
+        {
+          name: 'Round of 16',
+          date: 'June 21 - June 28, 2026',
+          matches: [
+            { date: 'June 21', time: '16:00', homeTeam: 'Group A Winner', awayTeam: 'Group B Runner-up', venue: 'MetLife Stadium' },
+            { date: 'June 22', time: '19:00', homeTeam: 'Group C Winner', awayTeam: 'Group D Runner-up', venue: 'SoFi Stadium' }
+          ]
+        },
+        {
+          name: 'Quarter Finals',
+          date: 'June 29 - July 2, 2026',
+          matches: [
+            { date: 'June 29', time: '17:00', homeTeam: 'Match 25 Winner', awayTeam: 'Match 26 Winner', venue: 'AT&T Stadium' },
+            { date: 'June 30', time: '20:00', homeTeam: 'Match 27 Winner', awayTeam: 'Match 28 Winner', venue: 'Mercedes-Benz Stadium' }
+          ]
+        },
+        {
+          name: 'Semi Finals',
+          date: 'July 5 - July 6, 2026',
+          matches: [
+            { date: 'July 5', time: '19:00', homeTeam: 'Quarter Final 1 Winner', awayTeam: 'Quarter Final 2 Winner', venue: 'MetLife Stadium' },
+            { date: 'July 6', time: '19:00', homeTeam: 'Quarter Final 3 Winner', awayTeam: 'Quarter Final 4 Winner', venue: 'SoFi Stadium' }
+          ]
+        },
+        {
+          name: 'Final',
+          date: 'July 12, 2026',
+          matches: [
+            { date: 'July 12', time: '18:00', homeTeam: 'Semi Final 1 Winner', awayTeam: 'Semi Final 2 Winner', venue: 'MetLife Stadium' }
+          ]
+        }
+      ];
+    } else if (tournament.sport === 'Tennis') {
+      stages = [
+        {
+          name: 'First Round',
+          date: 'July 1 - July 3, 2024',
+          matches: [
+            { date: 'July 1', time: '11:00', homeTeam: 'Player A', awayTeam: 'Player B', venue: 'Centre Court' },
+            { date: 'July 1', time: '13:00', homeTeam: 'Player C', awayTeam: 'Player D', venue: 'Court 1' }
+          ]
+        },
+        {
+          name: 'Second Round',
+          date: 'July 4 - July 5, 2024',
+          matches: [
+            { date: 'July 4', time: '12:00', homeTeam: 'Round 1 Winner', awayTeam: 'Round 1 Winner', venue: 'Centre Court' }
+          ]
+        },
+        {
+          name: 'Quarter Finals',
+          date: 'July 9 - July 10, 2024',
+          matches: [
+            { date: 'July 9', time: '14:00', homeTeam: 'Round 2 Winner', awayTeam: 'Round 2 Winner', venue: 'Centre Court' }
+          ]
+        },
+        {
+          name: 'Semi Finals',
+          date: 'July 12, 2024',
+          matches: [
+            { date: 'July 12', time: '15:00', homeTeam: 'Quarter Final Winner', awayTeam: 'Quarter Final Winner', venue: 'Centre Court' }
+          ]
+        },
+        {
+          name: 'Final',
+          date: 'July 14, 2024',
+          matches: [
+            { date: 'July 14', time: '14:00', homeTeam: 'Semi Final Winner', awayTeam: 'Semi Final Winner', venue: 'Centre Court' }
+          ]
+        }
+      ];
+    } else {
+      // Generic schedule for other sports
+      stages = [
+        {
+          name: 'Preliminary Stage',
+          date: `${tournament.startDate}`,
+          matches: [
+            { date: tournament.startDate, time: '10:00', homeTeam: 'Team 1', awayTeam: 'Team 2', venue: tournament.location },
+            { date: tournament.startDate, time: '14:00', homeTeam: 'Team 3', awayTeam: 'Team 4', venue: tournament.location }
+          ]
+        },
+        {
+          name: 'Knockout Stage',
+          date: 'Mid-tournament dates',
+          matches: [
+            { date: 'TBD', time: 'TBD', homeTeam: 'Group Winner', awayTeam: 'Runner-up', venue: tournament.location }
+          ]
+        },
+        {
+          name: 'Final',
+          date: `${tournament.endDate}`,
+          matches: [
+            { date: tournament.endDate, time: '18:00', homeTeam: 'Semi Final Winner', awayTeam: 'Semi Final Winner', venue: tournament.location }
+          ]
+        }
+      ];
+    }
+    
+    return stages;
   }
 
   showToast(message) {

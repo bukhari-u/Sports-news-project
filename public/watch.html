@@ -1171,10 +1171,10 @@
   </div>
 
   <!-- Featured Video Section -->
-  <section class="featured-video-section">
+  <section class="featured-video-section" id="featuredVideoSection">
     <div class="featured-video">
       <div class="video-container">
-        <div class="video-player" id="featuredVideoPlayer" data-video-id="eLMdRRu-AiA">
+        <div class="video-player" id="featuredVideoPlayer" data-video-id="featured">
           <img src="https://slapioneer.wordpress.com/wp-content/uploads/2013/11/cristiano-ronaldo-sweden-goal.gif" alt="Portugal vs Sweden - World Cup Qualifiers" class="video-thumbnail">
           <button class="play-btn large" aria-label="Play featured video">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
@@ -1310,150 +1310,6 @@ class WatchApp {
       }
     };
     
-    // Updated video data with real YouTube video IDs and working thumbnails
-    this.videoData = [
-      {
-        id: 'v1',
-        title: 'Manchester United vs Chelsea - Premier League Highlights',
-        thumbnail: 'https://i.pinimg.com/1200x/1a/e8/dd/1ae8ddb20fe93a6dec8e20ece6da259e.jpg',
-        videoId: 'z0I8LF4oCKw',
-        duration: '12:34',
-        views: '1.2M',
-        date: '2 hours ago',
-        category: 'football',
-        tags: ['highlights'],
-        description: 'Watch the thrilling encounter between Manchester United and Chelsea'
-      },
-      {
-        id: 'v2',
-        title: 'NBA Finals: Lakers vs Celtics Game 7 Highlights',
-        thumbnail: 'https://i.pinimg.com/1200x/d8/00/26/d80026ebb0cbe0bf90a9735a215f7360.jpg',
-        videoId: 'uqf13CnVVSo',
-        duration: '15:22',
-        views: '2.1M',
-        date: '5 hours ago',
-        category: 'basketball',
-        tags: ['highlights'],
-        description: 'Incredible Game 7 highlights from the NBA Finals'
-      },
-      {
-        id: 'v3',
-        title: 'India vs Australia - T20 World Cup Final Highlights',
-        thumbnail: 'https://i.pinimg.com/1200x/e8/1f/01/e81f0149de7e5f102f78d284d6f7f9fb.jpg',
-        videoId: 'YqKYpgZ9FWU',
-        duration: '18:45',
-        views: '3.4M',
-        date: '1 day ago',
-        category: 'cricket',
-        tags: ['highlights'],
-        description: 'The epic final of the T20 World Cup'
-      },
-      {
-        id: 'v4',
-        title: 'Wimbledon 2024: Djokovic vs Alcaraz Final Highlights',
-        thumbnail: 'https://i.pinimg.com/736x/fe/f3/c4/fef3c4d369fc207ca2ac6998763118a5.jpg',
-        videoId: 'bKF9rN81zmY',
-        duration: '14:32',
-        views: '1.8M',
-        date: '3 days ago',
-        category: 'tennis',
-        tags: ['highlights'],
-        description: 'An epic Wimbledon final between two tennis giants'
-      },
-      {
-        id: 'v5',
-        title: 'Tactical Analysis: How Man City Dominated the Premier League',
-        thumbnail: 'https://i.pinimg.com/736x/b4/ce/24/b4ce24f9aa10b6950fc1ef556d7a6503.jpg',
-        videoId: 'i8fhQQ--4nI',
-        duration: '22:15',
-        views: '856K',
-        date: '1 week ago',
-        category: 'football',
-        tags: ['analysis'],
-        description: 'In-depth tactical analysis of Manchester City\'s dominant season'
-      },
-      {
-        id: 'v6',
-        title: 'Yankees vs Red Sox - MLB Classic Rivalry Highlights',
-        thumbnail: 'https://i.pinimg.com/1200x/c8/4b/35/c84b35ec1dcbacb01f5ce58dff9101b2.jpg',
-        videoId: 'qI8mgNT2G0s',
-        duration: '11:28',
-        views: '742K',
-        date: '4 days ago',
-        category: 'baseball',
-        tags: ['highlights'],
-        description: 'Classic rivalry highlights between Yankees and Red Sox'
-      },
-      {
-        id: 'v7',
-        title: 'Stephen Curry 50-Point Game Highlights',
-        thumbnail: 'https://i.pinimg.com/1200x/24/f7/eb/24f7ebc53ae9073fe7b32609b1872347.jpg',
-        videoId: 'dbf-xGWJ4wA',
-        duration: '9:45',
-        views: '1.5M',
-        date: '2 days ago',
-        category: 'basketball',
-        tags: ['highlights'],
-        description: 'Stephen Curry\'s incredible 50-point performance'
-      },
-      {
-        id: 'v8',
-        title: 'Virat Kohli Century - Masterclass Batting Analysis',
-        thumbnail: 'https://i.pinimg.com/736x/d4/c8/b0/d4c8b0bc89ebfe8749833a1bc5498682.jpg',
-        videoId: 'm8u-18Q0s7I',
-        duration: '25:10',
-        views: '923K',
-        date: '5 days ago',
-        category: 'cricket',
-        tags: ['analysis'],
-        description: 'Technical analysis of Virat Kohli\'s century innings'
-      }
-    ];
-    
-    // Updated live stream data with working images
-    this.liveStreamData = [
-      {
-        id: 'ls1',
-        title: 'Premier League: Arsenal vs Tottenham - LIVE',
-        thumbnail: 'https://i.pinimg.com/736x/7f/dd/e6/7fdde67690adbf0311849ac00f214733.jpg',
-        videoId: '7JCD30o01Ak',
-        viewers: '245K',
-        sport: 'football',
-        description: 'Watch the North London Derby live from Emirates Stadium',
-        status: 'live'
-      },
-      {
-        id: 'ls2',
-        title: 'NBA: Golden State Warriors vs LA Clippers - LIVE',
-        thumbnail: 'https://i.pinimg.com/736x/5c/2e/c6/5c2ec66b10d0dd3928e6ef3a43c0815c.jpg',
-        videoId: 'bdPYcAZdcTE',
-        viewers: '189K',
-        sport: 'basketball',
-        description: 'Western Conference showdown live from Chase Center',
-        status: 'live'
-      },
-      {
-        id: 'ls3',
-        title: 'ICC World Cup: India vs Pakistan - LIVE',
-        thumbnail: 'https://i.pinimg.com/1200x/72/75/cb/7275cbc36e4dece4e59a3f47d4cc4906.jpg',
-        videoId: 'fTyeo4zqb-o',
-        viewers: '1.2M',
-        sport: 'cricket',
-        description: 'The biggest rivalry in cricket - live from MCG',
-        status: 'live'
-      },
-      {
-        id: 'ls4',
-        title: 'UFC 300: Main Card - LIVE',
-        thumbnail: 'https://i.pinimg.com/1200x/91/d7/ea/91d7ea9f4a60af7273af2f5f8761f532.jpg',
-        videoId: 'mx-QZcBhZZM',
-        viewers: '876K',
-        sport: 'mma',
-        description: 'UFC 300 main card live from T-Mobile Arena',
-        status: 'live'
-      }
-    ];
-    
     this.init();
   }
 
@@ -1462,6 +1318,7 @@ class WatchApp {
     await this.checkAuthStatus();
     await this.loadUserPreferences();
     this.setupEventListeners();
+    this.loadFeaturedVideo();
     this.loadVideos();
     this.loadLiveStreams();
     this.setupSearch();
@@ -1502,27 +1359,136 @@ class WatchApp {
   updateAuthUI() {
     const loginText = document.getElementById('loginText');
     const mobileLoginText = document.getElementById('mobileLoginText');
+    const userDropdown = document.getElementById('userDropdown');
+    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
     
     if (this.state.user) {
       if (loginText) loginText.textContent = this.state.user.username;
       if (mobileLoginText) mobileLoginText.textContent = this.state.user.username;
+      
+      // Hide dropdowns by default
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'none';
+    } else {
+      if (loginText) loginText.textContent = 'Login';
+      if (mobileLoginText) mobileLoginText.textContent = 'Login';
+      
+      // Ensure dropdowns are hidden when not logged in
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (mobileUserDropdown) mobileUserDropdown.style.display = 'none';
     }
   }
 
-  loadVideos() {
-    // In a real app, this would be an API call
-    setTimeout(() => {
-      this.state.videos = [...this.videoData];
-      this.renderVideos();
-    }, 1000);
+  async handleLogout() {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        this.state.user = null;
+        this.updateAuthUI();
+        this.showToast('Logged out successfully');
+        
+        // Redirect to home page after a short delay
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000);
+      } else {
+        this.showToast('Error logging out');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      this.showToast('Error logging out');
+    }
   }
 
-  loadLiveStreams() {
-    // In a real app, this would be an API call
-    setTimeout(() => {
-      this.state.liveStreams = [...this.liveStreamData];
-      this.renderLiveStreams();
-    }, 1500);
+  async loadFeaturedVideo() {
+    try {
+      const response = await fetch('/api/videos/featured');
+      const data = await response.json();
+      
+      if (data.success && data.video) {
+        this.renderFeaturedVideo(data.video);
+      } else {
+        console.error('Error loading featured video:', data.message);
+      }
+    } catch (error) {
+      console.error('Error loading featured video:', error);
+    }
+  }
+
+  async loadVideos() {
+    try {
+      const response = await fetch(`/api/videos?type=video&category=${this.state.currentCategory}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        this.state.videos = data.videos;
+        this.renderVideos();
+      } else {
+        console.error('Error loading videos:', data.message);
+        this.showFallbackData();
+      }
+    } catch (error) {
+      console.error('Error loading videos:', error);
+      this.showFallbackData();
+    }
+  }
+
+  async loadLiveStreams() {
+    try {
+      const response = await fetch('/api/videos/live');
+      const data = await response.json();
+      
+      if (data.success) {
+        this.state.liveStreams = data.liveStreams;
+        this.renderLiveStreams();
+      } else {
+        console.error('Error loading live streams:', data.message);
+        this.showFallbackLiveStreams();
+      }
+    } catch (error) {
+      console.error('Error loading live streams:', error);
+      this.showFallbackLiveStreams();
+    }
+  }
+
+  renderFeaturedVideo(video) {
+    const featuredVideoSection = document.getElementById('featuredVideoSection');
+    if (!featuredVideoSection) return;
+
+    const featuredVideoPlayer = document.getElementById('featuredVideoPlayer');
+    const videoInfo = featuredVideoPlayer.closest('.video-container').querySelector('.video-info');
+    
+    if (featuredVideoPlayer) {
+      featuredVideoPlayer.dataset.videoId = video.videoId;
+      const thumbnail = featuredVideoPlayer.querySelector('.video-thumbnail');
+      if (thumbnail) thumbnail.src = video.thumbnail;
+    }
+    
+    if (videoInfo) {
+      const title = videoInfo.querySelector('h2');
+      const description = videoInfo.querySelector('p');
+      const meta = videoInfo.querySelector('.video-meta');
+      
+      if (title) title.textContent = video.title;
+      if (description) description.textContent = video.description;
+      if (meta) {
+        meta.innerHTML = `
+          <span>${video.views} views</span>
+          <span>•</span>
+          <span>${video.duration}</span>
+          <span>•</span>
+          <span>Published ${video.publishedAt}</span>
+        `;
+      }
+    }
   }
 
   renderVideos() {
@@ -1577,11 +1543,11 @@ class WatchApp {
     let videosHTML = '';
     
     filteredVideos.forEach(video => {
-      const isSaved = this.state.savedVideos.has(video.id);
-      const isWatched = this.state.watchedVideos.has(video.id);
+      const isSaved = this.state.savedVideos.has(video.videoId);
+      const isWatched = this.state.watchedVideos.has(video.videoId);
       
       videosHTML += `
-        <div class="video-card" data-video-id="${video.id}">
+        <div class="video-card" data-video-id="${video.videoId}">
           <div class="video-card-thumbnail">
             <img src="${video.thumbnail}" alt="${video.title}">
             <div class="video-card-overlay">
@@ -1600,7 +1566,7 @@ class WatchApp {
                 <i class="fas fa-eye"></i>
                 <span>${video.views}</span>
               </div>
-              <div class="video-card-date">${video.date}</div>
+              <div class="video-card-date">${video.publishedAt}</div>
             </div>
           </div>
         </div>
@@ -1614,7 +1580,7 @@ class WatchApp {
     videoCards.forEach(card => {
       card.addEventListener('click', (e) => {
         const videoId = card.dataset.videoId;
-        const video = this.state.videos.find(v => v.id === videoId);
+        const video = this.state.videos.find(v => v.videoId === videoId);
         if (video) {
           this.playVideo(video);
         }
@@ -1654,7 +1620,7 @@ class WatchApp {
     
     filteredStreams.forEach(stream => {
       streamsHTML += `
-        <div class="live-stream-card" data-stream-id="${stream.id}">
+        <div class="live-stream-card" data-stream-id="${stream.videoId}">
           <div class="live-stream-thumbnail">
             <img src="${stream.thumbnail}" alt="${stream.title}">
             <div class="live-indicator">LIVE</div>
@@ -1690,7 +1656,7 @@ class WatchApp {
       watchBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const streamId = card.dataset.streamId;
-        const stream = this.state.liveStreams.find(s => s.id === streamId);
+        const stream = this.state.liveStreams.find(s => s.videoId === streamId);
         if (stream) {
           this.watchLiveStream(stream);
         }
@@ -1728,16 +1694,16 @@ class WatchApp {
     return parseInt(viewsStr);
   }
 
-  playVideo(video) {
+  async playVideo(video) {
     // Mark as watched
-    this.state.watchedVideos.add(video.id);
+    this.state.watchedVideos.add(video.videoId);
     
     // Show video in modal
     this.showVideoModal(video);
     
-    // In a real app, you would track this on the server
+    // Track watch history if user is logged in
     if (this.state.user) {
-      this.trackVideoWatched(video.id);
+      await this.trackVideoWatched(video);
     }
   }
 
@@ -1759,7 +1725,7 @@ class WatchApp {
       videoContainer.innerHTML = `
         <div class="video-player-modal">
           <iframe 
-            src="https://www.youtube.com/embed/${video.videoId}?autoplay=1" 
+            src="https://www.youtube.com/embed/${video.youtubeId}?autoplay=1" 
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>
@@ -1770,7 +1736,7 @@ class WatchApp {
       videoContainer.innerHTML = `
         <div class="video-player-modal">
           <iframe 
-            src="https://www.youtube.com/embed/${video.videoId}?autoplay=1" 
+            src="https://www.youtube.com/embed/${video.youtubeId}?autoplay=1" 
             frameborder="0" 
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen>
@@ -1790,16 +1756,15 @@ class WatchApp {
     if (!this.state.user) return;
     
     try {
-      const response = await fetch('/api/user/watched-videos', {
+      const response = await fetch('/api/user/track-watch', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          videoId: video.id,
+          videoId: video.videoId,
           title: video.title,
-          duration: video.duration,
-          watchedAt: new Date().toISOString()
+          duration: video.duration
         })
       });
       
@@ -1812,14 +1777,18 @@ class WatchApp {
     }
   }
 
-  async trackVideoWatched(videoId) {
+  async trackVideoWatched(video) {
     try {
       const response = await fetch('/api/user/track-watch', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ videoId })
+        body: JSON.stringify({
+          videoId: video.videoId,
+          title: video.title,
+          duration: video.duration
+        })
       });
       
       const data = await response.json();
@@ -1971,12 +1940,12 @@ class WatchApp {
       `;
       
       allResults.slice(0, 8).forEach(result => {
-        const isStream = result.hasOwnProperty('viewers');
+        const isStream = result.type === 'live';
         const type = isStream ? 'Live Stream' : 'Video';
         const icon = isStream ? '🔴' : '📹';
         
         resultsHTML += `
-          <div class="search-result-item" data-id="${result.id}" data-type="${isStream ? 'stream' : 'video'}">
+          <div class="search-result-item" data-id="${result.videoId}" data-type="${isStream ? 'stream' : 'video'}">
             <div class="search-result-thumbnail">
               <img src="${result.thumbnail}" alt="${result.title}">
             </div>
@@ -2001,12 +1970,12 @@ class WatchApp {
           const type = item.dataset.type;
           
           if (type === 'video') {
-            const video = this.state.videos.find(v => v.id === id);
+            const video = this.state.videos.find(v => v.videoId === id);
             if (video) {
               this.playVideo(video);
             }
           } else {
-            const stream = this.state.liveStreams.find(s => s.id === id);
+            const stream = this.state.liveStreams.find(s => s.videoId === id);
             if (stream) {
               this.watchLiveStream(stream);
             }
@@ -2049,17 +2018,75 @@ class WatchApp {
   }
 
   setupEventListeners() {
+    // Logout functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+    
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleLogout();
+      });
+    }
+    
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.handleLogout();
+      });
+    }
+
+    // Login button functionality
+    const loginBtn = document.getElementById('loginBtn');
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    const userDropdown = document.getElementById('userDropdown');
+    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+
+    if (loginBtn && userDropdown) {
+      loginBtn.addEventListener('click', (e) => {
+        if (this.state.user) {
+          // User is logged in, toggle dropdown
+          userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
+        } else {
+          // User is not logged in, redirect to login page
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    if (mobileLoginBtn && mobileUserDropdown) {
+      mobileLoginBtn.addEventListener('click', (e) => {
+        if (this.state.user) {
+          // User is logged in, toggle dropdown
+          mobileUserDropdown.style.display = mobileUserDropdown.style.display === 'block' ? 'none' : 'block';
+        } else {
+          // User is not logged in, redirect to login page
+          window.location.href = 'login.html';
+        }
+      });
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (userDropdown && loginBtn && !loginBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+        userDropdown.style.display = 'none';
+      }
+      if (mobileUserDropdown && mobileLoginBtn && !mobileLoginBtn.contains(e.target) && !mobileUserDropdown.contains(e.target)) {
+        mobileUserDropdown.style.display = 'none';
+      }
+    });
+
     // Featured video play button
     const featuredVideoPlayer = document.getElementById('featuredVideoPlayer');
     if (featuredVideoPlayer) {
       featuredVideoPlayer.addEventListener('click', () => {
         const videoId = featuredVideoPlayer.dataset.videoId;
-        const video = {
-          id: 'featured',
-          title: 'Portugal vs Sweden - World Cup Qualifiers',
-          videoId: videoId
-        };
-        this.playVideo(video);
+        // Find the featured video in our data
+        const video = this.state.videos.find(v => v.videoId === videoId) || 
+                     this.state.liveStreams.find(v => v.videoId === videoId);
+        if (video) {
+          this.playVideo(video);
+        }
       });
     }
     
@@ -2073,7 +2100,7 @@ class WatchApp {
         
         // Update current category
         this.state.currentCategory = category.dataset.category;
-        this.renderVideos();
+        this.loadVideos();
       });
     });
     
@@ -2151,6 +2178,17 @@ class WatchApp {
       videoModal.style.display = 'none';
       videoContainer.innerHTML = '';
     }
+  }
+
+  // Fallback methods in case API fails
+  showFallbackData() {
+    this.state.videos = [];
+    this.renderVideos();
+  }
+
+  showFallbackLiveStreams() {
+    this.state.liveStreams = [];
+    this.renderLiveStreams();
   }
 
   debounce(func, wait) {

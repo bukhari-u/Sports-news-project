@@ -1,18 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-sport="baseball">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baseball - Sky Sports Style</title>
-   <link rel="stylesheet" href="styles.css">
+   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="games.css">
    
-
-    <meta name="description" content="AllSports — latest sports news, live scores, highlights and analysis.">
-    <meta property="og:title" content="AllSports">
-    <meta property="og:description" content="Live coverage, scores, and match highlights.">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="AllSports — latest sports news, live scores, highlights and analysis.">
+  <meta property="og:title" content="AllSports">
+  <meta property="og:description" content="Live coverage, scores, and match highlights.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
   <!-- Top Color Strip -->
@@ -235,13 +234,13 @@
     <!-- Hero Carousel with Follow Button -->
     <section class="hero-carousel">
       <div class="hero-item active">
-        <img src="https://i.pinimg.com/736x/2a/99/e3/2a99e3010d141ecdb2d4640e0726ce80.jpg" alt="Football Action" class="hero-image">
-        <div class="hero-badge">LIVE</div>
+        <img src="https://i.pinimg.com/736x/2a/99/e3/2a99e3010d141ecdb2d4640e0726ce80.jpg" alt="Baseball Action" class="hero-image" id="heroImage">
+        <div class="hero-badge" id="heroBadge">LIVE</div>
         <div class="hero-content">
-          <h2>Yankees vs Red Sox - Rivalry Renewed</h2>
-          <p>Live from Yankee Stadium</p>
+          <h2 id="heroTitle">Yankees vs Red Sox - Rivalry Renewed</h2>
+          <p id="heroDescription">Live from Yankee Stadium</p>
           <div class="hero-actions">
-            <a href="https://youtu.be/qI8mgNT2G0s?si=OrjFcbAWKjeWADCo" target="_blank" class="youtube-indicator">
+            <a href="https://youtu.be/qI8mgNT2G0s?si=OrjFcbAWKjeWADCo" target="_blank" class="youtube-indicator" id="heroWatchLink">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000">
                 <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
               </svg>
@@ -259,9 +258,15 @@
 
     <div class="content-wrapper">
       <div class="left-column">
-        <section class="card-grid">
-          <h2>Game Highlights</h2>
-          <div class="cards">
+        <!-- Dynamic Highlights Section -->
+        <section class="card-grid" id="videos-section">
+          <div class="section-header">
+            <h2>Game Highlights</h2>
+            <button class="refresh-btn" onclick="sportPageManager.loadVideos()">Refresh</button>
+          </div>
+          <div class="cards" id="highlightsContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
             <a href="https://youtu.be/QUBCI2BVM2c?si=PAaKTOk_05sl2vNN" target="_blank" class="card">
               <div class="card-image">
                 <img src="https://i.pinimg.com/736x/b5/66/f6/b566f6401e0210169de04734996b1243.jpg" alt="MLB Game" loading="lazy">
@@ -302,9 +307,12 @@
           </div>
         </section>
 
-        <section class="card-grid">
+        <!-- Dynamic Features Section -->
+        <section class="card-grid" id="features-section">
           <h2>Features & Analysis</h2>
-          <div class="cards">
+          <div class="cards" id="featuresContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
             <a href="https://youtu.be/oBqQCfgM1Jc?si=nkIf6YXIP42yMTU2" target="_blank" class="card">
               <div class="card-image">
                 <img src="https://i.pinimg.com/1200x/95/c3/81/95c3815b8907724df588110224d2aff0.jpg" alt="Player Feature" loading="lazy">
@@ -347,65 +355,104 @@
       </div>
 
       <div class="right-column">
-        <div class="widget">
-          <h3>Live Games</h3>
-          <div class="live-score">
-            <div class="teams">NYY vs BOS</div>
-            <div class="score">5-4</div>
-            <div class="live-indicator">BOT 8</div>
+        <!-- Dynamic Live Games Widget -->
+        <div class="widget" id="live-scores-section">
+          <div class="widget-header">
+            <h3>Live Games</h3>
+            <button class="refresh-btn small" onclick="sportPageManager.loadLiveScores()">⟳</button>
           </div>
-          <div class="live-score">
-            <div class="teams">LAD vs SF</div>
-            <div class="score">3-2</div>
-            <div>TOP 7</div>
-          </div>
-          <div class="live-score">
-            <div class="teams">CHC vs STL</div>
-            <div class="score">Starts 19:05</div>
-            <div>Tonight</div>
+          <div id="liveScoresContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
+            <div class="live-score">
+              <div class="teams">NYY vs BOS</div>
+              <div class="score">5-4</div>
+              <div class="live-indicator">BOT 8</div>
+            </div>
+            <div class="live-score">
+              <div class="teams">LAD vs SF</div>
+              <div class="score">3-2</div>
+              <div>TOP 7</div>
+            </div>
+            <div class="live-score">
+              <div class="teams">CHC vs STL</div>
+              <div class="score">Starts 19:05</div>
+              <div>Tonight</div>
+            </div>
           </div>
         </div>
 
-        <div class="widget">
+        <!-- Dynamic Standings Widget -->
+        <div class="widget" id="standings-section">
           <h3>AL East Standings</h3>
-          <div style="font-size: 14px;">
-            <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
-              <span>Team</span>
-              <span>W-L</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-              <span>1. Yankees</span>
-              <span>45-25</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-              <span>2. Red Sox</span>
-              <span>42-28</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-              <span>3. Rays</span>
-              <span>40-30</span>
+          <div id="standingsContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
+            <div style="font-size: 14px;">
+              <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
+                <span>Team</span>
+                <span>W-L</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+                <span>1. Yankees</span>
+                <span>45-25</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+                <span>2. Red Sox</span>
+                <span>42-28</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+                <span>3. Rays</span>
+                <span>40-30</span>
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- Dynamic Teams Widget -->
         <div class="widget">
           <h3>League Leaders</h3>
-          <div class="top-pick">
-            <div class="top-pick-content">
-              <h4>Batting: A. Judge</h4>
-              <div class="top-pick-meta">.325 AVG</div>
+          <div id="featuredTeamsContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>Batting: A. Judge</h4>
+                <div class="top-pick-meta">.325 AVG</div>
+              </div>
+            </div>
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>HR: S. Ohtani</h4>
+                <div class="top-pick-meta">28 HR</div>
+              </div>
+            </div>
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>ERA: G. Cole</h4>
+                <div class="top-pick-meta">2.45</div>
+              </div>
             </div>
           </div>
-          <div class="top-pick">
-            <div class="top-pick-content">
-              <h4>HR: S. Ohtani</h4>
-              <div class="top-pick-meta">28 HR</div>
+        </div>
+
+        <!-- Dynamic News Widget -->
+        <div class="widget">
+          <h3>Latest News</h3>
+          <div id="newsContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>Yankees Extend Division Lead</h4>
+                <div class="top-pick-meta">3h ago</div>
+              </div>
             </div>
-          </div>
-          <div class="top-pick">
-            <div class="top-pick-content">
-              <h4>ERA: G. Cole</h4>
-              <div class="top-pick-meta">2.45</div>
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>Ohtani Hits 40th Home Run</h4>
+                <div class="top-pick-meta">5h ago</div>
+              </div>
             </div>
           </div>
         </div>
@@ -418,6 +465,6 @@
   </footer>
 
   <script src="games.js"></script>
-<script>var yel = document.getElementById('year'); if(yel) yel.textContent=new Date().getFullYear();</script>
+  <script>var yel = document.getElementById('year'); if(yel) yel.textContent=new Date().getFullYear();</script>
 </body>
 </html>

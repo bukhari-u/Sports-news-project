@@ -336,19 +336,18 @@
     <!-- Hero Carousel with Follow Button -->
     <section class="hero-carousel">
       <div class="hero-item active">
-        <img src="https://i.pinimg.com/originals/08/cd/46/08cd466a2b870a655a7c440c9a40deae.gif" alt="Football Action" class="hero-image">
-        <div class="hero-badge">LIVE</div>
+        <img src="" alt="Football Action" class="hero-image" id="heroImage">
+        <div class="hero-badge" id="heroBadge">LIVE</div>
         <div class="hero-content">
-          <h2>Real Madrid Vs Atletico-Madrid</h2>
-          <p>Watch live coverage from Santiago Bernabeu</p>
+          <h2 id="heroTitle">Loading featured match...</h2>
+          <p id="heroDescription">Loading match details...</p>
           <div class="hero-actions">
-            <a href="https://youtu.be/zeESmKSLXok?si=JWHQJpqsF83znMoP" target="_blank" class="youtube-indicator">
+            <a href="#" target="_blank" class="youtube-indicator" id="heroWatchLink" style="display: none;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000">
                 <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
               </svg>
               Watch on YouTube
             </a>
-            <!-- NEW: Follow Button on Hero Section -->
             <button class="sport-follow-btn-hero" id="footballFollowBtn" data-sport-id="football" data-sport-name="Football" data-sport-icon="⚽">
               <span class="follow-text">Follow</span>
               <span class="follow-icon-hero">🤍</span>
@@ -359,183 +358,88 @@
     </section>
 
     <div class="content-wrapper">
-      <!-- Left Column - Main Content -->
       <div class="left-column">
-        <!-- Top Picks Section -->
-        <section class="card-grid">
-          <h2>Top Picks</h2>
-          <div class="cards">
-            <a href="https://www.youtube.com/watch?v=YOUR_TOP_PICK_1_ID" target="_blank" class="card">
-              <div class="card-image">
-                <img src="https://i.pinimg.com/736x/14/31/56/143156d98ce3004bbd0d18ab9d0ee1a1.jpg" alt="Match Highlights">
-                <div class="card-badge">5:32</div>
-                <div class="youtube-overlay">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
-                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                  </svg>
-                </div>
-              </div>
+        <!-- Game Highlights Section -->
+        <section class="card-grid" id="videos-section">
+          <div class="section-header">
+            <h2>Game Highlights</h2>
+            <button class="refresh-btn" onclick="sportPageManager.loadVideos()">Refresh</button>
+          </div>
+          <div class="cards" id="highlightsContainer">
+            <!-- Loading skeleton -->
+            <div class="card skeleton">
+              <div class="card-image skeleton-image"></div>
               <div class="card-content">
-                <h3>Manchester City 3-1 Arsenal: Extended Highlights</h3>
-                <div class="card-meta">
-                  <span>Premier League</span>
-                  <span>2h ago</span>
-                </div>
+                <div class="skeleton-text" style="width: 80%"></div>
+                <div class="skeleton-text" style="width: 60%"></div>
               </div>
-            </a>
-
-            <a href="https://www.youtube.com/watch?v=YOUR_TOP_PICK_2_ID" target="_blank" class="card">
-              <div class="card-image">
-                <img src="https://i.pinimg.com/736x/02/12/58/021258c035d77f92b2f873fafab2f097.jpg" alt="Player Interview">
-                <div class="card-badge">8:15</div>
-                <div class="youtube-overlay">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
-                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                  </svg>
-                </div>
-              </div>
+            </div>
+            <div class="card skeleton">
+              <div class="card-image skeleton-image"></div>
               <div class="card-content">
-                <h3>Haaland: "We're focused on the title race"</h3>
-                <div class="card-meta">
-                  <span>Interview</span>
-                  <span>5h ago</span>
-                </div>
+                <div class="skeleton-text" style="width: 80%"></div>
+                <div class="skeleton-text" style="width: 60%"></div>
               </div>
-            </a>
-
-            <a href="https://www.youtube.com/watch?v=YOUR_TOP_PICK_3_ID" target="_blank" class="card">
-              <div class="card-image">
-                <img src="https://i.pinimg.com/736x/34/84/d4/3484d4f6258282746308c54e9fcfdb83.jpg" alt="Analysis">
-                <div class="card-badge">12:45</div>
-                <div class="youtube-overlay">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
-                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                  </svg>
-                </div>
-              </div>
-              <div class="card-content">
-                <h3>Tactical Analysis: How Chelsea turned their season around</h3>
-                <div class="card-meta">
-                  <span>Analysis</span>
-                  <span>1d ago</span>
-                </div>
-              </div>
-            </a>
+            </div>
           </div>
         </section>
 
-        <!-- Highlights Section -->
-        <section class="card-grid">
-          <h2>Latest Highlights</h2>
-          <div class="cards">
-            <a href="https://www.youtube.com/watch?v=YOUR_HIGHLIGHT_1_ID" target="_blank" class="card">
-              <div class="card-image">
-                <img src="https://i.pinimg.com/736x/20/6e/08/206e08fcf64d3f169b51e321ea9137de.jpg" alt="Champions League">
-                <div class="card-badge">4:20</div>
-                <div class="youtube-overlay">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
-                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                  </svg>
-                </div>
-              </div>
+        <!-- Features & Analysis Section -->
+        <section class="card-grid" id="features-section">
+          <h2>Features & Analysis</h2>
+          <div class="cards" id="featuresContainer">
+            <!-- Loading skeleton -->
+            <div class="card skeleton">
+              <div class="card-image skeleton-image"></div>
               <div class="card-content">
-                <h3>Real Madrid vs Bayern Munich: Champions League Semis</h3>
-                <div class="card-meta">
-                  <span>Champions League</span>
-                  <span>3h ago</span>
-                </div>
+                <div class="skeleton-text" style="width: 80%"></div>
+                <div class="skeleton-text" style="width: 60%"></div>
               </div>
-            </a>
-
-            <a href="https://www.youtube.com/watch?v=YOUR_HIGHLIGHT_2_ID" target="_blank" class="card">
-              <div class="card-image">
-                <img src="https://i.pinimg.com/736x/8b/1b/1a/8b1b1a7bdcd2fbf7662907f57829d301.jpg" alt="FA Cup">
-                <div class="card-badge">6:45</div>
-                <div class="youtube-overlay">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
-                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                  </svg>
-                </div>
-              </div>
+            </div>
+            <div class="card skeleton">
+              <div class="card-image skeleton-image"></div>
               <div class="card-content">
-                <h3>FA Cup Final: Manchester Derby Highlights</h3>
-                <div class="card-meta">
-                  <span>FA Cup</span>
-                  <span>1d ago</span>
-                </div>
+                <div class="skeleton-text" style="width: 80%"></div>
+                <div class="skeleton-text" style="width: 60%"></div>
               </div>
-            </a>
+            </div>
           </div>
         </section>
       </div>
 
-      <!-- Right Column - Widgets -->
       <div class="right-column">
-        <!-- The Followed Sports widget will be dynamically added here by JavaScript -->
-        
-        <!-- Live Scores Widget -->
-        <div class="widget">
-          <h3>Live Scores</h3>
-          <div class="live-score">
-            <div class="teams">Man Utd vs Liverpool</div>
-            <div class="score">2-1</div>
-            <div class="live-indicator">LIVE</div>
+        <!-- Live Games Widget -->
+        <div class="widget" id="live-scores-section">
+          <div class="widget-header">
+            <h3>Live Games</h3>
+            <button class="refresh-btn small" onclick="sportPageManager.loadLiveScores()">⟳</button>
           </div>
-          <div class="live-score">
-            <div class="teams">Arsenal vs Chelsea</div>
-            <div class="score">1-1</div>
-            <div class="live-indicator">LIVE</div>
-          </div>
-          <div class="live-score">
-            <div class="teams">Man City vs Spurs</div>
-            <div class="score">0-0</div>
-            <div>65'</div>
+          <div id="liveScoresContainer">
+            <div class="loading-text">Loading live scores...</div>
           </div>
         </div>
 
-        <!-- Top Picks Widget -->
-        <div class="widget">
-          <h3>Trending Now</h3>
-          <div class="top-pick">
-            <div class="top-pick-image">
-              <img src="https://i.pinimg.com/1200x/06/0a/6c/060a6c5b790db4c789dc580493b76304.jpg" alt="Trending">
-            </div>
-            <div class="top-pick-content">
-              <h4>Klopp's final season review</h4>
-              <div class="top-pick-meta">Feature • 15m ago</div>
-            </div>
-          </div>
-          <div class="top-pick">
-            <div class="top-pick-image">
-              <img src="https://i.pinimg.com/1200x/0d/0c/7c/0d0c7c1ff73d17621bb4f43e4b5b0d53.jpg" alt="Trending">
-            </div>
-            <div class="top-pick-content">
-              <h4>Premier League team of the season</h4>
-              <div class="top-pick-meta">Analysis • 1h ago</div>
-            </div>
+        <!-- Standings Widget -->
+        <div class="widget" id="standings-section">
+          <h3>Premier League Standings</h3>
+          <div id="standingsContainer">
+            <div class="loading-text">Loading standings...</div>
           </div>
         </div>
 
-        <!-- Tables Widget -->
+        <!-- Top Teams Widget -->
         <div class="widget">
-          <h3>Premier League Table</h3>
-          <div style="font-size: 14px; line-height: 2;">
-            <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 5px 10px;">
-              <span>Team</span>
-              <span>Pts</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 5px 10px;">
-              <span>1. Manchester City</span>
-              <span>85</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 5px 10px;">
-              <span>2. Arsenal</span>
-              <span>83</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 5px 10px;">
-              <span>3. Liverpool</span>
-              <span>78</span>
-            </div>
+          <h3>Featured Teams</h3>
+          <div id="featuredTeamsContainer">
+            <div class="loading-text">Loading teams...</div>
+          </div>
+        </div>
+
+        <!-- Latest News Widget -->
+        <div class="widget">
+          <h3>Latest News</h3>
+          <div id="newsContainer">
+            <div class="loading-text">Loading news...</div>
           </div>
         </div>
       </div>
@@ -543,12 +447,14 @@
   </main>
 
   <footer class="site-footer">
-    <p>&copy; 2024 AllSports. All rights reserved.</p>
+    <p>&copy; <span id="year">2024</span> AllSports. All rights reserved.</p>
   </footer>
 
-  <!-- Toast Element -->
-  <div id="toast"></div>
-
+  
   <script src="games.js"></script>
+  <script>
+    var yel = document.getElementById('year'); 
+    if(yel) yel.textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>

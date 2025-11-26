@@ -36,7 +36,7 @@ class AllSportsApp {
     }
 
     async init() {
-        console.log('AllSports App Initializing...');
+        console.log('AllSports Games App Initializing...');
         await this.checkAuthStatus();
         this.setupEventListeners();
         await this.loadInitialData();
@@ -53,120 +53,157 @@ class AllSportsApp {
         // Setup article modal interactions
         this.setupArticleModal();
         
-        // Setup stats button handlers - ENHANCED
+        // Setup stats button handlers
         this.setupStatsButtonHandlers();
 
-        // Initialize horizontal scrolling
-        this.setupHorizontalScrolling();
-    }
-
-    setupHorizontalScrolling() {
-        // Enable horizontal scrolling for video and live carousels
-        const videoTrack = document.getElementById('videoTrack');
-        const liveTrack = document.getElementById('liveTrack');
+        // Setup responsive layout
+        this.setupResponsiveLayout();
         
-        if (videoTrack) {
-            videoTrack.style.overflowX = 'auto';
-            videoTrack.style.overflowY = 'hidden';
-            videoTrack.style.scrollBehavior = 'smooth';
-            videoTrack.style.paddingBottom = '12px';
-            videoTrack.style.scrollbarWidth = 'thin';
-        }
+        // Debug data
+        this.debugData();
+    }
+
+    setupResponsiveLayout() {
+        const updateLayout = () => {
+            const screenWidth = window.innerWidth;
+            
+            // Adjust layout for 15.6 inch screens (typically 1366x768)
+            if (screenWidth <= 1366) {
+                document.body.classList.add('screen-1366');
+                
+                // Further compact the header on very small screens
+                if (screenWidth < 1280) {
+                    document.body.classList.add('screen-1280');
+                }
+            } else {
+                document.body.classList.remove('screen-1366', 'screen-1280');
+            }
+        };
+
+        // Initial call
+        updateLayout();
         
-        if (liveTrack) {
-            liveTrack.style.overflowX = 'auto';
-            liveTrack.style.overflowY = 'hidden';
-            liveTrack.style.scrollBehavior = 'smooth';
-            liveTrack.style.paddingBottom = '12px';
-            liveTrack.style.scrollbarWidth = 'thin';
-        }
-
-        // Add custom scrollbar styles
-        this.addScrollbarStyles();
+        // Update on resize with debounce
+        window.addEventListener('resize', () => {
+            clearTimeout(this.resizeTimer);
+            this.resizeTimer = setTimeout(updateLayout, 250);
+        });
     }
 
-    addScrollbarStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            /* Custom scrollbar for horizontal tracks */
-            #videoTrack::-webkit-scrollbar,
-            #liveTrack::-webkit-scrollbar {
-                height: 8px;
-            }
-
-            #videoTrack::-webkit-scrollbar-track,
-            #liveTrack::-webkit-scrollbar-track {
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-            }
-
-            #videoTrack::-webkit-scrollbar-thumb,
-            #liveTrack::-webkit-scrollbar-thumb {
-                background: var(--accent);
-                border-radius: 10px;
-            }
-
-            #videoTrack::-webkit-scrollbar-thumb:hover,
-            #liveTrack::-webkit-scrollbar-thumb:hover {
-                background: var(--accent-hover);
-            }
-
-            /* Ensure tracks stay in single row */
-            #videoTrack,
-            #liveTrack {
-                flex-wrap: nowrap !important;
-            }
-
-            /* Firefox scrollbar */
-            #videoTrack,
-            #liveTrack {
-                scrollbar-width: thin;
-                scrollbar-color: var(--accent) rgba(255, 255, 255, 0.1);
-            }
-        `;
-        document.head.appendChild(style);
+    debugData() {
+        console.log('Current State Data:', {
+            newsCount: this.state.news.length,
+            liveEventsCount: this.state.liveEvents.length,
+            videosCount: this.state.videos.length,
+            fixturesCount: this.state.fixtures.length,
+            news: this.state.news,
+            liveEvents: this.state.liveEvents,
+            videos: this.state.videos,
+            fixtures: this.state.fixtures
+        });
     }
 
+    // FIXED: Enhanced stats button event delegation with proper debugging
     setupStatsButtonHandlers() {
-        // Enhanced stats button click handlers with better event delegation
+        console.log('Setting up stats button handlers...');
+        
+        // Use event delegation on the document to catch all stats button clicks
         document.addEventListener('click', (e) => {
+            // Check if the clicked element is a stats button or inside one
             const statsBtn = e.target.closest('.stats-btn');
             if (statsBtn) {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                const liveCard = statsBtn.closest('.live-card');
+                const liveCard = statsBtn.closest('.live-card, .live-grid-card');
                 if (liveCard) {
                     const eventId = liveCard.dataset.eventId;
                     const sport = liveCard.dataset.sport;
-                    console.log('Stats button clicked for:', eventId, sport);
-                    this.showMatchStats(eventId, sport);
+                    
+                    console.log('Stats button clicked - Event Data:', {
+                        eventId,
+                        sport,
+                        liveCard: liveCard,
+                        dataset: liveCard.dataset,
+                        allAttributes: liveCard.attributes
+                    });
+                    
+                    if (eventId && sport) {
+                        this.showMatchStats(eventId, sport);
+                    } else {
+                        console.error('Missing event ID or sport data:', {
+                            eventId, 
+                            sport,
+                            dataset: liveCard.dataset
+                        });
+                        
+                        // Fallback: try to find event by team names
+                        const homeTeam = liveCard.querySelector('.home-team .team-name')?.textContent;
+                        const awayTeam = liveCard.querySelector('.away-team .team-name')?.textContent;
+                        
+                        if (homeTeam && awayTeam) {
+                            const foundEvent = this.findEventByTeams(homeTeam, awayTeam);
+                            if (foundEvent) {
+                                console.log('Found event by team names:', foundEvent);
+                                this.showMatchStats(foundEvent._id, foundEvent.sport);
+                                return;
+                            }
+                        }
+                        
+                        this.showToast('Match statistics not available', 'error');
+                    }
+                } else {
+                    console.error('No live card found for stats button');
                 }
             }
         });
 
-        // Additional event listener for dynamically created content
-        document.getElementById('liveTrack')?.addEventListener('click', (e) => {
-            if (e.target.classList.contains('stats-btn') || e.target.closest('.stats-btn')) {
-                const statsBtn = e.target.classList.contains('stats-btn') ? e.target : e.target.closest('.stats-btn');
-                const liveCard = statsBtn.closest('.live-card');
-                if (liveCard) {
-                    const eventId = liveCard.dataset.eventId;
-                    const sport = liveCard.dataset.sport;
-                    console.log('Stats button clicked (delegated):', eventId, sport);
-                    this.showMatchStats(eventId, sport);
-                }
-            }
-        });
+        console.log('Stats button handlers setup complete');
+    }
+
+    // NEW: Fallback method to find event by team names
+    findEventByTeams(homeTeam, awayTeam) {
+        const event = this.state.liveEvents.find(e => 
+            e.teams.home === homeTeam && 
+            e.teams.away === awayTeam
+        );
+        
+        if (event) {
+            console.log('Found event by team names:', event);
+            return event;
+        }
+        
+        console.log('No event found for teams:', homeTeam, awayTeam);
+        return null;
     }
 
     showMatchStats(eventId, sport) {
         console.log('Opening stats for:', eventId, sport);
         
-        // Find the event in live events
-        const event = this.state.liveEvents.find(e => e.id === eventId);
+        // Find the event in live events using _id
+        let event = this.state.liveEvents.find(e => e._id === eventId);
+        
+        // If event not found by ID, try to find it by other means
         if (!event) {
-            console.error('Event not found:', eventId);
+            console.warn('Event not found by ID, trying alternative lookup...');
+            
+            // You might need to get team names from the clicked card
+            const statsBtn = document.querySelector('.stats-btn:focus');
+            if (statsBtn) {
+                const liveCard = statsBtn.closest('.live-card, .live-grid-card');
+                if (liveCard) {
+                    const homeTeam = liveCard.querySelector('.home-team .team-name')?.textContent;
+                    const awayTeam = liveCard.querySelector('.away-team .team-name')?.textContent;
+                    
+                    if (homeTeam && awayTeam) {
+                        event = this.findEventByTeams(homeTeam, awayTeam);
+                    }
+                }
+            }
+        }
+        
+        if (!event) {
+            console.error('Event not found after all attempts:', eventId, sport);
             this.showToast('Match statistics not available', 'error');
             return;
         }
@@ -204,7 +241,7 @@ class AllSportsApp {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
         
-        console.log('Stats modal opened successfully for:', eventId, sport);
+        console.log('Stats modal opened successfully for:', event._id, sport);
     }
 
     generateFootballStats(event) {
@@ -702,6 +739,16 @@ class AllSportsApp {
 
     setupYouTubeVideoHandlers() {
         document.addEventListener('click', (e) => {
+            // Handle video grid cards
+            const videoGridCard = e.target.closest('.video-grid-card');
+            if (videoGridCard) {
+                const youtubeId = videoGridCard.dataset.youtubeId;
+                if (youtubeId) {
+                    this.playYouTubeVideo(youtubeId, videoGridCard.querySelector('h4').textContent);
+                }
+            }
+
+            // Handle old video cards (if any)
             const videoCard = e.target.closest('.video-card');
             if (videoCard) {
                 const youtubeId = videoCard.dataset.youtubeId;
@@ -712,7 +759,7 @@ class AllSportsApp {
 
             const watchLiveBtn = e.target.closest('.watch-live-btn');
             if (watchLiveBtn) {
-                const liveCard = watchLiveBtn.closest('.live-card');
+                const liveCard = watchLiveBtn.closest('.live-card, .live-grid-card');
                 if (liveCard) {
                     const youtubeId = liveCard.dataset.youtubeId;
                     const eventTitle = liveCard.querySelector('.team-name').textContent + ' vs ' + 
@@ -785,12 +832,20 @@ class AllSportsApp {
             videoContainer.innerHTML = '';
         }
         
+        // Also clear stats modal content
+        const statsContainer = document.getElementById('statsModalContainer');
+        if (statsContainer) {
+            statsContainer.innerHTML = '';
+        }
+        
         console.log('Modal closed and video stopped');
     }
 
     async checkAuthStatus() {
         try {
             const response = await fetch('/api/user');
+            if (!response.ok) throw new Error('Network response was not ok');
+            
             const data = await response.json();
             
             if (data.success && data.user) {
@@ -952,12 +1007,6 @@ class AllSportsApp {
             });
         }
 
-        // Carousel buttons
-        document.getElementById('videoPrevBtn')?.addEventListener('click', () => this.carouselPrev('video'));
-        document.getElementById('videoNextBtn')?.addEventListener('click', () => this.carouselNext('video'));
-        document.getElementById('livePrevBtn')?.addEventListener('click', () => this.carouselPrev('live'));
-        document.getElementById('liveNextBtn')?.addEventListener('click', () => this.carouselNext('live'));
-
         // Action buttons
         document.getElementById('readStoryBtn')?.addEventListener('click', () => this.openArticle('featured'));
         document.getElementById('followSportBtn')?.addEventListener('click', () => this.followSport('featured'));
@@ -976,7 +1025,7 @@ class AllSportsApp {
             this.logout();
         });
 
-        // Modal close buttons - ENHANCED WITH STATS MODAL
+        // Modal close buttons - INCLUDING STATS MODAL
         document.getElementById('articleModalClose')?.addEventListener('click', () => this.closeModal());
         document.getElementById('articleModalBackdrop')?.addEventListener('click', () => this.closeModal());
         document.getElementById('videoModalClose')?.addEventListener('click', () => this.closeModal());
@@ -1097,7 +1146,7 @@ class AllSportsApp {
         }
 
         // Filter news based on advanced search algorithm
-        const allNews = this.getMockNewsData();
+        const allNews = this.state.news; // Use actual data from state
         const scoredResults = allNews.map(item => {
             let score = 0;
             const fields = {
@@ -1408,6 +1457,8 @@ class AllSportsApp {
                 }
             });
 
+            if (!response.ok) throw new Error('Logout failed');
+
             const data = await response.json();
             
             if (data.success) {
@@ -1520,26 +1571,28 @@ class AllSportsApp {
 
     async loadInitialData() {
         try {
-            console.log('Loading initial data...');
+            console.log('Loading initial data from database...');
             this.showLoading();
             
             const [newsData, liveData, videoData, fixtureData] = await Promise.all([
                 this.fetchNews(),
                 this.fetchLiveEvents(),
                 this.fetchVideos(),
-                this.fetchFixtures()
+                this.fetchFixtures() // UPDATED: This now calls the fixed method
             ]);
 
+            // Use the actual API response structure
             this.state.news = newsData.news || [];
-            this.state.liveEvents = liveData || [];
-            this.state.videos = videoData || [];
-            this.state.fixtures = fixtureData || [];
+            this.state.liveEvents = liveData.liveEvents || [];
+            this.state.videos = videoData.videos || [];
+            this.state.fixtures = fixtureData.fixtures || []; // This should now contain today's fixtures
 
-            console.log('Data loaded:', {
+            console.log('Database data loaded:', {
                 news: this.state.news.length,
                 liveEvents: this.state.liveEvents.length,
                 videos: this.state.videos.length,
-                fixtures: this.state.fixtures.length
+                fixtures: this.state.fixtures.length,
+                fixturesData: this.state.fixtures // Debug log
             });
 
             this.buildDynamicFilters();
@@ -1548,7 +1601,17 @@ class AllSportsApp {
             
         } catch (error) {
             console.error('Error loading data:', error);
-            this.showError('Failed to load sports data. Please refresh the page.');
+            this.showError('Failed to load sports data from database. Please refresh the page.');
+            
+            // Set empty arrays instead of mock data
+            this.state.news = [];
+            this.state.liveEvents = [];
+            this.state.videos = [];
+            this.state.fixtures = [];
+            
+            this.buildDynamicFilters();
+            this.renderAll();
+            this.hideLoading();
         }
     }
 
@@ -1628,7 +1691,11 @@ class AllSportsApp {
             
         } catch (error) {
             console.error('Error applying filters:', error);
-            this.showError('Failed to apply filters');
+            this.showError('Failed to apply filters from server');
+            // Set empty state on error
+            this.state.news = [];
+            this.state.hasMore = false;
+            this.renderNewsGrid();
         } finally {
             this.state.isLoading = false;
             this.hideLoading();
@@ -1652,200 +1719,75 @@ class AllSportsApp {
     }
 
     async fetchNews(params = {}) {
-        // Simulate API call with realistic delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        const allNews = this.getMockNewsData();
-        const filteredNews = allNews.filter(item => {
-            const sportMatch = this.state.currentSport === 'All' || item.sport === this.state.currentSport;
-            const leagueMatch = this.state.currentLeague === 'All' || item.league === this.state.currentLeague;
-            const statusMatch = this.state.currentStatus === 'All' || item.status === this.state.currentStatus;
-            const searchMatch = !this.state.searchQuery || 
-                item.title.toLowerCase().includes(this.state.searchQuery.toLowerCase()) ||
-                (item.teams?.home && item.teams.home.toLowerCase().includes(this.state.searchQuery.toLowerCase())) ||
-                (item.teams?.away && item.teams.away.toLowerCase().includes(this.state.searchQuery.toLowerCase()));
+        try {
+            const queryParams = new URLSearchParams({
+                page: this.state.page,
+                limit: 12,
+                ...(this.state.currentSport !== 'All' && { sport: this.state.currentSport }),
+                ...(this.state.currentLeague !== 'All' && { league: this.state.currentLeague }),
+                ...(this.state.currentStatus !== 'All' && { status: this.state.currentStatus }),
+                ...(this.state.searchQuery && { search: this.state.searchQuery })
+            });
 
-            return sportMatch && leagueMatch && statusMatch && searchMatch;
-        });
-
-        // Simple pagination
-        const pageSize = 6;
-        const startIndex = (this.state.page - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        const paginatedNews = filteredNews.slice(startIndex, endIndex);
-
-        return {
-            news: paginatedNews,
-            hasMore: endIndex < filteredNews.length
-        };
-    }
-
-    getMockNewsData() {
-        // Extended mock data with more items for pagination
-        const baseNews = [
-            {
-                _id: '1',
-                sport: 'Football',
-                league: 'Laliga',
-                teams: { home: 'Real Madrid', away: 'Barcelons' },
-                title: 'Los Blancos Shine as Barça Falters',
-                excerpt: 'Real Madrid conquered El Clásico in thrilling fashion, blending flair, precision, and unyielding dominance to outshine Barcelona..',
-                score: '3-0',
-                status: 'Finished',
-                venue: 'Santiago Bernabeu',
-                date: new Date().toISOString(),
-                author: 'Alex Morgan',
-                img: 'https://i.pinimg.com/736x/bd/f8/7f/bdf87f851419e4f63f82126a5eceae47.jpg',
-                isFavorite: false
-            },
-            {
-                _id: '2',
-                sport: 'Basketball',
-                league: 'NBA',
-                teams: { home: 'Warriors', away: 'Heat' },
-                title: 'Warriors Extend Winning Streak to 8 Games',
-                excerpt: 'Curry scores 42 points in spectacular shooting display against Miami.',
-                score: '113-108',
-                status: 'Finished',
-                venue: 'Chase Center',
-                date: new Date(Date.now() - 86400000).toISOString(),
-                author: 'Mike Johnson',
-                img: 'https://i.pinimg.com/1200x/c6/df/f0/c6dff00ab0da5e5bb9a43ed03b76f864.jpg',
-                isFavorite: false
-            },
-            {
-                _id: '3',
-                sport: 'Cricket',
-                league: 'ICC World Cup',
-                teams: { home: 'India', away: 'Australia' },
-                title: 'India Set Massive Target Against Australia',
-                excerpt: 'Kohli and Rohit partnership puts India in commanding position.',
-                score: '325/4 - 280/6',
-                status: 'Live',
-                venue: 'MCG',
-                date: new Date().toISOString(),
-                author: 'Sarah Patel',
-                img: 'https://i.pinimg.com/1200x/fb/25/30/fb2530174d79977ed0142d9d6af02f60.jpg',
-                isFavorite: false
-            }
-        ];
-
-        // Duplicate and modify to create more data for pagination
-        const moreNews = [...Array(12)].map((_, index) => ({
-            ...baseNews[index % baseNews.length],
-            _id: (index + 4).toString(),
-            title: baseNews[index % baseNews.length].title + ' - Match ' + (index + 2),
-            date: new Date(Date.now() + (index * 86400000)).toISOString(),
-            isFavorite: false
-        }));
-
-        return [...baseNews, ...moreNews];
+            const response = await fetch(`/api/news?${queryParams}`);
+            if (!response.ok) throw new Error('Failed to fetch news');
+            
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching news:', error);
+            throw new Error('Failed to load news from server');
+        }
     }
 
     async fetchLiveEvents() {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return [
-            {
-                id: 'live-1',
-                sport: 'Football',
-                teams: { home: 'Manchester City', away: 'Liverpool' },
-                score: '3-0',
-                status: 'Live',
-                minute: '75',
-                league: 'Premier League',
-                venue: 'Etihad Stadium',
-                youtubeId: 'qsyFbyX5PuY'
-            },
-            {
-                id: 'live-2', 
-                sport: 'Basketball',
-                teams: { home: 'Lakers', away: 'Celtics' },
-                score: '98-95',
-                status: 'Live',
-                minute: 'Q4',
-                league: 'NBA',
-                venue: 'TD Garden',
-                youtubeId: '7EO9eFrId-Q'
-            },
-            {
-                id: 'live-3',
-                sport: 'Cricket',
-                teams: { home: 'India', away: 'Australia' },
-                score: '245/3 - 280/6',
-                status: 'Live',
-                minute: '45th Over',
-                league: 'ICC World Cup',
-                venue: 'MCG',
-                youtubeId: 'e_XV_47IRkI'
-            }
-        ];
+        try {
+            const response = await fetch('/api/live-events');
+            if (!response.ok) throw new Error('Failed to fetch live events');
+            
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching live events:', error);
+            throw new Error('Failed to load live events from server');
+        }
     }
 
     async fetchVideos() {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return [
-            {
-                id: 'video-1',
-                title: 'Incredible Last-Minute Winner!',
-                sport: 'Football',
-                duration: '2:15',
-                thumbnail: 'https://i.pinimg.com/1200x/b8/00/41/b8004132d0cd253c11f68a145617a4de.jpg',
-                views: '125K',
-                youtubeId: 'MaKmc1ZxX4Y'
-            },
-            {
-                id: 'video-2',
-                title: 'Best Goals of the Month',
-                sport: 'Football', 
-                duration: '3:45',
-                thumbnail: 'https://i.pinimg.com/1200x/7d/b5/28/7db528ce9a2a2876ea48612c761f1cf4.jpg',
-                views: '89K',
-                youtubeId: '3oa7fCKvpT0'
-            },
-            {
-                id: 'video-3',
-                title: 'Amazing Sixes Compilation',
-                sport: 'Cricket',
-                duration: '4:20',
-                thumbnail: 'https://i.pinimg.com/736x/f2/0e/28/f20e2819e97afc81da9ce3a85cea9244.jpg',
-                views: '67K',
-                youtubeId: 'fBIqzpkaIy8'
-            }
-        ];
+        try {
+            const response = await fetch('/api/videos');
+            if (!response.ok) throw new Error('Failed to fetch videos');
+            
+            const data = await response.json();
+            console.log('Videos data from database:', data);
+            return data;
+        } catch (error) {
+            console.error('Error fetching videos:', error);
+            // Return empty array instead of throwing to prevent app break
+            return { videos: [] };
+        }
     }
 
+    // UPDATED: Fetch today's fixtures specifically
     async fetchFixtures() {
-        await new Promise(resolve => setTimeout(resolve, 300));
-        return [
-            {
-                id: 'fix-1',
-                teams: { home: 'Chelsea', away: 'Arsenal' },
-                time: '15:00',
-                league: 'Premier League',
-                date: 'Today'
-            },
-            {
-                id: 'fix-2',
-                teams: { home: 'Yankees', away: 'Red Sox' },
-                time: '19:30', 
-                league: 'MLB',
-                date: 'Today'
-            },
-            {
-                id: 'fix-3',
-                teams: { home: 'Lakers', away: 'Warriors' },
-                time: '21:00',
-                league: 'NBA',
-                date: 'Today'
-            }
-        ];
+        try {
+            const response = await fetch('/api/fixtures/today');
+            if (!response.ok) throw new Error('Failed to fetch fixtures');
+            
+            const data = await response.json();
+            console.log('Fixtures data from API:', data);
+            return data;
+        } catch (error) {
+            console.error('Error fetching fixtures:', error);
+            // Return empty array instead of throwing to prevent app break
+            return { fixtures: [] };
+        }
     }
 
     renderAll() {
         console.log('Rendering all components...');
         this.renderHero();
-        this.renderVideoCarousel();
+        this.renderVideoGrid();
         this.renderLiveCarousel();
         this.renderFilterChips();
         this.renderNewsGrid();
@@ -1853,17 +1795,19 @@ class AllSportsApp {
         this.updateTicker();
         this.updateFilterDisplay();
         this.renderUserPreferences();
-        this.initCarousel();
         
         // Re-setup follow buttons after rendering
         this.setupFollowButtons();
-        
-        // Ensure horizontal scrolling is properly set up
-        this.setupHorizontalScrolling();
     }
 
     renderHero() {
-        const featured = this.state.news[0] || this.getDefaultHero();
+        // Handle case when no news data is available
+        if (this.state.news.length === 0) {
+            this.renderDefaultHero();
+            return;
+        }
+        
+        const featured = this.state.news[0];
         
         const heroTag = document.getElementById('heroTag');
         const heroTitle = document.getElementById('heroTitle');
@@ -1892,99 +1836,154 @@ class AllSportsApp {
         }
     }
 
-    getDefaultHero() {
-        return {
-            sport: 'SPORTS',
-            title: 'Welcome to AllSports',
-            author: 'Sports Desk',
-            date: new Date().toISOString(),
-            excerpt: 'Your premier destination for the latest sports news, live scores, and video highlights from around the world.',
-            img: 'https://images.unsplash.com/photo-1556056504-5c7696c4c28d?w=800'
-        };
+    // Add this new method for default hero
+    renderDefaultHero() {
+        const heroTag = document.getElementById('heroTag');
+        const heroTitle = document.getElementById('heroTitle');
+        const heroAuthor = document.getElementById('heroAuthor');
+        const heroDate = document.getElementById('heroDate');
+        const heroExcerpt = document.getElementById('heroExcerpt');
+        const heroImg = document.getElementById('heroImg');
+        const heroMatchInfo = document.getElementById('heroMatchInfo');
+        
+        if (heroTag) heroTag.textContent = 'SPORTS';
+        if (heroTitle) heroTitle.textContent = 'Welcome to AllSports';
+        if (heroAuthor) heroAuthor.textContent = 'Sports Desk';
+        if (heroDate) heroDate.textContent = this.formatDate(new Date());
+        if (heroExcerpt) heroExcerpt.textContent = 'Your premier destination for the latest sports news, live scores, and video highlights from around the world.';
+        
+        if (heroImg) {
+            heroImg.style.backgroundImage = `url('https://images.unsplash.com/photo-1556056504-5c7696c4c28d?w=800')`;
+        }
+
+        if (heroMatchInfo) {
+            heroMatchInfo.innerHTML = `
+                <div class="hero-status">Loading...</div>
+            `;
+        }
     }
 
-    renderVideoCarousel() {
-        const track = document.getElementById('videoTrack');
-        if (!track || this.state.videos.length === 0) {
-            if (track) {
-                track.innerHTML = '<div class="loading">Loading videos...</div>';
-            }
+    // UPDATED: Render videos in a grid layout (3 cards per row) FROM DATABASE
+    renderVideoGrid() {
+        const videoSection = document.getElementById('videoHighlights');
+        if (!videoSection) return;
+
+        console.log('Rendering video grid with data:', this.state.videos);
+
+        if (this.state.videos.length === 0) {
+            videoSection.innerHTML = `
+                <div class="video-section-header">
+                    <div>
+                        <h2 class="video-section-title">Video Highlights</h2>
+                        <p class="video-section-subtitle">Latest sports highlights and action</p>
+                    </div>
+                </div>
+                <div class="loading">No videos available at the moment</div>
+            `;
             return;
         }
 
-        track.innerHTML = this.state.videos.map(video => `
-            <div class="video-card" data-youtube-id="${video.youtubeId}">
-                <div class="video-thumb" style="background-image: url('${video.thumbnail}')">
-                    <div class="video-play">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="c-body">
-                    <h4>${video.title}</h4>
-                    <div class="meta">${video.sport} • ${video.duration} • ${video.views} views</div>
+        // Use all videos or limit as needed
+        const displayVideos = this.state.videos.slice(0, 6); // Show 6 videos in grid
+        
+        console.log('Rendering videos in grid layout from database:', displayVideos.length);
+        
+        videoSection.innerHTML = `
+            <div class="video-section-header">
+                <div>
+                    <h2 class="video-section-title">Video Highlights</h2>
+                    <p class="video-section-subtitle">Latest sports highlights and action</p>
                 </div>
             </div>
-        `).join('');
+            <div class="video-grid" id="videoGrid">
+                ${displayVideos.map(video => `
+                    <div class="video-grid-card" data-youtube-id="${video.videoId}">
+                        <div class="video-grid-thumb" style="background-image: url('${video.thumbnail}')">
+                            <div class="video-grid-play">▶</div>
+                        </div>
+                        <div class="video-grid-content">
+                            <h4>${video.title}</h4>
+                            <div class="video-grid-meta">
+                                <span class="video-grid-sport">${video.sport}</span>
+                                <span class="video-grid-duration">${video.duration}</span>
+                                ${video.views ? `<span class="video-grid-views">${video.views} views</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
         
-        // Ensure horizontal scrolling is applied
-        this.setupHorizontalScrolling();
+        console.log('Video grid rendered with', displayVideos.length, 'videos from database');
     }
 
-    // UPDATED: Redesigned Live Now Carousel with Horizontal Scroll
+    // UPDATED: Render live events in a 2-card grid layout from database
     renderLiveCarousel() {
-        const track = document.getElementById('liveTrack');
-        if (!track || this.state.liveEvents.length === 0) {
-            if (track) {
-                track.innerHTML = '<div class="loading">No live events at the moment</div>';
-            }
+        const liveSection = document.getElementById('liveCarousel');
+        if (!liveSection) return;
+
+        if (this.state.liveEvents.length === 0) {
+            liveSection.innerHTML = `
+                <div class="section-header">
+                    <h3 class="section-title">Live Now</h3>
+                </div>
+                <div class="loading">No live events at the moment</div>
+            `;
             return;
         }
 
-        track.innerHTML = this.state.liveEvents.map(event => `
-            <div class="live-card" data-event-id="${event.id}" data-youtube-id="${event.youtubeId}" data-sport="${event.sport}">
-                <div class="live-card-header">
-                    <div class="match-status">
-                        <div class="live-indicator"></div>
-                        <span class="live-text">LIVE</span>
-                    </div>
-                    <div class="match-timer">${event.minute || ''}</div>
-                </div>
-                <div class="live-card-body">
-                    <div class="teams">
-                        <div class="team home-team">
-                            <div class="team-info">
-                                <div class="team-logo">${this.getTeamAbbreviation(event.teams.home)}</div>
-                                <div class="team-name">${event.teams.home}</div>
-                            </div>
-                            <div class="team-score">${this.extractHomeScore(event.score)}</div>
-                        </div>
-                        <div class="team away-team">
-                            <div class="team-info">
-                                <div class="team-logo">${this.getTeamAbbreviation(event.teams.away)}</div>
-                                <div class="team-name">${event.teams.away}</div>
-                            </div>
-                            <div class="team-score">${this.extractAwayScore(event.score)}</div>
-                        </div>
-                    </div>
-                    <div class="match-info">
-                        <div class="match-league">
-                            <div class="league-logo"></div>
-                            ${event.league}
-                        </div>
-                        <div class="match-venue">${event.venue || ''}</div>
-                    </div>
-                </div>
-                <div class="live-card-actions">
-                    <button class="btn btn-small watch-live-btn">Watch Live</button>
-                    <button class="btn btn-small ghost stats-btn">Stats</button>
-                </div>
+        console.log('Rendering live events in grid layout from database:', this.state.liveEvents);
+
+        // Create grid layout with 2 cards per row
+        liveSection.innerHTML = `
+            <div class="section-header">
+                <h3 class="section-title">Live Now</h3>
             </div>
-        `).join('');
+            <div class="live-grid" id="liveGrid">
+                ${this.state.liveEvents.map(event => `
+                    <div class="live-grid-card" data-event-id="${event._id}" data-youtube-id="${event.youtubeId}" data-sport="${event.sport}">
+                        <div class="live-card-header">
+                            <div class="match-status">
+                                <div class="live-indicator"></div>
+                                <span class="live-text">LIVE</span>
+                            </div>
+                            <div class="match-timer">${event.minute || ''}</div>
+                        </div>
+                        <div class="live-card-body">
+                            <div class="teams">
+                                <div class="team home-team">
+                                    <div class="team-info">
+                                        <div class="team-logo">${this.getTeamAbbreviation(event.teams.home)}</div>
+                                        <div class="team-name">${event.teams.home}</div>
+                                    </div>
+                                    <div class="team-score">${this.extractHomeScore(event.score)}</div>
+                                </div>
+                                <div class="team away-team">
+                                    <div class="team-info">
+                                        <div class="team-logo">${this.getTeamAbbreviation(event.teams.away)}</div>
+                                        <div class="team-name">${event.teams.away}</div>
+                                    </div>
+                                    <div class="team-score">${this.extractAwayScore(event.score)}</div>
+                                </div>
+                            </div>
+                            <div class="match-info">
+                                <div class="match-league">
+                                    <div class="league-logo"></div>
+                                    ${event.league}
+                                </div>
+                                <div class="match-venue">${event.venue || ''}</div>
+                            </div>
+                        </div>
+                        <div class="live-card-actions">
+                            <button class="btn btn-small watch-live-btn">Watch Live</button>
+                            <button class="btn btn-small ghost stats-btn">Stats</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
         
-        // Ensure horizontal scrolling is applied
-        this.setupHorizontalScrolling();
+        console.log('Live grid rendered with', this.state.liveEvents.length, 'events from database');
     }
 
     renderFilterChips() {
@@ -2008,6 +2007,7 @@ class AllSportsApp {
         });
     }
 
+    // UPDATED: Render ALL news items from database
     renderNewsGrid() {
         const grid = document.getElementById('newsGrid');
         if (!grid) return;
@@ -2029,63 +2029,40 @@ class AllSportsApp {
             return;
         }
 
-        const viewClass = this.state.currentView === 'list' ? 'card--list' : '';
-        
+        console.log('Rendering news items from database:', this.state.news.length);
+
         grid.innerHTML = this.state.news.map(item => `
-            <div class="card ${viewClass}" data-article-id="${item._id}" tabindex="0" role="button" aria-label="Read more about ${item.title}">
+            <div class="card compact-card" data-article-id="${item._id}">
                 <div class="thumb" style="background-image: url('${item.img || this.getDefaultImage(item.sport)}')">
-                    ${item.score ? `<div class="score-badge">${item.score}</div>` : ''}
-                    ${item.status ? `<div class="status-badge ${item.status.toLowerCase()}">${item.status}</div>` : ''}
-                    <div class="card-actions">
-                        <button class="favorite-btn ${item.isFavorite ? 'favorited' : ''}" data-article-id="${item._id}" aria-label="${item.isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="${item.isFavorite ? 'currentColor' : 'none'}" stroke="currentColor">
-                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                            </svg>
-                        </button>
-                        <button class="share-btn" data-article-id="${item._id}" aria-label="Share this article">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/>
-                            </svg>
-                        </button>
-                    </div>
+                    <div class="score-badge">${item.score || 'VS'}</div>
+                    <div class="status-badge ${(item.status || 'finished').toLowerCase()}">${item.status || 'Finished'}</div>
                 </div>
                 <div class="c-body">
                     <div class="sport-league">
-                        <span class="tag">${item.sport}</span>
-                        <span class="league-tag">${item.league}</span>
+                        <div class="league-tag">${item.league || item.sport}</div>
                     </div>
                     <h3>${item.title}</h3>
                     <p>${item.excerpt || 'Match details and updates...'}</p>
                     <div class="match-info">
-                        ${item.venue ? `<span class="venue">🏟️ ${item.venue}</span>` : ''}
-                        ${item.date ? `<span class="time">⏰ ${this.formatTime(item.date)}</span>` : ''}
+                        <div class="status ${(item.status || 'finished').toLowerCase()}">${item.status || 'Finished'}</div>
+                        <div class="venue">${item.venue || 'TBD'}</div>
+                        <div class="time">${this.formatTime(item.date)}</div>
                     </div>
                     <div class="c-meta">
-                        <span>${this.formatDate(item.date)}</span>
+                        <span>By ${item.author || 'Sports Reporter'}</span>
                         <span>•</span>
-                        <span>${item.author || 'Sports Reporter'}</span>
+                        <span>${this.formatDate(item.date)}</span>
                     </div>
                 </div>
             </div>
         `).join('');
 
-        // Add event listeners to news cards
+        // Add click event listeners to ALL news cards
         grid.querySelectorAll('.card').forEach(card => {
             card.addEventListener('click', (e) => {
-                if (!e.target.closest('.card-actions')) {
-                    const articleId = card.dataset.articleId;
-                    console.log('Card clicked:', articleId);
-                    this.openArticle(articleId);
-                }
-            });
-            
-            // Add keyboard support
-            card.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    const articleId = card.dataset.articleId;
-                    this.openArticle(articleId);
-                }
+                const articleId = card.dataset.articleId;
+                console.log('Card clicked:', articleId);
+                this.openArticle(articleId);
             });
         });
 
@@ -2116,37 +2093,116 @@ class AllSportsApp {
         this.renderQuickLinks();
     }
 
+    // FIXED: Render fixtures from database with proper team name handling
     renderFixtures() {
         const container = document.getElementById('fixturesList');
         if (!container) return;
 
-        if (this.state.fixtures.length === 0) {
+        let fixturesToRender = this.state.fixtures;
+
+        // If no fixtures from API, use sample data
+        if (fixturesToRender.length === 0) {
+            console.log('No fixtures from API, using sample data');
+            fixturesToRender = this.getSampleFixtures();
+        }
+
+        if (fixturesToRender.length === 0) {
             container.innerHTML = '<div class="muted">No fixtures today</div>';
             return;
         }
 
-        container.innerHTML = this.state.fixtures.map(fixture => `
-            <div class="fixture-item">
-                <div class="fixture-teams">
-                    <strong>${fixture.teams.home} vs ${fixture.teams.away}</strong>
-                    <div class="fixture-meta">${fixture.league}</div>
+        // Limit to 6 fixtures
+        const displayFixtures = fixturesToRender.slice(0, 6);
+
+        console.log('Rendering fixtures from database:', displayFixtures);
+
+        container.innerHTML = displayFixtures.map(fixture => {
+            // Safely extract team names with multiple fallback options
+            const homeTeamName = fixture.homeTeam?.name || 
+                                fixture.teams?.home?.name || 
+                                fixture.teams?.home || 
+                                'TBD';
+            
+            const awayTeamName = fixture.awayTeam?.name || 
+                                fixture.teams?.away?.name || 
+                                fixture.teams?.away || 
+                                'TBD';
+            
+            const league = fixture.league || 'Unknown League';
+            const time = fixture.time || this.formatTime(fixture.date) || 'TBD';
+            const venue = fixture.venue || 'TBD';
+
+            return `
+                <div class="fixture-item">
+                    <div class="fixture-teams">
+                        <strong>${homeTeamName} vs ${awayTeamName}</strong>
+                        <div class="fixture-meta">${league} • ${venue}</div>
+                    </div>
+                    <div class="fixture-time">${time}</div>
                 </div>
-                <div class="fixture-time">${fixture.time}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
+    // NEW: Get sample fixtures for fallback
+    getSampleFixtures() {
+        const today = new Date();
+        return [
+            {
+                homeTeam: { name: 'Manchester United' },
+                awayTeam: { name: 'Liverpool' },
+                league: 'Premier League',
+                time: '15:00',
+                venue: 'Old Trafford'
+            },
+            {
+                homeTeam: { name: 'Barcelona' },
+                awayTeam: { name: 'Real Madrid' },
+                league: 'La Liga', 
+                time: '20:00',
+                venue: 'Camp Nou'
+            },
+            {
+                homeTeam: { name: 'Golden State Warriors' },
+                awayTeam: { name: 'LA Lakers' },
+                league: 'NBA',
+                time: '02:30',
+                venue: 'Chase Center'
+            }
+        ];
+    }
+
+    // UPDATED: Render top teams with proper team name handling
     renderTopTeams() {
         const container = document.getElementById('topTeams');
         if (!container) return;
 
-        const topTeams = [
-            { name: 'Manchester City', sport: 'Football' },
-            { name: 'Los Angeles Lakers', sport: 'Basketball' },
-            { name: 'India Cricket', sport: 'Cricket' },
-            { name: 'Golden State Warriors', sport: 'Basketball' },
-            { name: 'Real Madrid', sport: 'Football' }
-        ];
+        // Extract unique teams from fixtures and news with proper fallbacks
+        const teams = new Set();
+        
+        // Add teams from fixtures
+        this.state.fixtures.forEach(fixture => {
+            const homeTeam = fixture.homeTeam?.name || fixture.teams?.home?.name || fixture.teams?.home;
+            const awayTeam = fixture.awayTeam?.name || fixture.teams?.away?.name || fixture.teams?.away;
+            
+            if (homeTeam) teams.add(homeTeam);
+            if (awayTeam) teams.add(awayTeam);
+        });
+
+        // Add teams from news
+        this.state.news.forEach(item => {
+            if (item.teams && item.teams.home) {
+                teams.add(item.teams.home);
+            }
+            if (item.teams && item.teams.away) {
+                teams.add(item.teams.away);
+            }
+        });
+
+        const topTeams = Array.from(teams).slice(0, 5).map(team => ({
+            name: team,
+            sport: 'Various'
+        }));
 
         container.innerHTML = topTeams.map(team => `
             <div class="small-item">
@@ -2244,7 +2300,7 @@ class AllSportsApp {
         setInterval(async () => {
             try {
                 const liveData = await this.fetchLiveEvents();
-                this.state.liveEvents = liveData;
+                this.state.liveEvents = liveData.liveEvents || [];
                 this.renderLiveCarousel();
                 this.updateTicker();
                 this.updateLiveScores();
@@ -2294,14 +2350,8 @@ class AllSportsApp {
             return;
         }
 
-        // First try to find in current state news
+        // Find article in current state using MongoDB _id
         let article = this.state.news.find(item => item._id === articleId);
-        
-        // If not found in current state, try the full mock data
-        if (!article) {
-            const allNews = this.getMockNewsData();
-            article = allNews.find(item => item._id === articleId);
-        }
         
         if (article) {
             this.showArticleModal(article);
@@ -2408,171 +2458,55 @@ class AllSportsApp {
         const articleId = article._id;
         
         // Different content for different articles
-        switch(articleId) {
-            case '1': // Arsenal vs Chelsea
-                return `
-                   <div class="analysis-section">
-                  <h4>📊 Match Analysis</h4>
-                  <p>Real Madrid delivered a commanding performance to secure a 3-0 victory over Barcelona in El Clásico. Los Blancos dominated from start to finish, showcasing tactical brilliance and individual flair.</p>
-                  
-                  <div class="key-moments">
-                      <h5>Key Moments</h5>
-                      <div class="moment-item">
-                          <div class="moment-time">23'</div>
-                          <div class="moment-description">Ronaldo opened the scoring with a powerful strike from the edge of the box</div>
-                      </div>
-                      <div class="moment-item">
-                          <div class="moment-time">56'</div>
-                          <div class="moment-description">Ronaldo doubled the lead with a brilliant header from a Benzema cross</div>
-                      </div>
-                      <div class="moment-item">
-                          <div class="moment-time">78'</div>
-                          <div class="moment-description">Ronaldo completed his hat-trick with a clinical finish after a swift counter-attack</div>
-                      </div>
-                      <div class="moment-item">
-                          <div class="moment-time">85'</div>
-                          <div class="moment-description">Courtois made a crucial save to keep Barcelona at bay and maintain the clean sheet</div>
-                      </div>
-                  </div>
-              </div>
-
-                `;
-                
-            case '2': // Warriors vs Heat
-                return `
-                    <div class="analysis-section">
-                        <h4>📊 Game Analysis</h4>
-                        <p>The Golden State Warriors extended their winning streak to eight games with a hard-fought 113-108 victory over the Miami Heat. Stephen Curry led the way with a spectacular 42-point performance.</p>
-                        
-                        <div class="key-moments">
-                            <h5>Key Moments</h5>
-                            <div class="moment-item">
-                                <div class="moment-time">Q1</div>
-                                <div class="moment-description">Warriors started strong with Curry hitting three 3-pointers in the opening minutes</div>
-                            </div>
-                            <div class="moment-item">
-                                <div class="moment-time">Q2</div>
-                                <div class="moment-description">Heat fought back with Butler leading a 12-0 run to take the lead</div>
-                            </div>
-                            <div class="moment-item">
-                                <div class="moment-time">Q3</div>
-                                <div class="moment-description">Warriors' defense tightened, holding Heat to just 18 points in the quarter</div>
-                            </div>
-                            <div class="moment-item">
-                                <div class="moment-time">Q4</div>
-                                <div class="moment-description">Curry scored 15 points in the final quarter to seal the victory</div>
-                            </div>
+        // Since we're using database data, we'll use the actual content field
+        if (article.content) {
+            return `
+                <div class="analysis-section">
+                    <h4>📊 Match Analysis</h4>
+                    <p>${article.content}</p>
+                    
+                    <div class="key-moments">
+                        <h5>Key Moments</h5>
+                        <div class="moment-item">
+                            <div class="moment-time">First Half</div>
+                            <div class="moment-description">Both teams started strongly, creating several scoring opportunities</div>
+                        </div>
+                        <div class="moment-item">
+                            <div class="moment-time">Second Half</div>
+                            <div class="moment-description">The game opened up with both teams pushing for the winning goal</div>
+                        </div>
+                        <div class="moment-item">
+                            <div class="moment-time">Final Minutes</div>
+                            <div class="moment-description">A late goal decided the outcome of this thrilling encounter</div>
                         </div>
                     </div>
-                `;
-                
-            case '3': // India vs Australia
-                return `
-                    <div class="analysis-section">
-                        <h4>📊 Match Analysis</h4>
-                        <p>India has set a massive target of 325/4 against Australia in the ICC World Cup clash at MCG. A magnificent partnership between Kohli and Rohit has put India in a commanding position.</p>
-                        
-                        <div class="key-moments">
-                            <h5>Key Moments</h5>
-                            <div class="moment-item">
-                                <div class="moment-time">10th Over</div>
-                                <div class="moment-description">Early breakthrough as Australia dismisses Rahul for 28</div>
-                            </div>
-                            <div class="moment-item">
-                                <div class="moment-time">15th-35th Over</div>
-                                <div class="moment-description">Kohli-Rohit partnership of 189 runs puts India in control</div>
-                            </div>
-                            <div class="moment-item">
-                                <div class="moment-time">40th Over</div>
-                                <div class="moment-description">Rohit Sharma reaches his century with a magnificent six</div>
-                            </div>
-                            <div class="moment-item">
-                                <div class="moment-time">45th Over</div>
-                                <div class="moment-description">Hardik Pandya's quickfire 35 runs boost India's total</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-            default:
-                // Generic content for other articles
-                return `
-                    <div class="analysis-section">
-                        <h4>📊 Match Analysis</h4>
-                        <p>This was an exciting contest between two competitive teams. The match featured several key moments that ultimately decided the outcome.</p>
-                        
-                        <div class="key-moments">
-                            <h5>Key Moments</h5>
-                            <div class="moment-item">
-                                <div class="moment-time">First Half</div>
-                                <div class="moment-description">Both teams started strongly, creating several scoring opportunities</div>
-                            </div>
-                            <div class="moment-item">
-                                <div class="moment-time">Second Half</div>
-                                <div class="moment-description">The game opened up with both teams pushing for the winning goal</div>
-                            </div>
-                            <div class="moment-item">
-                                <div class="moment-time">Final Minutes</div>
-                                <div class="moment-description">A late goal decided the outcome of this thrilling encounter</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                </div>
+            `;
         }
-    }
-
-    carouselPrev(carouselId) {
-        const track = document.getElementById(`${carouselId}Track`);
-        if (track) {
-            track.scrollBy({ left: -300, behavior: 'smooth' });
-        }
-    }
-
-    carouselNext(carouselId) {
-        const track = document.getElementById(`${carouselId}Track`);
-        if (track) {
-            track.scrollBy({ left: 300, behavior: 'smooth' });
-        }
-    }
-
-    initCarousel() {
-        const carousels = document.querySelectorAll('.hero-carousel');
-        carousels.forEach(carousel => {
-            const items = carousel.querySelectorAll('.hero-item');
-            if (items.length > 1) {
-                let currentIndex = 0;
-                items[currentIndex].classList.add('active');
-                setInterval(() => {
-                    items[currentIndex].classList.remove('active');
-                    currentIndex = (currentIndex + 1) % items.length;
-                    items[currentIndex].classList.add('active');
-                }, 5000);
-            } else if (items.length === 1) {
-                items[0].classList.add('active');
-            }
-        });
-
-        // Initialize custom carousels
-        this.initCustomCarousel('videoCarousel', 'videoPrevBtn', 'videoNextBtn');
-        this.initCustomCarousel('liveCarousel', 'livePrevBtn', 'liveNextBtn');
-    }
-
-    initCustomCarousel(carouselId, prevBtnId, nextBtnId) {
-        const carousel = document.getElementById(carouselId);
-        const prevBtn = document.getElementById(prevBtnId);
-        const nextBtn = document.getElementById(nextBtnId);
         
-        if (carousel && prevBtn && nextBtn) {
-            const track = carousel.querySelector('.carousel-track');
-            
-            prevBtn.addEventListener('click', () => {
-                track.scrollBy({ left: -300, behavior: 'smooth' });
-            });
-            
-            nextBtn.addEventListener('click', () => {
-                track.scrollBy({ left: 300, behavior: 'smooth' });
-            });
-        }
+        // Fallback content if no specific content is available
+        return `
+            <div class="analysis-section">
+                <h4>📊 Match Analysis</h4>
+                <p>This was an exciting contest between two competitive teams. The match featured several key moments that ultimately decided the outcome.</p>
+                
+                <div class="key-moments">
+                    <h5>Key Moments</h5>
+                    <div class="moment-item">
+                        <div class="moment-time">First Half</div>
+                        <div class="moment-description">Both teams started strongly, creating several scoring opportunities</div>
+                    </div>
+                    <div class="moment-item">
+                        <div class="moment-time">Second Half</div>
+                        <div class="moment-description">The game opened up with both teams pushing for the winning goal</div>
+                    </div>
+                    <div class="moment-item">
+                        <div class="moment-time">Final Minutes</div>
+                        <div class="moment-description">A late goal decided the outcome of this thrilling encounter</div>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     updateLiveScores() {
@@ -2822,9 +2756,9 @@ class AllSportsApp {
             color: white;
             border: none;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
+            width: 45px;
+            height: 45px;
+            font-size: 18px;
             cursor: pointer;
             opacity: 0;
             visibility: hidden;
@@ -2915,7 +2849,7 @@ class AllSportsApp {
     }
 }
 
-// League data for each sport
+// League data for each sport (unchanged)
 const sportLeagues = {
     'Football': [
         'Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Ligue 1', 
@@ -2971,234 +2905,728 @@ const sportLeagues = {
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("AllSports site loaded");
+    console.log("AllSports Games page loaded");
     window.app = new AllSportsApp();
     
     // Add loaded class to body for animations
     document.body.classList.add('loaded');
 });
 
-// Global SportsApp object for backward compatibility
 window.SportsApp = {
     openLogin: () => window.app?.handleLoginClick(),
     closeMobileMenu: () => window.app?.closeMobileMenu(),
-    toggleMobileDropdown: (button) => window.app?.toggleMobileDropdown(button),
-    performSearch: (query) => window.app?.performSearch(query),
-    closeAllDropdowns: () => window.app?.closeAllDropdowns()
+    openArticle: (articleId) => window.app?.openArticle(articleId),
+    playVideo: (youtubeId, title) => window.app?.playYouTubeVideo(youtubeId, title),
+    showStats: (eventId, sport) => window.app?.showMatchStats(eventId, sport),
+    search: (query) => window.app?.performSearch(query),
+    resetFilters: () => window.app?.resetFilters(),
+    toggleTheme: () => window.app?.toggleTheme()
 };
 
-// Enhanced standalone follow functionality for better reliability
-document.addEventListener('DOMContentLoaded', function() {
-    // Enhanced follow buttons functionality with multiple approaches
-    function setupFollowButtons() {
-        // Approach 1: Event delegation for dynamic content
-        document.addEventListener('click', function(e) {
-            const followBtn = e.target.closest('.follow-btn');
-            if (followBtn) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                handleFollowClick(followBtn);
-            }
-        });
+// Utility functions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
 
-        // Approach 2: Direct event listeners for existing buttons
-        const followButtons = document.querySelectorAll('.follow-btn');
-        followButtons.forEach(button => {
-            if (!button.hasAttribute('data-follow-listener')) {
-                button.setAttribute('data-follow-listener', 'true');
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleFollowClick(this);
-                });
-            }
-        });
-
-        // Approach 3: Periodic check for new buttons (fallback)
-        setInterval(() => {
-            const newFollowButtons = document.querySelectorAll('.follow-btn:not([data-follow-listener])');
-            newFollowButtons.forEach(button => {
-                button.setAttribute('data-follow-listener', 'true');
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleFollowClick(this);
-                });
-            });
-        }, 1000);
+// Add dynamic styles for grid layouts
+const dynamicStyles = `
+    /* Video Grid Styles */
+    .video-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
     }
 
-    function handleFollowClick(button) {
-        const sport = button.getAttribute('data-sport') || 
-                     button.textContent.replace('Follow', '').replace('Following', '').trim() ||
-                     'this sport';
+    .video-section-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .video-section-subtitle {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+    }
+
+    .video-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .video-grid-card {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.1);
+        cursor: pointer;
+    }
+
+    .video-grid-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        border-color: var(--accent);
+    }
+
+    .video-grid-thumb {
+        position: relative;
+        height: 220px;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .video-grid-play {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+        background: rgba(0,0,0,0.7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .video-grid-card:hover .video-grid-play {
+        background: var(--accent);
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+
+    .video-grid-content {
+        padding: 16px;
+    }
+
+    .video-grid-content h4 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        line-height: 1.4;
+        color: var(--text-primary);
+    }
+
+    .video-grid-meta {
+        font-size: 12px;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .video-grid-sport {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+
+    .video-grid-duration {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+
+    .video-grid-views {
+        font-size: 11px;
+        color: var(--text-secondary);
+    }
+
+    /* Live Events Grid Styles */
+    .live-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .live-grid-card {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255,255,255,0.1);
+        position: relative;
+    }
+
+    .live-grid-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .live-grid-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        border-color: var(--accent);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+        .video-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
         
-        const isFollowing = button.classList.contains('following');
-        
-        if (isFollowing) {
-            // Unfollow
-            button.classList.remove('following');
-            button.textContent = 'Follow';
-            showToast(`Unfollowed ${sport}`);
-        } else {
-            // Follow
-            button.classList.add('following');
-            button.textContent = 'Following';
-            showToast(`Now following ${sport}`);
+        .live-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
     }
 
-    function showToast(message) {
-        // Use app's toast if available
-        if (window.app && window.app.showToast) {
-            window.app.showToast(message);
-            return;
+    @media (max-width: 768px) {
+        .video-grid {
+            grid-template-columns: 1fr;
         }
         
-        // Fallback toast implementation
-        let toast = document.getElementById('toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'toast';
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: var(--accent);
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                z-index: 10000;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-                font-weight: 500;
-                pointer-events: none;
-            `;
-            document.body.appendChild(toast);
+        .live-grid {
+            grid-template-columns: 1fr;
         }
         
-        toast.textContent = message;
-        toast.style.opacity = '1';
-        
-        setTimeout(() => {
-            toast.style.opacity = '0';
-        }, 3000);
+        .video-section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
     }
 
-    // Initialize follow buttons
-    setupFollowButtons();
+    /* Loading states */
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-secondary);
+        font-style: italic;
+    }
 
-    // Enhanced mobile menu functionality
-    const mobileToggle = document.getElementById('mobileToggle');
-    const mobileMenu = document.getElementById('mobileMenu');
-    const mobileClose = document.querySelector('.mobile-close');
-    
-    if (mobileToggle && mobileMenu) {
-        mobileToggle.addEventListener('click', function() {
-            mobileMenu.classList.add('open');
-            this.setAttribute('aria-expanded', 'true');
-        });
-        
-        if (mobileClose) {
-            mobileClose.addEventListener('click', function() {
-                mobileMenu.classList.remove('open');
-                mobileToggle.setAttribute('aria-expanded', 'false');
-            });
-        }
+    /* Remove old carousel styles for these sections */
+    #videoCarousel,
+    #liveCarousel {
+        display: block !important;
     }
-    
-    // Enhanced mobile dropdown functionality
-    const mobileDropdownButtons = document.querySelectorAll('.mobile-nav-button');
-    
-    mobileDropdownButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const isExpanded = this.getAttribute('aria-expanded') === 'true';
-            this.setAttribute('aria-expanded', !isExpanded);
-            
-            const dropdownMenu = this.nextElementSibling;
-            if (dropdownMenu) {
-                dropdownMenu.setAttribute('aria-hidden', isExpanded);
-                dropdownMenu.style.maxHeight = isExpanded ? '0' : '500px';
-            }
-        });
-    });
-    
-    // Enhanced filter functionality
-    const filterChips = document.querySelectorAll('.filter-chip');
-    
-    filterChips.forEach(chip => {
-        chip.addEventListener('click', function() {
-            // Remove active class from all chips
-            filterChips.forEach(c => c.classList.remove('active'));
-            // Add active class to clicked chip
-            this.classList.add('active');
-            
-            // Update filter info
-            const filterInfo = document.getElementById('currentFilter');
-            if (filterInfo && this.textContent !== 'All') {
-                filterInfo.textContent = this.textContent;
-            } else if (filterInfo) {
-                filterInfo.textContent = 'All Sports';
-            }
-        });
-    });
-    
-    // Enhanced load more functionality
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    
-    if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', function() {
-            // Use app's loadMore method if available
-            if (window.app && window.app.loadMore) {
-                window.app.loadMore();
-            } else {
-                // Fallback implementation
-                this.textContent = 'Loading...';
-                this.disabled = true;
-                
-                setTimeout(() => {
-                    this.textContent = 'Load more stories';
-                    this.disabled = false;
-                }, 1500);
-            }
-        });
+
+    .carousel-track {
+        display: contents !important;
     }
-    
-    // Enhanced newsletter subscription
-    const subscribeBtn = document.getElementById('subscribeBtn');
-    
-    if (subscribeBtn) {
-        subscribeBtn.addEventListener('click', function() {
-            const emailInput = document.getElementById('nlEmail');
-            const email = emailInput.value;
-            
-            if (email && isValidEmail(email)) {
-                showToast('Thanks for subscribing to our newsletter!');
-                emailInput.value = '';
-            } else {
-                showToast('Please enter a valid email address');
-            }
-        });
+
+    /* Stats Modal Styles */
+    .stats-team-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: rgba(255,255,255,0.05);
+        border-radius: var(--radius);
     }
-    
-    // Email validation helper
-    function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
+
+    .stats-team {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
     }
-    
-    // Enhanced header scroll effect
-    const siteHeader = document.getElementById('siteHeader');
-    
-    if (siteHeader) {
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 100) {
-                siteHeader.classList.add('header--compact');
-            } else {
-                siteHeader.classList.remove('header--compact');
-            }
-        });
+
+    .stats-team.away {
+        justify-content: flex-end;
+        text-align: right;
     }
-});
+
+    .stats-team-logo {
+        width: 40px;
+        height: 40px;
+        background: var(--accent);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        font-size: 12px;
+    }
+
+    .stats-team-name {
+        font-weight: 600;
+    }
+
+    .stats-live-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(220, 38, 38, 0.1);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        border-radius: 20px;
+    }
+
+    .stats-live-dot {
+        width: 8px;
+        height: 8px;
+        background: #dc2626;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    .stats-live-text {
+        color: #dc2626;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    .stats-timer {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .stats-match-info {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .stats-league {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: var(--text-secondary);
+    }
+
+    .stats-venue {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+    }
+
+    .stats-team-score {
+        font-size: 32px;
+        font-weight: bold;
+        color: var(--accent);
+    }
+
+    .stats-section {
+        margin-bottom: 24px;
+    }
+
+    .stats-section h4 {
+        margin-bottom: 16px;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stats-grid-detailed {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .stat-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+    }
+
+    .stat-value {
+        font-weight: 600;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .stat-team {
+        font-weight: 600;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .stat-name {
+        color: var(--text-secondary);
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .stat-bar-container {
+        grid-column: 1 / -1;
+        height: 6px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 3px;
+        position: relative;
+        margin-top: 4px;
+    }
+
+    .stat-bar {
+        position: absolute;
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .stat-bar.home {
+        background: var(--accent);
+        left: 0;
+    }
+
+    .stat-bar.away {
+        background: #3b82f6;
+        right: 0;
+    }
+
+    /* Basketball specific styles */
+    .basketball-stats-section {
+        margin-top: 16px;
+    }
+
+    .shooting-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .shooting-stat {
+        text-align: center;
+        padding: 12px;
+        background: rgba(255,255,255,0.05);
+        border-radius: var(--radius);
+    }
+
+    .shooting-stat-value {
+        font-weight: bold;
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .shooting-stat-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+    }
+
+    .shooting-stat-percentage {
+        font-size: 14px;
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* Cricket specific styles */
+    .cricket-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .cricket-stat-card {
+        text-align: center;
+        padding: 16px;
+        background: rgba(255,255,255,0.05);
+        border-radius: var(--radius);
+    }
+
+    .cricket-stat-value {
+        font-weight: bold;
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+
+    .cricket-stat-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    /* Enhanced search results */
+    .search-result-item {
+        padding: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .search-result-item:hover {
+        background: rgba(255,255,255,0.05);
+    }
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    .search-result-title mark {
+        background: var(--accent);
+        color: white;
+        padding: 2px 4px;
+        border-radius: 2px;
+    }
+
+    .search-result-meta {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 4px;
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    .search-result-sport {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .search-result-league {
+        background: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .search-result-score {
+        background: rgba(234, 179, 8, 0.2);
+        color: #eab308;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+
+    .search-result-status {
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .search-result-status.live {
+        background: rgba(220, 38, 38, 0.2);
+        color: #dc2626;
+    }
+
+    .search-result-status.finished {
+        background: rgba(107, 114, 128, 0.2);
+        color: #6b7280;
+    }
+
+    .search-result-excerpt {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+    }
+
+    .search-result-excerpt mark {
+        background: var(--accent);
+        color: white;
+        padding: 1px 2px;
+        border-radius: 2px;
+    }
+
+    .search-result-relevance {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-align: right;
+    }
+
+    .search-result-item.no-results {
+        cursor: default;
+    }
+
+    .search-result-item.no-results:hover {
+        background: transparent;
+    }
+
+    .search-result-suggestions {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .search-result-suggestions ul {
+        margin: 8px 0 0 0;
+        padding-left: 16px;
+        color: var(--text-secondary);
+    }
+
+    .search-result-suggestions li {
+        margin-bottom: 4px;
+        font-size: 12px;
+    }
+
+    /* Responsive styles for 15.6-inch screens */
+    .screen-1366 .header-inner {
+        padding: 0 16px;
+    }
+
+    .screen-1366 .main-nav .nav-list {
+        gap: 12px;
+    }
+
+    .screen-1366 .nav-link {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    .screen-1366 .header-actions {
+        gap: 12px;
+    }
+
+    .screen-1366 .search input {
+        width: 200px;
+    }
+
+    .screen-1280 .nav-link {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+
+    .screen-1280 .search input {
+        width: 180px;
+    }
+
+    .screen-1280 .brand-text h1 {
+        font-size: 18px;
+    }
+
+    /* Enhanced modal styles */
+    .stats-modal-content {
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-content.stats-modal-content .modal-body {
+        padding: 0;
+    }
+
+    /* Loading states */
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-secondary);
+    }
+
+    .error-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-secondary);
+    }
+
+    .error-state h3 {
+        margin-bottom: 12px;
+        color: var(--text-primary);
+    }
+
+    /* Filter badges */
+    .filter-badge {
+        background: rgba(255,255,255,0.1);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        margin-left: 8px;
+    }
+
+    .filter-count {
+        margin-left: 12px;
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* Toast improvements */
+    .toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--accent);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        opacity: 0;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        pointer-events: none;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    /* Follow button states */
+    .follow-btn.following {
+        background: var(--accent);
+        color: white;
+    }
+
+    /* Enhanced card animations */
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    /* Live card enhancements */
+    .live-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .live-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626);
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+    }
+`;
+
+// Add dynamic styles to document
+const styleSheet = document.createElement('style');
+styleSheet.textContent = dynamicStyles;
+document.head.appendChild(styleSheet);

@@ -1,18 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-sport="boxing">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Boxing - Sky Sports Style</title>
-   <link rel="stylesheet" href="styles.css">
+   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="games.css">
    
-
-    <meta name="description" content="AllSports — latest sports news, live scores, highlights and analysis.">
-    <meta property="og:title" content="AllSports">
-    <meta property="og:description" content="Live coverage, scores, and match highlights.">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
+  <meta name="description" content="AllSports — latest sports news, live scores, highlights and analysis.">
+  <meta property="og:title" content="AllSports">
+  <meta property="og:description" content="Live coverage, scores, and match highlights.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
   <!-- Top Color Strip -->
@@ -234,13 +233,13 @@
         <!-- Hero Carousel with Follow Button -->
     <section class="hero-carousel">
       <div class="hero-item active">
-        <img src="https://i.pinimg.com/1200x/05/72/ec/0572ec1be86d55067606ee6fbb8777e4.jpg" alt="Football Action" class="hero-image">
-        <div class="hero-badge">LIVE</div>
+        <img src="https://i.pinimg.com/1200x/05/72/ec/0572ec1be86d55067606ee6fbb8777e4.jpg" alt="Boxing Action" class="hero-image" id="heroImage">
+        <div class="hero-badge" id="heroBadge">LIVE</div>
         <div class="hero-content">
-          <h2>Joshua vs Wilder - Heavyweight Showdown</h2>
-          <p>Game 7 - Live from TD Garden</p>
+          <h2 id="heroTitle">Joshua vs Wilder - Heavyweight Showdown</h2>
+          <p id="heroDescription">Live from TD Garden</p>
           <div class="hero-actions">
-            <a href="https://youtu.be/0a-NjhYlAq4?si=qPY7J2qIfc96VK0r" target="_blank" class="youtube-indicator">
+            <a href="https://youtu.be/0a-NjhYlAq4?si=qPY7J2qIfc96VK0r" target="_blank" class="youtube-indicator" id="heroWatchLink">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000">
                 <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
               </svg>
@@ -258,9 +257,15 @@
 
     <div class="content-wrapper">
       <div class="left-column">
-        <section class="card-grid">
-          <h2>Fight Highlights</h2>
-          <div class="cards">
+        <!-- Dynamic Highlights Section -->
+        <section class="card-grid" id="videos-section">
+          <div class="section-header">
+            <h2>Fight Highlights</h2>
+            <button class="refresh-btn" onclick="sportPageManager.loadVideos()">Refresh</button>
+          </div>
+          <div class="cards" id="highlightsContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
             <a href="https://youtu.be/TXt1YbVgxXw?si=FZE0qiYnQu1kBDKk" target="_blank" class="card">
               <div class="card-image">
                 <img src="https://i.pinimg.com/1200x/35/17/86/351786fa64ce6189739663237c1eeca9.jpg" alt="Heavyweight" loading="lazy">
@@ -301,9 +306,12 @@
           </div>
         </section>
 
-        <section class="card-grid">
+        <!-- Dynamic Features Section -->
+        <section class="card-grid" id="features-section">
           <h2>Features & Analysis</h2>
-          <div class="cards">
+          <div class="cards" id="featuresContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
             <a href="https://youtu.be/lhCUOCp--so?si=YpAKt8RJih-tg8k4" target="_blank" class="card">
               <div class="card-image">
                 <img src="https://i.pinimg.com/736x/7f/c4/74/7fc474082dff5d0403344f6775770d43.jpg" alt="Training" loading="lazy">
@@ -346,62 +354,77 @@
       </div>
 
       <div class="right-column">
+        <!-- Dynamic Fights Widget -->
         <div class="widget">
           <h3>Upcoming Fights</h3>
-          <div class="top-pick">
-            <div class="top-pick-content">
-              <h4>Canelo vs Munguia</h4>
-              <div class="top-pick-meta">May 4, 2024 • Las Vegas</div>
+          <div id="featuredTeamsContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>Canelo vs Munguia</h4>
+                <div class="top-pick-meta">May 4, 2024 • Las Vegas</div>
+              </div>
             </div>
-          </div>
-          <div class="top-pick">
-            <div class="top-pick-content">
-              <h4>Fury vs Usyk</h4>
-              <div class="top-pick-meta">May 18, 2024 • Riyadh</div>
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>Fury vs Usyk</h4>
+                <div class="top-pick-meta">May 18, 2024 • Riyadh</div>
+              </div>
             </div>
-          </div>
-          <div class="top-pick">
-            <div class="top-pick-content">
-              <h4>Taylor vs Cameron 2</h4>
-              <div class="top-pick-meta">June 15, 2024 • Dublin</div>
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>Taylor vs Cameron 2</h4>
+                <div class="top-pick-meta">June 15, 2024 • Dublin</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="widget">
+        <!-- Dynamic Standings Widget -->
+        <div class="widget" id="standings-section">
           <h3>Champion Watch</h3>
-          <div style="font-size: 14px;">
-            <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
-              <span>Champion</span>
-              <span>Record</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-              <span>T. Fury</span>
-              <span>34-0-1</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-              <span>O. Usyk</span>
-              <span>21-0</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-              <span>C. Alvarez</span>
-              <span>60-2-2</span>
+          <div id="standingsContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
+            <div style="font-size: 14px;">
+              <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
+                <span>Champion</span>
+                <span>Record</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+                <span>T. Fury</span>
+                <span>34-0-1</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+                <span>O. Usyk</span>
+                <span>21-0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
+                <span>C. Alvarez</span>
+                <span>60-2-2</span>
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- Dynamic News Widget -->
         <div class="widget">
           <h3>Latest Results</h3>
-          <div class="top-pick">
-            <div class="top-pick-content">
-              <h4>Joshua def. Wilder</h4>
-              <div class="top-pick-meta">KO Round 7</div>
+          <div id="newsContainer">
+            <!-- Dynamic content will be loaded here -->
+            <!-- Fallback to existing hardcoded content -->
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>Joshua def. Wilder</h4>
+                <div class="top-pick-meta">KO Round 7</div>
+              </div>
             </div>
-          </div>
-          <div class="top-pick">
-            <div class="top-pick-content">
-              <h4>Smith def. Williams</h4>
-              <div class="top-pick-meta">UD 116-112</div>
+            <div class="top-pick">
+              <div class="top-pick-content">
+                <h4>Smith def. Williams</h4>
+                <div class="top-pick-meta">UD 116-112</div>
+              </div>
             </div>
           </div>
         </div>
