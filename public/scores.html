@@ -819,12 +819,14 @@
       }
     }
   </style>
+
 </head>
 <body>
 <!-- Top Color Strip -->
 <div class="top-strip" aria-hidden="true"></div>
 
 <!-- Header -->
+<<!-- Header -->
 <header class="site-header" role="banner" id="siteHeader">
   <div class="header-inner">
     <a class="brand" href="/" aria-label="AllSports home">
@@ -1035,7 +1037,6 @@
     </div>
   </div>
 </header>
-
 <!-- Main Content -->
 <div class="container">
   <!-- Page Header -->
@@ -1455,16 +1456,17 @@ class ScoresApp {
     try {
       console.log('Loading scores from API...');
       
-      const [liveResponse, resultsResponse, upcomingResponse] = await Promise.allSettled([
-        this.fetchWithTimeout(this.endpoints.live),
-        this.fetchWithTimeout(this.endpoints.results),
-        this.fetchWithTimeout(this.endpoints.upcoming)
+      // Load all scores in parallel with error handling
+      const [liveResponse, resultsResponse, upcomingResponse] = await Promise.all([
+        this.loadScoresFromAPI(this.endpoints.live, 'live'),
+        this.loadScoresFromAPI(this.endpoints.results, 'results'),
+        this.loadScoresFromAPI(this.endpoints.upcoming, 'upcoming')
       ]);
 
-      // Handle each response individually
-      this.state.allScores.live = this.handleApiResponse(liveResponse, 'live');
-      this.state.allScores.results = this.handleApiResponse(resultsResponse, 'results');
-      this.state.allScores.upcoming = this.handleApiResponse(upcomingResponse, 'upcoming');
+      // Store the loaded scores
+      this.state.allScores.live = liveResponse || [];
+      this.state.allScores.results = resultsResponse || [];
+      this.state.allScores.upcoming = upcomingResponse || [];
 
       console.log('Scores loaded successfully:', {
         live: this.state.allScores.live.length,
@@ -1482,23 +1484,34 @@ class ScoresApp {
     }
   }
 
-  handleApiResponse(response, type) {
-    if (response.status === 'fulfilled' && response.value && response.value.success) {
-      return response.value.scores || [];
-    } else {
-      console.warn(`Failed to load ${type} scores from API`);
+  async loadScoresFromAPI(endpoint, type) {
+    try {
+      console.log(`Loading ${type} scores from ${endpoint}...`);
+      
+      const response = await this.fetchWithTimeout(endpoint);
+      
+      if (response && response.success) {
+        console.log(`✅ Successfully loaded ${response.scores?.length || 0} ${type} scores`);
+        return response.scores || [];
+      } else {
+        console.warn(`❌ Failed to load ${type} scores from API, using sample data`);
+        return this.getSampleScores(type);
+      }
+    } catch (error) {
+      console.error(`❌ Error loading ${type} scores:`, error);
       return this.getSampleScores(type);
     }
   }
 
-  async fetchWithTimeout(url, options = {}, timeout = 8000) {
+  async fetchWithTimeout(url, options = {}, timeout = 5000) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     
     try {
       const response = await fetch(url, {
         ...options,
-        signal: controller.signal
+        signal: controller.signal,
+        credentials: 'include'
       });
       
       clearTimeout(id);
@@ -1536,162 +1549,22 @@ class ScoresApp {
             time: 'Live - 2nd Half'
           }
         },
+       
         {
-          matchId: '102',
-          sport: 'Basketball',
-          league: 'NBA',
+          matchId: '303',
+          sport: 'Cricket',
+          league: 'T20 World Cup',
           teams: {
-            home: { name: 'Boston Celtics', logo: 'BOS', score: '95' },
-            away: { name: 'LA Lakers', logo: 'LAL', score: '98' }
-          },
-          status: 'live',
-          minute: 'Q4',
-          venue: 'TD Garden',
-          time: new Date(),
-          competition: 'NBA • TD Garden',
-          matchDetails: {
-            venue: 'TD Garden',
-            time: '4:32 remaining'
-          }
-        }
-      ],
-      results: [
-        {
-          matchId: '201',
-          sport: 'Football',
-          league: 'La Liga',
-          teams: {
-            home: { name: 'Barcelona', logo: 'FCB', score: '1' },
-            away: { name: 'Real Madrid', logo: 'RMA', score: '3' }
-          },
-          status: 'finished',
-          venue: 'Camp Nou',
-          time: new Date(Date.now() - 86400000),
-          competition: 'La Liga • Camp Nou',
-          matchDetails: {
-            venue: 'Camp Nou',
-            time: 'Full Time'
-          }
-        },
-        {
-          matchId: '202',
-          sport: 'Tennis',
-          league: 'ATP Finals',
-          teams: {
-            home: { name: 'Novak Djokovic', logo: 'ND', score: '2' },
-            away: { name: 'Carlos Alcaraz', logo: 'CA', score: '1' }
-          },
-          status: 'finished',
-          venue: 'Pala Alpitour',
-          time: new Date(Date.now() - 86400000),
-          competition: 'ATP Finals • Turin',
-          matchDetails: {
-            venue: 'Pala Alpitour',
-            time: '6-4, 5-7, 6-4'
-          }
-        }
-      ],
-      upcoming: [
-        {
-          matchId: '301',
-          sport: 'Football',
-          league: 'Champions League',
-          teams: {
-            home: { name: 'Bayern Munich', logo: 'BAY', score: '-' },
-            away: { name: 'Paris SG', logo: 'PSG', score: '-' }
+            home: { name: 'England', logo: 'ENG', score: '-' },
+            away: { name: 'Pakistan', logo: 'PAK', score: '-' }
           },
           status: 'upcoming',
-          venue: 'Allianz Arena',
-          time: new Date(Date.now() + 3600000),
-          competition: 'Champions League • Allianz Arena',
-          matchDetails: {
-            venue: 'Allianz Arena',
-            time: 'Today, 19:45 GMT'
-          },
-          preview: {
-            teams: {
-              home: {
-                name: 'Bayern Munich',
-                coach: 'Thomas Tuchel',
-                lineup: [
-                  { number: 1, name: 'Manuel Neuer', position: 'Goalkeeper' },
-                  { number: 5, name: 'Benjamin Pavard', position: 'Defender' },
-                  { number: 2, name: 'Dayot Upamecano', position: 'Defender' },
-                  { number: 4, name: 'Matthijs de Ligt', position: 'Defender' },
-                  { number: 19, name: 'Alphonso Davies', position: 'Defender' },
-                  { number: 6, name: 'Joshua Kimmich', position: 'Midfielder' },
-                  { number: 8, name: 'Leon Goretzka', position: 'Midfielder' },
-                  { number: 10, name: 'Leroy Sané', position: 'Forward' },
-                  { number: 25, name: 'Thomas Müller', position: 'Forward' },
-                  { number: 7, name: 'Serge Gnabry', position: 'Forward' },
-                  { number: 9, name: 'Harry Kane', position: 'Forward' }
-                ],
-                substitutes: [
-                  { number: 26, name: 'Sven Ulreich', position: 'Goalkeeper' },
-                  { number: 40, name: 'Noussair Mazraoui', position: 'Defender' },
-                  { number: 22, name: 'Raphaël Guerreiro', position: 'Defender' },
-                  { number: 45, name: 'Aleksandar Pavlović', position: 'Midfielder' },
-                  { number: 42, name: 'Jamal Musiala', position: 'Midfielder' },
-                  { number: 39, name: 'Mathys Tel', position: 'Forward' },
-                  { number: 13, name: 'Eric Maxim Choupo-Moting', position: 'Forward' }
-                ]
-              },
-              away: {
-                name: 'Paris Saint-Germain',
-                coach: 'Luis Enrique',
-                lineup: [
-                  { number: 99, name: 'Gianluigi Donnarumma', position: 'Goalkeeper' },
-                  { number: 2, name: 'Achraf Hakimi', position: 'Defender' },
-                  { number: 5, name: 'Marquinhos', position: 'Defender' },
-                  { number: 21, name: 'Lucas Hernández', position: 'Defender' },
-                  { number: 25, name: 'Nuno Mendes', position: 'Defender' },
-                  { number: 17, name: 'Vitinha', position: 'Midfielder' },
-                  { number: 8, name: 'Fabian Ruiz', position: 'Midfielder' },
-                  { number: 33, name: 'Warren Zaïre-Emery', position: 'Midfielder' },
-                  { number: 10, name: 'Kylian Mbappé', position: 'Forward' },
-                  { number: 9, name: 'Gonçalo Ramos', position: 'Forward' },
-                  { number: 7, name: 'Ousmane Dembélé', position: 'Forward' }
-                ],
-                substitutes: [
-                  { number: 80, name: 'Arnau Tenas', position: 'Goalkeeper' },
-                  { number: 37, name: 'Milan Škriniar', position: 'Defender' },
-                  { number: 15, name: 'Danilo Pereira', position: 'Defender' },
-                  { number: 4, name: 'Manuel Ugarte', position: 'Midfielder' },
-                  { number: 19, name: 'Lee Kang-in', position: 'Midfielder' },
-                  { number: 11, name: 'Marco Asensio', position: 'Forward' },
-                  { number: 23, name: 'Randal Kolo Muani', position: 'Forward' }
-                ]
-              }
-            },
-            matchPreview: {
-              summary: 'A heavyweight Champions League clash between German and French champions. Bayern Munich boasts a strong home record, while PSG relies on their explosive attack led by Kylian Mbappé.',
-              keyPlayers: ['Harry Kane', 'Kylian Mbappé', 'Joshua Kimmich'],
-              tacticalAnalysis: 'Bayern will look to control possession and press high, while PSG will likely use quick transitions and the pace of their forward line to counter-attack.'
-            }
-          }
-        },
-        {
-          matchId: '302',
-          sport: 'Basketball',
-          league: 'NBA',
-          teams: {
-            home: { name: 'Golden State', logo: 'GSW', score: '-' },
-            away: { name: 'Phoenix Suns', logo: 'PHX', score: '-' }
-          },
-          status: 'upcoming',
-          venue: 'Chase Center',
+          venue: 'Dubai International',
           time: new Date(Date.now() + 86400000),
-          competition: 'NBA • Chase Center',
+          competition: 'T20 World Cup • Dubai',
           matchDetails: {
-            venue: 'Chase Center',
-            time: 'Tomorrow, 02:30 GMT'
-          },
-          preview: {
-            matchPreview: {
-              summary: 'Western Conference showdown between the veteran Golden State Warriors and the star-powered Phoenix Suns. Both teams feature elite backcourts and high-powered offenses.',
-              keyPlayers: ['Stephen Curry', 'Devin Booker', 'Kevin Durant'],
-              tacticalAnalysis: 'The matchup features two of the best three-point shooting teams in the league. Rebounding and bench production could be decisive factors.'
-            }
+            venue: 'Dubai International',
+            time: 'Tomorrow, 08:00 GMT'
           }
         }
       ]
@@ -1908,7 +1781,7 @@ class ScoresApp {
   updateLiveCount() {
     const liveCount = document.getElementById('liveCount');
     if (liveCount) {
-      const count = this.state.allScores.live.length;
+      const count = this.filterScores(this.state.allScores.live, 'live').length;
       liveCount.textContent = `${count} match${count !== 1 ? 'es' : ''} live`;
     }
   }
@@ -2122,8 +1995,113 @@ class ScoresApp {
     try {
       const response = await this.fetchWithTimeout(`${this.endpoints.match}/${matchId}`);
       
-      if (!response || !response.success) {
-        this.showToast('Stats data not available for this match');
+      if (!response || !response.success || !response.score) {
+        // Use sample data if API fails
+        const score = this.getSampleMatchData(matchId);
+        if (!score) {
+          this.showToast('Stats data not available for this match');
+          return;
+        }
+        
+        const statsModal = document.getElementById('statsModal');
+        const statsModalTitle = document.getElementById('statsModalTitle');
+        const statsModalBody = document.getElementById('statsModalBody');
+        
+        statsModalTitle.textContent = `${score.teams.home.name} vs ${score.teams.away.name} - Statistics`;
+        
+        let statsHTML = '';
+        
+        // Key stats
+        if (score.stats && Object.keys(score.stats).length > 0) {
+          statsHTML += `
+            <div class="stats-container">
+          `;
+          
+          for (const [key, value] of Object.entries(score.stats)) {
+            const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            statsHTML += `
+              <div class="stat-item">
+                <div class="stat-value">${value}</div>
+                <div class="stat-label">${formattedKey}</div>
+              </div>
+            `;
+          }
+          
+          statsHTML += `</div>`;
+        } else {
+          statsHTML += `<div class="stats-container">
+            <div class="stat-item">
+              <div class="stat-value">${score.teams.home.score}</div>
+              <div class="stat-label">${score.teams.home.name}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">${score.teams.away.score}</div>
+              <div class="stat-label">${score.teams.away.name}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">${score.status}</div>
+              <div class="stat-label">Status</div>
+            </div>
+          </div>`;
+        }
+        
+        // Team stats
+        if (score.teamStats && score.teamStats.home && score.teamStats.away) {
+          statsHTML += `
+            <div class="team-stats">
+              <div class="team-stat">
+                <div class="team-stat-header">
+                  <div class="team-logo">${score.teams.home.logo}</div>
+                  <div class="team-stat-title">${score.teams.home.name}</div>
+                </div>
+                <div class="stat-list">
+          `;
+          
+          for (const [key, value] of Object.entries(score.teamStats.home)) {
+            if (key !== 'name') {
+              const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+              statsHTML += `
+                <div class="stat-row">
+                  <span class="stat-name">${formattedKey}</span>
+                  <span class="stat-value-team">${value}</span>
+                </div>
+              `;
+            }
+          }
+          
+          statsHTML += `
+                </div>
+              </div>
+              
+              <div class="team-stat">
+                <div class="team-stat-header">
+                  <div class="team-logo">${score.teams.away.logo}</div>
+                  <div class="team-stat-title">${score.teams.away.name}</div>
+                </div>
+                <div class="stat-list">
+          `;
+          
+          for (const [key, value] of Object.entries(score.teamStats.away)) {
+            if (key !== 'name') {
+              const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+              statsHTML += `
+                <div class="stat-row">
+                  <span class="stat-name">${formattedKey}</span>
+                  <span class="stat-value-team">${value}</span>
+                </div>
+              `;
+            }
+          }
+          
+          statsHTML += `
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        
+        statsModalBody.innerHTML = statsHTML;
+        statsModal.classList.add('active');
         return;
       }
 
@@ -2154,7 +2132,20 @@ class ScoresApp {
         
         statsHTML += `</div>`;
       } else {
-        statsHTML += `<p>No statistics available for this match.</p>`;
+        statsHTML += `<div class="stats-container">
+          <div class="stat-item">
+            <div class="stat-value">${score.teams.home.score}</div>
+            <div class="stat-label">${score.teams.home.name}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${score.teams.away.score}</div>
+            <div class="stat-label">${score.teams.away.name}</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">${score.status}</div>
+            <div class="stat-label">Status</div>
+          </div>
+        </div>`;
       }
       
       // Team stats
@@ -2225,8 +2216,48 @@ class ScoresApp {
     try {
       const response = await this.fetchWithTimeout(`${this.endpoints.match}/${matchId}`);
       
-      if (!response || !response.success) {
-        this.showToast('Highlights not available for this match');
+      if (!response || !response.success || !response.score) {
+        // Use sample data if API fails
+        const score = this.getSampleMatchData(matchId);
+        if (!score) {
+          this.showToast('Highlights not available for this match');
+          return;
+        }
+        
+        const highlightsModal = document.getElementById('highlightsModal');
+        const highlightsModalTitle = document.getElementById('highlightsModalTitle');
+        const highlightsModalBody = document.getElementById('highlightsModalBody');
+        
+        highlightsModalTitle.textContent = `${score.teams.home.name} vs ${score.teams.away.name} - Highlights`;
+        
+        let highlightsHTML = '';
+        
+        if (score.highlights && score.highlights.videoId) {
+          highlightsHTML = `
+            <div class="video-container">
+              <iframe 
+                src="https://www.youtube.com/embed/${score.highlights.videoId}" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+              </iframe>
+            </div>
+          `;
+        } else {
+          highlightsHTML = `<p>Video highlights not available for this match.</p>`;
+        }
+        
+        if (score.highlights && score.highlights.summary) {
+          highlightsHTML += `
+            <div class="match-summary">
+              <div class="summary-title">Match Summary</div>
+              <div class="summary-text">${score.highlights.summary}</div>
+            </div>
+          `;
+        }
+        
+        highlightsModalBody.innerHTML = highlightsHTML;
+        highlightsModal.classList.add('active');
         return;
       }
 
@@ -2276,8 +2307,159 @@ class ScoresApp {
     try {
       const response = await this.fetchWithTimeout(`${this.endpoints.match}/${matchId}`);
       
-      if (!response || !response.success) {
-        this.showToast('Preview not available for this match');
+      if (!response || !response.success || !response.score) {
+        // Use sample data if API fails
+        const score = this.getSampleMatchData(matchId);
+        if (!score) {
+          this.showToast('Preview not available for this match');
+          return;
+        }
+        
+        const previewModal = document.getElementById('previewModal');
+        const previewModalTitle = document.getElementById('previewModalTitle');
+        const previewModalBody = document.getElementById('previewModalBody');
+        
+        previewModalTitle.textContent = `${score.teams.home.name} vs ${score.teams.away.name} - Preview`;
+        
+        let previewHTML = '';
+        
+        // Check if we have preview data in different possible structures
+        const hasDetailedPreview = score.preview && score.preview.teams && 
+                                 score.preview.teams.home && score.preview.teams.home.lineup;
+        
+        const hasMatchPreview = score.preview && score.preview.matchPreview;
+        
+        const hasPreview = score.preview;
+        
+        if (hasDetailedPreview) {
+          // Detailed preview with lineup data (team sports)
+          previewHTML = `
+            <div class="preview-teams">
+              <div class="preview-team">
+                <div class="preview-team-header">
+                  <div class="team-logo">${score.teams.home.logo}</div>
+                  <div class="preview-team-title">${score.teams.home.name}</div>
+                </div>
+                <div class="coach-info">
+                  <span class="coach-label">Coach:</span>
+                  <span class="coach-name">${score.preview.teams.home.coach}</span>
+                </div>
+                <div class="lineup-section">
+                  <div class="lineup-title">Starting Lineup</div>
+                  <div class="player-list">
+          `;
+          
+          score.preview.teams.home.lineup.forEach(player => {
+            previewHTML += `
+              <div class="player-item">
+                <div class="player-number">${player.number}</div>
+                <div class="player-name">${player.name}</div>
+                <div class="player-position">${player.position}</div>
+              </div>
+            `;
+          });
+          
+          previewHTML += `
+                  </div>
+                </div>
+              </div>
+              
+              <div class="preview-team">
+                <div class="preview-team-header">
+                  <div class="team-logo">${score.teams.away.logo}</div>
+                  <div class="preview-team-title">${score.teams.away.name}</div>
+                </div>
+                <div class="coach-info">
+                  <span class="coach-label">Coach:</span>
+                  <span class="coach-name">${score.preview.teams.away.coach}</span>
+                </div>
+                <div class="lineup-section">
+                  <div class="lineup-title">Starting Lineup</div>
+                  <div class="player-list">
+          `;
+          
+          score.preview.teams.away.lineup.forEach(player => {
+            previewHTML += `
+              <div class="player-item">
+                <div class="player-number">${player.number}</div>
+                <div class="player-name">${player.name}</div>
+                <div class="player-position">${player.position}</div>
+              </div>
+            `;
+          });
+          
+          previewHTML += `
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        } 
+        
+        // Add match preview information if available
+        if (hasMatchPreview) {
+          previewHTML += `
+            <div class="match-summary">
+              <div class="summary-title">Match Preview</div>
+              <div class="summary-text">${score.preview.matchPreview.summary}</div>
+              ${score.preview.matchPreview.keyPlayers ? `
+                <div class="summary-title" style="margin-top: 20px;">Key Players</div>
+                <div class="summary-text">${Array.isArray(score.preview.matchPreview.keyPlayers) ? 
+                  score.preview.matchPreview.keyPlayers.join(', ') : 
+                  score.preview.matchPreview.keyPlayers}</div>
+              ` : ''}
+              ${score.preview.matchPreview.tacticalAnalysis ? `
+                <div class="summary-title" style="margin-top: 20px;">Tactical Analysis</div>
+                <div class="summary-text">${score.preview.matchPreview.tacticalAnalysis}</div>
+              ` : ''}
+            </div>
+          `;
+        } else if (hasPreview) {
+          // Generic preview information
+          previewHTML += `
+            <div class="preview-teams">
+              <div class="preview-team">
+                <div class="preview-team-header">
+                  <div class="team-logo">${score.teams.home.logo}</div>
+                  <div class="preview-team-title">${score.teams.home.name}</div>
+                </div>
+                <p>Preview information available for this match.</p>
+              </div>
+              
+              <div class="preview-team">
+                <div class="preview-team-header">
+                  <div class="team-logo">${score.teams.away.logo}</div>
+                  <div class="preview-team-title">${score.teams.away.name}</div>
+                </div>
+                <p>Match details and analysis provided.</p>
+              </div>
+            </div>
+          `;
+        } else {
+          // No preview data available
+          previewHTML = `
+            <div class="preview-teams">
+              <div class="preview-team">
+                <div class="preview-team-header">
+                  <div class="team-logo">${score.teams.home.logo}</div>
+                  <div class="preview-team-title">${score.teams.home.name}</div>
+                </div>
+                <p>Preview information not available for this match.</p>
+              </div>
+              
+              <div class="preview-team">
+                <div class="preview-team-header">
+                  <div class="team-logo">${score.teams.away.logo}</div>
+                  <div class="preview-team-title">${score.teams.away.name}</div>
+                </div>
+                <p>Check back closer to match time for team news and lineups.</p>
+              </div>
+            </div>
+          `;
+        }
+        
+        previewModalBody.innerHTML = previewHTML;
+        previewModal.classList.add('active');
         return;
       }
 
@@ -2432,6 +2614,17 @@ class ScoresApp {
       console.error('Error loading preview:', error);
       this.showToast('Error loading match preview');
     }
+  }
+
+  getSampleMatchData(matchId) {
+    // Combine all sample scores
+    const allSamples = [
+      ...this.getSampleScores('live'),
+      ...this.getSampleScores('results'),
+      ...this.getSampleScores('upcoming')
+    ];
+    
+    return allSamples.find(score => score.matchId === matchId);
   }
 
   async checkAuthStatus() {

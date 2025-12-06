@@ -29,7 +29,179 @@ class SportPageManager {
         this.setupLiveScoreUpdates();
         this.setupVideoPlayers();
         this.setupRightSidebar();
+        
+        // IMPORTANT: Initialize hero follow button for this sport
+        this.initHeroFollowButton();
     }
+
+    initHeroFollowButton() {
+        const heroFollowBtn = document.getElementById('heroFollowBtn');
+        if (heroFollowBtn) {
+            const sportId = heroFollowBtn.getAttribute('data-sport-id');
+            const isFollowed = this.isSportFollowed(sportId);
+            
+            this.updateHeroFollowButton(heroFollowBtn, isFollowed);
+            
+            heroFollowBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleHeroFollowClick(heroFollowBtn);
+            });
+        }
+    }
+
+    isSportFollowed(sportId) {
+        return followedSports.some(sport => sport.sportId === sportId);
+    }
+
+    updateHeroFollowButton(button, isFollowed) {
+        const followText = button.querySelector('.follow-text');
+        const followIcon = button.querySelector('.follow-icon-hero');
+        
+        if (!followText || !followIcon) {
+            console.warn('Hero follow button elements not found');
+            return;
+        }
+
+        // Use requestAnimationFrame for smoother transitions
+        requestAnimationFrame(() => {
+            if (isFollowed) {
+                button.classList.add('following');
+                followText.textContent = 'Followed';
+                followIcon.textContent = '❤️';
+                followIcon.style.transform = 'scale(1.2)';
+                
+                // Reset transform after animation
+                setTimeout(() => {
+                    followIcon.style.transform = 'scale(1)';
+                }, 300);
+            } else {
+                button.classList.remove('following');
+                followText.textContent = 'Follow';
+                followIcon.textContent = '🤍';
+                followIcon.style.transform = 'scale(1.2)';
+                
+                // Reset transform after animation
+                setTimeout(() => {
+                    followIcon.style.transform = 'scale(1)';
+                }, 300);
+            }
+            
+            // Force reflow for smooth transition
+            button.offsetHeight;
+        });
+    }
+
+    async handleHeroFollowClick(button) {
+        if (!this.currentUser) {
+            this.showToast('Please log in to follow sports', 'error');
+            return;
+        }
+
+        const sportId = button.getAttribute('data-sport-id');
+        const sportName = button.getAttribute('data-sport-name');
+        const sportIcon = button.getAttribute('data-sport-icon');
+        const isCurrentlyFollowed = this.isSportFollowed(sportId);
+
+        // Add loading state with proper transitions
+        button.classList.add('loading', 'btn-loading');
+        button.disabled = true;
+        
+        // Store original content for restoration if needed
+        const originalContent = button.innerHTML;
+
+        try {
+            let result;
+            if (isCurrentlyFollowed) {
+                result = await SportsManager.unfollowSport(sportId);
+            } else {
+                result = await SportsManager.followSport(sportId, sportName, sportIcon);
+            }
+
+            if (result.success) {
+                this.showToast(result.message, 'success');
+                
+                // Add animation class for smooth transition
+                button.classList.add('animating');
+                setTimeout(() => button.classList.remove('animating'), 600);
+                
+                // Update button state with smooth transition
+                this.updateHeroFollowButton(button, !isCurrentlyFollowed);
+                
+                await this.loadFollowedSports();
+                
+                if (window.AllSportsApp) {
+                    window.AllSportsApp.updateSportFollowButtons();
+                    window.AllSportsApp.updateSportsWidget();
+                }
+            } else {
+                this.showToast(result.message, 'error');
+                // Restore original content on error
+                button.innerHTML = originalContent;
+                this.updateHeroFollowButton(button, isCurrentlyFollowed);
+            }
+        } catch (error) {
+            console.error('Error handling sport follow:', error);
+            this.showToast('Error updating sport follow status', 'error');
+            // Restore original content on error
+            button.innerHTML = originalContent;
+            this.updateHeroFollowButton(button, isCurrentlyFollowed);
+        } finally {
+            button.classList.remove('loading', 'btn-loading');
+            button.disabled = false;
+        }
+    }
+
+    async loadFollowedSports() {
+        try {
+            const result = await SportsManager.getFollowedSports();
+            if (result.success) {
+                followedSports = result.followedSports;
+                SportsManager.updateFollowedSportsCache(followedSports);
+                console.log('Followed sports loaded:', followedSports);
+                this.updateSportFollowButtons();
+            }
+        } catch (error) {
+            console.error('Error loading followed sports:', error);
+        }
+    }
+
+    updateSportFollowButtons() {
+        const heroFollowBtn = document.getElementById('heroFollowBtn');
+        if (heroFollowBtn) {
+            const sportId = heroFollowBtn.getAttribute('data-sport-id');
+            const isFollowed = this.isSportFollowed(sportId);
+            this.updateHeroFollowButton(heroFollowBtn, isFollowed);
+        }
+    }
+
+    showToast(message, type = 'success') {
+        if (window.AllSportsApp && window.AllSportsApp.showToast) {
+            window.AllSportsApp.showToast(message, type);
+        } else {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#ff4444' : '#34a853'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    }
+
+    // ... rest of the SportPageManager class methods remain the same ...
+    // Setup right sidebar, load data, render videos, etc.
 
     setupRightSidebar() {
         this.ensureRightSidebarContainers();
@@ -1401,31 +1573,6 @@ class SportPageManager {
         }
     }
 
-    showToast(message, type = 'success') {
-        if (window.AllSportsApp && window.AllSportsApp.showToast) {
-            window.AllSportsApp.showToast(message, type);
-        } else {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: ${type === 'error' ? '#ff4444' : '#34a853'};
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-            `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-    }
-
     formatTimeAgo(dateString) {
         if (!dateString) return 'Recently';
         
@@ -2097,7 +2244,7 @@ class AllSportsApp {
         
         await this.initSportsFollowFunctionality();
         
-        this.initHeroFollowButton();
+        // Don't initialize hero follow button here - let SportPageManager handle it
     }
 
     getCurrentPage() {
@@ -2107,6 +2254,15 @@ class AllSportsApp {
         if (path.includes('watch.html')) return 'watch';
         if (path.includes('teams.html')) return 'teams';
         if (path.includes('fixtures.html')) return 'fixtures';
+        if (path.includes('.html') && !path.includes('index.html')) {
+            // Check if it's a sport page
+            const sportPages = ['football', 'cricket', 'basketball', 'tennis', 'baseball', 
+                              'hockey', 'golf', 'rugby', 'formula1', 'boxing', 'mma', 'olympics'];
+            const pageName = path.split('/').pop().replace('.html', '');
+            if (sportPages.includes(pageName)) {
+                return 'sport';
+            }
+        }
         return 'home';
     }
 
@@ -2127,124 +2283,14 @@ class AllSportsApp {
             case 'fixtures':
                 this.initFixturesPage();
                 break;
+            case 'sport':
+                // Sport pages are handled by SportPageManager
+                break;
         }
     }
 
     initLoginPage() {
         new LoginPageHandler();
-    }
-
-    initHeroFollowButton() {
-        const heroFollowBtn = document.getElementById('footballFollowBtn');
-        if (heroFollowBtn) {
-            const sportId = heroFollowBtn.getAttribute('data-sport-id');
-            const isFollowed = this.isSportFollowed(sportId);
-            
-            this.updateHeroFollowButton(heroFollowBtn, isFollowed);
-            
-            heroFollowBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                this.handleHeroFollowClick(heroFollowBtn);
-            });
-        }
-    }
-
-    async handleHeroFollowClick(button) {
-        if (!this.state.user) {
-            this.showToast('Please log in to follow sports', 'error');
-            return;
-        }
-
-        const sportId = button.getAttribute('data-sport-id');
-        const sportName = button.getAttribute('data-sport-name');
-        const sportIcon = button.getAttribute('data-sport-icon');
-        const isCurrentlyFollowed = this.isSportFollowed(sportId);
-
-        // Add loading state with proper transitions
-        button.classList.add('loading', 'btn-loading');
-        button.disabled = true;
-        
-        // Store original content for restoration if needed
-        const originalContent = button.innerHTML;
-
-        try {
-            let result;
-            if (isCurrentlyFollowed) {
-                result = await SportsManager.unfollowSport(sportId);
-            } else {
-                result = await SportsManager.followSport(sportId, sportName, sportIcon);
-            }
-
-            if (result.success) {
-                this.showToast(result.message, 'success');
-                
-                // Add animation class for smooth transition
-                button.classList.add('animating');
-                setTimeout(() => button.classList.remove('animating'), 600);
-                
-                // Update button state with smooth transition
-                this.updateHeroFollowButton(button, !isCurrentlyFollowed);
-                
-                await this.loadFollowedSports();
-                
-                this.updateSportFollowButtons();
-                
-                this.updateSportsWidget();
-            } else {
-                this.showToast(result.message, 'error');
-                // Restore original content on error
-                button.innerHTML = originalContent;
-                this.updateHeroFollowButton(button, isCurrentlyFollowed);
-            }
-        } catch (error) {
-            console.error('Error handling sport follow:', error);
-            this.showToast('Error updating sport follow status', 'error');
-            // Restore original content on error
-            button.innerHTML = originalContent;
-            this.updateHeroFollowButton(button, isCurrentlyFollowed);
-        } finally {
-            button.classList.remove('loading', 'btn-loading');
-            button.disabled = false;
-        }
-    }
-
-    updateHeroFollowButton(button, isFollowed) {
-        const followText = button.querySelector('.follow-text');
-        const followIcon = button.querySelector('.follow-icon-hero');
-        
-        if (!followText || !followIcon) {
-            console.warn('Hero follow button elements not found');
-            return;
-        }
-
-        // Use requestAnimationFrame for smoother transitions
-        requestAnimationFrame(() => {
-            if (isFollowed) {
-                button.classList.add('following');
-                followText.textContent = 'Followed';
-                followIcon.textContent = '❤️';
-                followIcon.style.transform = 'scale(1.2)';
-                
-                // Reset transform after animation
-                setTimeout(() => {
-                    followIcon.style.transform = 'scale(1)';
-                }, 300);
-            } else {
-                button.classList.remove('following');
-                followText.textContent = 'Follow';
-                followIcon.textContent = '🤍';
-                followIcon.style.transform = 'scale(1.2)';
-                
-                // Reset transform after animation
-                setTimeout(() => {
-                    followIcon.style.transform = 'scale(1)';
-                }, 300);
-            }
-            
-            // Force reflow for smooth transition
-            button.offsetHeight;
-        });
     }
 
     async checkAuthStatus() {
@@ -2443,7 +2489,8 @@ class AllSportsApp {
             this.updateFollowButtonAppearance(button, isFollowed);
         });
 
-        const heroFollowBtn = document.getElementById('footballFollowBtn');
+        // Also update hero follow button if it exists
+        const heroFollowBtn = document.getElementById('heroFollowBtn');
         if (heroFollowBtn) {
             const sportId = heroFollowBtn.getAttribute('data-sport-id');
             const isFollowed = this.isSportFollowed(sportId);
@@ -2455,6 +2502,44 @@ class AllSportsApp {
             const sportId = button.getAttribute('data-sport-id');
             const isFollowed = this.isSportFollowed(sportId);
             this.updateToggleButtonAppearance(button, isFollowed);
+        });
+    }
+
+    updateHeroFollowButton(button, isFollowed) {
+        const followText = button.querySelector('.follow-text');
+        const followIcon = button.querySelector('.follow-icon-hero');
+        
+        if (!followText || !followIcon) {
+            console.warn('Hero follow button elements not found');
+            return;
+        }
+
+        // Use requestAnimationFrame for smoother transitions
+        requestAnimationFrame(() => {
+            if (isFollowed) {
+                button.classList.add('following');
+                followText.textContent = 'Followed';
+                followIcon.textContent = '❤️';
+                followIcon.style.transform = 'scale(1.2)';
+                
+                // Reset transform after animation
+                setTimeout(() => {
+                    followIcon.style.transform = 'scale(1)';
+                }, 300);
+            } else {
+                button.classList.remove('following');
+                followText.textContent = 'Follow';
+                followIcon.textContent = '🤍';
+                followIcon.style.transform = 'scale(1.2)';
+                
+                // Reset transform after animation
+                setTimeout(() => {
+                    followIcon.style.transform = 'scale(1)';
+                }, 300);
+            }
+            
+            // Force reflow for smooth transition
+            button.offsetHeight;
         });
     }
 

@@ -35,7 +35,8 @@ const scoreSchema = new mongoose.Schema({
   venue: String,
   time: {
     type: Date,
-    required: true
+    required: true,
+    index: true // Add index for better query performance
   },
   competition: String,
   matchDetails: {
@@ -61,5 +62,8 @@ const scoreSchema = new mongoose.Schema({
 scoreSchema.index({ status: 1, time: -1 });
 scoreSchema.index({ sport: 1, league: 1 });
 scoreSchema.index({ matchId: 1 });
+
+// Add compound index for today's results query
+scoreSchema.index({ status: 1, time: 1, isActive: 1 });
 
 module.exports = mongoose.model('Score', scoreSchema);

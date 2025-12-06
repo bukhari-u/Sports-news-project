@@ -253,6 +253,25 @@
       transform: rotate(45deg);
     }
     
+    .player-pin-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: rgba(0,0,0,0.3) !important;
+      color: rgba(255,255,255,0.5) !important;
+    }
+    
+    .player-pin-btn.disabled:hover {
+      transform: none !important;
+      background: rgba(0,0,0,0.3) !important;
+      color: rgba(255,255,255,0.5) !important;
+    }
+    
+    .player-pin-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    
     .player-modal-content {
       max-width: 900px;
       max-height: 90vh;
@@ -848,7 +867,7 @@ class PlayersApp {
     console.log('Players App Initializing...');
     await this.checkAuthStatus();
     await this.loadFollowedPlayers();
-    await this.loadUserPinnedPlayer(); // Load pinned player from user data
+    await this.loadUserPinnedPlayer();
     await this.loadPlayersFromDatabase();
     this.setupEventListeners();
     this.setupPlayerFunctionality();
@@ -868,7 +887,6 @@ class PlayersApp {
       if (data.success) {
         this.playersData = {};
         data.players.forEach(player => {
-          // Use a consistent ID - prefer playerId if it exists, otherwise use _id
           const playerId = player.playerId || player._id;
           
           this.playersData[playerId] = {
@@ -876,7 +894,6 @@ class PlayersApp {
             id: playerId,
             sportIcon: this.getSportIcon(player.sport),
             nationalityFlag: this.getCountryFlag(player.nationality),
-            // Ensure we have all required fields with fallbacks
             name: player.name || 'Unknown Player',
             sport: player.sport || 'Unknown Sport',
             position: player.position || 'Unknown Position',
@@ -890,17 +907,14 @@ class PlayersApp {
           };
         });
         
-        // Update the players grid with data from database
         this.renderPlayersGrid();
         console.log(`Loaded ${data.players.length} players from database`);
       } else {
         console.error('Failed to load players:', data.message);
-        // Fallback to default players if database fails
         this.loadDefaultPlayers();
       }
     } catch (error) {
       console.error('Error loading players from database:', error);
-      // Fallback to default players
       this.loadDefaultPlayers();
     }
   }
@@ -929,7 +943,7 @@ class PlayersApp {
     }
   }
 
-  async updateUserPinnedPlayer(playerId) {
+  async updateUserPinnedPlayer(playerId, action) {
     try {
       if (!this.state.user) {
         this.showToast('Please log in to pin players');
@@ -942,16 +956,16 @@ class PlayersApp {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          playerId: playerId,
-          action: playerId ? 'pin' : 'unpin'
+          playerId: action === 'pin' ? playerId : null,
+          action: action
         })
       });
 
       const data = await response.json();
 
       if (data.success) {
-        this.state.pinnedPlayerId = playerId;
-        console.log('Updated user pinned player:', playerId);
+        this.state.pinnedPlayerId = data.pinnedPlayerId || null;
+        console.log('Updated user pinned player:', this.state.pinnedPlayerId);
         return true;
       } else {
         console.error('Failed to update pinned player:', data.message);
@@ -966,7 +980,6 @@ class PlayersApp {
   }
 
   loadDefaultPlayers() {
-    // Fallback data in case database is not available
     this.playersData = {
       'cristiano-ronaldo': {
         name: 'Cristiano Ronaldo',
@@ -1006,7 +1019,6 @@ class PlayersApp {
           { year: '2023-Present', club: 'Al Nassr', apps: 50, goals: 44 }
         ]
       }
-      // ... include other default players as needed
     };
     this.renderPlayersGrid();
   }
@@ -1018,7 +1030,6 @@ class PlayersApp {
     playersGrid.innerHTML = Object.keys(this.playersData).map(playerId => {
       const player = this.playersData[playerId];
       
-      // Ensure we have basic player data
       if (!player || !player.name) {
         console.warn('Invalid player data:', playerId, player);
         return '';
@@ -1071,14 +1082,21 @@ class PlayersApp {
     
     pinButtons.forEach(button => {
       const playerId = button.dataset.player;
+      const isFollowing = this.state.followedPlayers.has(playerId);
       const isPinned = this.state.pinnedPlayerId === playerId;
       
+      button.classList.toggle('pinned', isPinned);
+      button.classList.toggle('disabled', !isFollowing && !isPinned);
+      
       if (isPinned) {
-        button.classList.add('pinned');
         button.innerHTML = '<i class="fas fa-thumbtack"></i> Pinned';
+        button.disabled = false;
+      } else if (!isFollowing) {
+        button.innerHTML = '<i class="fas fa-thumbtack"></i> Follow to Pin';
+        button.disabled = true;
       } else {
-        button.classList.remove('pinned');
         button.innerHTML = '<i class="fas fa-thumbtack"></i> Pin';
+        button.disabled = false;
       }
     });
   }
@@ -1092,9 +1110,15 @@ class PlayersApp {
       return;
     }
 
+    // Check if user is following the player (except when unpinning)
+    if (!this.state.followedPlayers.has(playerId) && this.state.pinnedPlayerId !== playerId) {
+      this.showToast('You must follow the player before pinning');
+      return;
+    }
+
     // If clicking the same pinned player, unpin it
     if (this.state.pinnedPlayerId === playerId) {
-      const success = await this.updateUserPinnedPlayer(null);
+      const success = await this.updateUserPinnedPlayer(playerId, 'unpin');
       if (success) {
         this.updatePinButtons();
         this.renderPinnedPlayer();
@@ -1105,7 +1129,7 @@ class PlayersApp {
 
     // If no current pinned player, just pin the new one
     if (!this.state.pinnedPlayerId) {
-      const success = await this.updateUserPinnedPlayer(playerId);
+      const success = await this.updateUserPinnedPlayer(playerId, 'pin');
       if (success) {
         this.updatePinButtons();
         this.renderPinnedPlayer();
@@ -1139,7 +1163,7 @@ class PlayersApp {
   async confirmPinSwap() {
     if (this.pendingPinPlayerId) {
       const oldPlayerName = this.getPlayerName(this.state.pinnedPlayerId);
-      const success = await this.updateUserPinnedPlayer(this.pendingPinPlayerId);
+      const success = await this.updateUserPinnedPlayer(this.pendingPinPlayerId, 'pin');
       
       if (success) {
         this.updatePinButtons();
@@ -1169,7 +1193,6 @@ class PlayersApp {
     const player = this.playersData[this.state.pinnedPlayerId];
     if (!player) {
       console.error('Pinned player not found:', this.state.pinnedPlayerId);
-      // Clear the invalid pinned player
       this.state.pinnedPlayerId = null;
       this.updatePinButtons();
       heroContainer.style.display = 'none';
@@ -1264,7 +1287,6 @@ class PlayersApp {
       }
     });
     
-    // Close search results when clicking outside
     document.addEventListener('click', (e) => {
       if (searchInput && !searchInput.contains(e.target) && searchResults && !searchResults.contains(e.target)) {
         searchResults.classList.remove('active');
@@ -1278,7 +1300,6 @@ class PlayersApp {
   prepareSearchData() {
     this.searchData = [];
     
-    // Add players from database
     Object.values(this.playersData).forEach(player => {
       this.searchData.push({
         id: `player-${player.id}`,
@@ -1291,7 +1312,6 @@ class PlayersApp {
       });
     });
     
-    // Add sports categories
     const sports = [
       { name: 'Football', icon: '⚽' },
       { name: 'Basketball', icon: '🏀' },
@@ -1411,7 +1431,7 @@ class PlayersApp {
         console.log('User authenticated:', this.state.user.username);
       } else {
         this.state.user = null;
-        this.state.pinnedPlayerId = null; // Clear pinned player when not logged in
+        this.state.pinnedPlayerId = null;
         this.updateAuthUI();
         console.log('User not authenticated');
       }
@@ -1485,7 +1505,7 @@ class PlayersApp {
       } else {
         button.classList.add('ghost');
         button.classList.remove('following');
-        button.textContent = 'Follow Player';
+        button.textContent = button.classList.contains('player-follow-btn') ? 'Follow' : 'Follow Player';
         button.style.background = '';
       }
     });
@@ -1524,13 +1544,23 @@ class PlayersApp {
       const data = await response.json();
 
       if (data.success) {
+        // Update local state immediately
         if (data.action === 'followed') {
           this.state.followedPlayers.add(playerId);
         } else if (data.action === 'unfollowed') {
           this.state.followedPlayers.delete(playerId);
+          
+          // If user unfollows a pinned player, unpin it automatically
+          if (this.state.pinnedPlayerId === playerId) {
+            await this.updateUserPinnedPlayer(playerId, 'unpin');
+          }
         }
 
+        // Update UI immediately
         this.updateFollowButtons();
+        this.updatePinButtons();
+        this.renderPinnedPlayer();
+        
         this.showToast(data.message);
       } else {
         this.showToast(data.message || 'Error updating follow status');
@@ -1565,7 +1595,7 @@ class PlayersApp {
     // Pin buttons
     document.addEventListener('click', (e) => {
       const pinBtn = e.target.closest('.player-pin-btn');
-      if (pinBtn) {
+      if (pinBtn && !pinBtn.disabled && !pinBtn.classList.contains('disabled')) {
         e.preventDefault();
         e.stopPropagation();
         const playerId = pinBtn.dataset.player;
@@ -1635,7 +1665,7 @@ class PlayersApp {
       if (data.success) {
         this.state.user = null;
         this.state.followedPlayers = new Set();
-        this.state.pinnedPlayerId = null; // Clear pinned player on logout
+        this.state.pinnedPlayerId = null;
         this.updateAuthUI();
         this.updateFollowButtons();
         this.updatePinButtons();
@@ -1742,6 +1772,9 @@ class PlayersApp {
     
     modalTitle.textContent = player.name;
     
+    const isFollowing = this.state.followedPlayers.has(playerId);
+    const isPinned = this.state.pinnedPlayerId === playerId;
+    
     let content = `
       <div class="player-modal-header">
         <div class="player-modal-image" style="background-image: url('${player.image}')"></div>
@@ -1775,10 +1808,11 @@ class PlayersApp {
                     data-player-name="${player.name}" data-sport="${player.sport}" 
                     data-position="${player.position}" data-team="${player.currentClub}" 
                     data-nationality="${player.nationality}" data-image="${player.image}">
-              ${this.state.followedPlayers.has(playerId) ? 'Following' : 'Follow Player'}
+              ${isFollowing ? 'Following' : 'Follow Player'}
             </button>
-            <button class="btn ghost player-pin-btn" data-player="${playerId}">
-              <i class="fas fa-thumbtack"></i> ${this.state.pinnedPlayerId === playerId ? 'Pinned' : 'Pin'}
+            <button class="btn ghost player-pin-btn ${isPinned ? 'pinned' : ''} ${!isFollowing && !isPinned ? 'disabled' : ''}" 
+                    data-player="${playerId}" ${!isFollowing && !isPinned ? 'disabled' : ''}>
+              <i class="fas fa-thumbtack"></i> ${isPinned ? 'Pinned' : (!isFollowing ? 'Follow to Pin' : 'Pin')}
             </button>
           </div>
         </div>
@@ -1879,6 +1913,7 @@ class PlayersApp {
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
+    // Update follow and pin buttons in modal
     setTimeout(() => {
       this.updateFollowButtons();
       this.updatePinButtons();
