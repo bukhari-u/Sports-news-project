@@ -5099,6 +5099,145 @@ app.use('/api/admin/*', (req, res, next) => {
 // Run on startup
 createDefaultAdmin();
 
+// ========== AUTO-SEED DATABASE ON STARTUP IF EMPTY ==========
+async function autoSeedDatabase() {
+  try {
+    // Check if database is empty
+    const videoCount = await Video.countDocuments();
+    const newsCount = await News.countDocuments();
+    const teamCount = await Team.countDocuments();
+    
+    if (videoCount > 0 || newsCount > 0 || teamCount > 0) {
+      console.log('📊 Database already has data, skipping auto-seed');
+      return;
+    }
+    
+    console.log('🌱 Database is empty, auto-seeding...');
+    
+    // Import data files
+    const fixturesData = require('./data/fixtures');
+    const tournamentsData = require('./data/tournaments');
+    const videosData = require('./data/videos');
+    const newsData = require('./data/news');
+    const teamsData = require('./data/teams');
+    const leagueTablesData = require('./data/leaguetables');
+    const playersData = require('./data/players');
+    const scoresData = require('./data/scores');
+    const liveEventsData = require('./data/liveevents');
+    
+    // Import all data with error handling
+    const fixtureResult = await Fixture.insertMany(fixturesData, { ordered: false }).catch(() => []);
+    console.log(`✅ Fixtures: ${fixtureResult.length || 0}`);
+    
+    const tournamentResult = await Tournament.insertMany(tournamentsData, { ordered: false }).catch(() => []);
+    console.log(`✅ Tournaments: ${tournamentResult.length || 0}`);
+    
+    const videoResult = await Video.insertMany(videosData, { ordered: false }).catch(() => []);
+    console.log(`✅ Videos: ${videoResult.length || 0}`);
+    
+    const newsResult = await News.insertMany(newsData, { ordered: false }).catch(() => []);
+    console.log(`✅ News: ${newsResult.length || 0}`);
+    
+    const teamResult = await Team.insertMany(teamsData, { ordered: false }).catch(() => []);
+    console.log(`✅ Teams: ${teamResult.length || 0}`);
+    
+    const leagueTableResult = await LeagueTable.insertMany(leagueTablesData, { ordered: false }).catch(() => []);
+    console.log(`✅ League Tables: ${leagueTableResult.length || 0}`);
+    
+    const playerResult = await Player.insertMany(playersData, { ordered: false }).catch(() => []);
+    console.log(`✅ Players: ${playerResult.length || 0}`);
+    
+    const scoreResult = await Score.insertMany(scoresData, { ordered: false }).catch(() => []);
+    console.log(`✅ Scores: ${scoreResult.length || 0}`);
+    
+    const liveEventResult = await LiveEvent.insertMany(liveEventsData, { ordered: false }).catch(() => []);
+    console.log(`✅ Live Events: ${liveEventResult.length || 0}`);
+    
+    console.log('🎉 Auto-seed completed successfully!');
+    
+  } catch (error) {
+    console.error('❌ Auto-seed error:', error.message);
+    // Don't crash the app if seeding fails
+  }
+}
+
+// Run auto-seed after DB connection
+mongoose.connection.once('open', async () => {
+  console.log('🔗 MongoDB connection established');
+  await autoSeedDatabase();
+});
+
+// ========== ONE-TIME DATABASE SEED ENDPOINT ==========
+app.get('/api/seed-database-now', async (req, res) => {
+  try {
+    console.log('🌱 Starting database seed...');
+    
+    // Import seed functions
+    const seedModule = require('./seed');
+    
+    // Note: You'll need to export functions from seed.js
+    // For now, we'll use import_all_data.js approach
+    
+    // Import data files
+    const fixturesData = require('./data/fixtures');
+    const tournamentsData = require('./data/tournaments');
+    const videosData = require('./data/videos');
+    const newsData = require('./data/news');
+    const teamsData = require('./data/teams');
+    const leagueTablesData = require('./data/leaguetables');
+    const playersData = require('./data/players');
+    const scoresData = require('./data/scores');
+    const liveEventsData = require('./data/liveevents');
+    
+    let results = {};
+    
+    // Import all data
+    const fixtureResult = await Fixture.insertMany(fixturesData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.fixtures = fixtureResult.length || 0;
+    
+    const tournamentResult = await Tournament.insertMany(tournamentsData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.tournaments = tournamentResult.length || 0;
+    
+    const videoResult = await Video.insertMany(videosData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.videos = videoResult.length || 0;
+    
+    const newsResult = await News.insertMany(newsData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.news = newsResult.length || 0;
+    
+    const teamResult = await Team.insertMany(teamsData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.teams = teamResult.length || 0;
+    
+    const leagueTableResult = await LeagueTable.insertMany(leagueTablesData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.leagueTables = leagueTableResult.length || 0;
+    
+    const playerResult = await Player.insertMany(playersData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.players = playerResult.length || 0;
+    
+    const scoreResult = await Score.insertMany(scoresData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.scores = scoreResult.length || 0;
+    
+    const liveEventResult = await LiveEvent.insertMany(liveEventsData, { ordered: false }).catch(e => ({ length: 0 }));
+    results.liveEvents = liveEventResult.length || 0;
+    
+    console.log('✅ Database seeded successfully!', results);
+    
+    res.json({
+      success: true,
+      message: 'Database seeded successfully!',
+      results: results,
+      note: 'You can delete this endpoint after seeding'
+    });
+    
+  } catch (error) {
+    console.error('❌ Seed error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error seeding database',
+      error: error.message
+    });
+  }
+});
+
 // SPA fallback route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
