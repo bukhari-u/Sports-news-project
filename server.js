@@ -5109,54 +5109,89 @@ async function autoSeedDatabase() {
     
     if (videoCount > 0 || newsCount > 0 || teamCount > 0) {
       console.log('📊 Database already has data, skipping auto-seed');
+      console.log(`   Videos: ${videoCount}, News: ${newsCount}, Teams: ${teamCount}`);
       return;
     }
     
     console.log('🌱 Database is empty, auto-seeding...');
     
-    // Import data files
-    const fixturesData = require('./data/fixtures');
-    const tournamentsData = require('./data/tournaments');
-    const videosData = require('./data/videos');
-    const newsData = require('./data/news');
-    const teamsData = require('./data/teams');
-    const leagueTablesData = require('./data/leaguetables');
-    const playersData = require('./data/players');
-    const scoresData = require('./data/scores');
-    const liveEventsData = require('./data/liveevents');
+    // Import data files with individual error handling
+    try {
+      const fixturesData = require('./data/fixtures');
+      const fixtureResult = await Fixture.insertMany(fixturesData, { ordered: false });
+      console.log(`✅ Fixtures: ${fixtureResult.length}`);
+    } catch (e) {
+      console.error('⚠️  Fixtures error:', e.message);
+    }
     
-    // Import all data with error handling
-    const fixtureResult = await Fixture.insertMany(fixturesData, { ordered: false }).catch(() => []);
-    console.log(`✅ Fixtures: ${fixtureResult.length || 0}`);
+    try {
+      const tournamentsData = require('./data/tournaments');
+      const tournamentResult = await Tournament.insertMany(tournamentsData, { ordered: false });
+      console.log(`✅ Tournaments: ${tournamentResult.length}`);
+    } catch (e) {
+      console.error('⚠️  Tournaments error:', e.message);
+    }
     
-    const tournamentResult = await Tournament.insertMany(tournamentsData, { ordered: false }).catch(() => []);
-    console.log(`✅ Tournaments: ${tournamentResult.length || 0}`);
+    try {
+      const videosData = require('./data/videos');
+      const videoResult = await Video.insertMany(videosData, { ordered: false });
+      console.log(`✅ Videos: ${videoResult.length}`);
+    } catch (e) {
+      console.error('⚠️  Videos error:', e.message);
+    }
     
-    const videoResult = await Video.insertMany(videosData, { ordered: false }).catch(() => []);
-    console.log(`✅ Videos: ${videoResult.length || 0}`);
+    try {
+      const newsData = require('./data/news');
+      const newsResult = await News.insertMany(newsData, { ordered: false });
+      console.log(`✅ News: ${newsResult.length}`);
+    } catch (e) {
+      console.error('⚠️  News error:', e.message);
+    }
     
-    const newsResult = await News.insertMany(newsData, { ordered: false }).catch(() => []);
-    console.log(`✅ News: ${newsResult.length || 0}`);
+    try {
+      const teamsData = require('./data/teams');
+      const teamResult = await Team.insertMany(teamsData, { ordered: false });
+      console.log(`✅ Teams: ${teamResult.length}`);
+    } catch (e) {
+      console.error('⚠️  Teams error:', e.message);
+    }
     
-    const teamResult = await Team.insertMany(teamsData, { ordered: false }).catch(() => []);
-    console.log(`✅ Teams: ${teamResult.length || 0}`);
+    try {
+      const leagueTablesData = require('./data/leaguetables');
+      const leagueTableResult = await LeagueTable.insertMany(leagueTablesData, { ordered: false });
+      console.log(`✅ League Tables: ${leagueTableResult.length}`);
+    } catch (e) {
+      console.error('⚠️  League Tables error:', e.message);
+    }
     
-    const leagueTableResult = await LeagueTable.insertMany(leagueTablesData, { ordered: false }).catch(() => []);
-    console.log(`✅ League Tables: ${leagueTableResult.length || 0}`);
+    try {
+      const playersData = require('./data/players');
+      const playerResult = await Player.insertMany(playersData, { ordered: false });
+      console.log(`✅ Players: ${playerResult.length}`);
+    } catch (e) {
+      console.error('⚠️  Players error:', e.message);
+    }
     
-    const playerResult = await Player.insertMany(playersData, { ordered: false }).catch(() => []);
-    console.log(`✅ Players: ${playerResult.length || 0}`);
+    try {
+      const scoresData = require('./data/scores');
+      const scoreResult = await Score.insertMany(scoresData, { ordered: false });
+      console.log(`✅ Scores: ${scoreResult.length}`);
+    } catch (e) {
+      console.error('⚠️  Scores error:', e.message);
+    }
     
-    const scoreResult = await Score.insertMany(scoresData, { ordered: false }).catch(() => []);
-    console.log(`✅ Scores: ${scoreResult.length || 0}`);
+    try {
+      const liveEventsData = require('./data/liveevents');
+      const liveEventResult = await LiveEvent.insertMany(liveEventsData, { ordered: false });
+      console.log(`✅ Live Events: ${liveEventResult.length}`);
+    } catch (e) {
+      console.error('⚠️  Live Events error:', e.message);
+    }
     
-    const liveEventResult = await LiveEvent.insertMany(liveEventsData, { ordered: false }).catch(() => []);
-    console.log(`✅ Live Events: ${liveEventResult.length || 0}`);
-    
-    console.log('🎉 Auto-seed completed successfully!');
+    console.log('🎉 Auto-seed completed!');
     
   } catch (error) {
-    console.error('❌ Auto-seed error:', error.message);
+    console.error('❌ Auto-seed error:', error);
     // Don't crash the app if seeding fails
   }
 }
