@@ -56,6 +56,12 @@
     box-shadow: 0 4px 12px rgba(232, 29, 47, 0.3);
 }
 
+/* Admin-specific logo styling */
+.admin-login .auth-logo img {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
 .auth-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -130,6 +136,16 @@
     box-shadow: 0 4px 12px rgba(232, 29, 47, 0.4);
 }
 
+/* Admin-specific button styling */
+.admin-login .btn-primary {
+    background: #3b82f6;
+}
+
+.admin-login .btn-primary:hover {
+    background: #2563eb;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
 .btn-primary:active {
     transform: translateY(0);
 }
@@ -158,6 +174,86 @@
 .auth-footer a:hover {
     text-decoration: underline;
     color: #ff6b6b;
+}
+
+/* Admin toggle styling */
+.admin-toggle {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.toggle-switch input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-slider {
+    width: 50px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 13px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.toggle-slider:before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s ease;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: #3b82f6;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+
+.toggle-label {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.admin-fields {
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    border: 1px dashed rgba(59, 130, 246, 0.3);
+}
+
+.admin-badge {
+    display: inline-block;
+    background: #3b82f6;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.admin-warning {
+    font-size: 0.8rem;
+    color: #fbbf24;
+    margin-top: 0.5rem;
 }
 
 .alert {
@@ -238,6 +334,10 @@
         width: 70px;
         height: 70px;
     }
+    
+    .admin-toggle {
+        padding: 0.75rem;
+    }
 }
 
 /* Add some subtle animation to the card */
@@ -254,4 +354,63 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+/* Admin User Info Styles */
+.admin-user {
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: auto;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--admin-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 18px;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: white;
+    margin-bottom: 2px;
+}
+
+.user-email {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
 }

@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -204,6 +205,100 @@ function generateDynamicFixtures(startDate, endDate, count) {
   
   return fixtures;
 }
+
+// ========== ADMIN-ONLY MIDDLEWARE ==========
+const requireAdmin = (req, res, next) => {
+    if (!req.session.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'Please log in to access admin panel'
+        });
+    }
+
+    if (!req.session.user.isAdmin) {
+        return res.status(403).json({
+            success: false,
+            message: 'Admin privileges required'
+        });
+    }
+
+    next();
+};
+
+// ========== ADMIN LOGIN ENDPOINT ==========
+app.post('/api/admin/login', async (req, res) => {
+    try {
+        const { email, password, adminCode } = req.body;
+
+        if (!email || !password || !adminCode) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email, password, and admin code are required'
+            });
+        }
+
+        // Verify admin code (use environment variable for security)
+        const validAdminCode = process.env.ADMIN_ACCESS_CODE || 'ADMIN123';
+        
+        if (adminCode !== validAdminCode) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid admin access code'
+            });
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase().trim() });
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid email or password'
+            });
+        }
+
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid email or password'
+            });
+        }
+
+        // Check if user is admin
+        if (!user.isAdmin) {
+            return res.status(403).json({
+                success: false,
+                message: 'Account does not have admin privileges'
+            });
+        }
+
+        req.session.user = {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            isAdmin: user.isAdmin
+        };
+
+        console.log(`✅ Admin login successful: ${user.email}`);
+
+        res.json({
+            success: true,
+            message: 'Admin login successful!',
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                isAdmin: user.isAdmin
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Admin login error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error during admin login'
+        });
+    }
+});
 
 // ========== FIXED SPORTS-SPECIFIC ENDPOINTS ==========
 
@@ -752,15 +847,34 @@ app.get('/api/user/watch-history', async (req, res) => {
   }
 });
 
-// Authentication Routes
+// ========== AUTHENTICATION ENDPOINTS (UPDATED FOR ADMIN) ==========
+
+// Enhanced Signup with Admin Support
 app.post('/api/signup', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, adminCode } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({
         success: false,
         message: 'All fields are required'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format'
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters'
       });
     }
 
@@ -775,10 +889,32 @@ app.post('/api/signup', async (req, res) => {
       });
     }
 
+    // Check for admin code
+    let isAdmin = false;
+    let adminCodeUsed = null;
+    
+    if (adminCode) {
+      // Verify admin code against environment variable
+      const validAdminCode = process.env.ADMIN_SECRET_CODE || 'DEFAULT_ADMIN_CODE_123';
+      
+      if (adminCode === validAdminCode) {
+        isAdmin = true;
+        adminCodeUsed = adminCode;
+        console.log(`✅ Admin account created for: ${email}`);
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid admin invitation code'
+        });
+      }
+    }
+
     const user = new User({
       username: username.trim(),
       email: email.toLowerCase().trim(),
-      password: password
+      password: password,
+      isAdmin: isAdmin,
+      adminCode: adminCodeUsed
     });
 
     await user.save();
@@ -786,16 +922,18 @@ app.post('/api/signup', async (req, res) => {
     req.session.user = {
       id: user._id,
       username: user.username,
-      email: user.email
+      email: user.email,
+      isAdmin: user.isAdmin
     };
 
     res.json({
       success: true,
-      message: 'Account created successfully!',
+      message: isAdmin ? 'Admin account created successfully!' : 'Account created successfully!',
       user: {
         id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        isAdmin: user.isAdmin
       }
     });
 
@@ -808,6 +946,7 @@ app.post('/api/signup', async (req, res) => {
   }
 });
 
+// Enhanced Login with Admin Support
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -835,11 +974,22 @@ app.post('/api/login', async (req, res) => {
       });
     }
 
+    // Check if account is active
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Please contact administrator.'
+      });
+    }
+
     req.session.user = {
       id: user._id,
       username: user.username,
-      email: user.email
+      email: user.email,
+      isAdmin: user.isAdmin || false
     };
+
+    console.log(`✅ ${user.isAdmin ? 'Admin' : 'User'} login: ${user.email}`);
 
     res.json({
       success: true,
@@ -847,7 +997,8 @@ app.post('/api/login', async (req, res) => {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        isAdmin: user.isAdmin || false
       }
     });
 
@@ -875,19 +1026,106 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
-app.get('/api/user', (req, res) => {
-  if (req.session.user) {
-    res.json({
-      success: true,
-      user: req.session.user
-    });
-  } else {
+// Get current user with admin status
+app.get('/api/user', async (req, res) => {
+  try {
+    if (req.session.user) {
+      // Fetch fresh user data from database
+      const user = await User.findById(req.session.user.id).select('-password');
+      
+      if (!user) {
+        req.session.destroy();
+        return res.json({
+          success: false,
+          user: null,
+          message: 'User not found'
+        });
+      }
+
+      // Update session with fresh data
+      req.session.user = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin || false
+      };
+
+      res.json({
+        success: true,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          isAdmin: user.isAdmin || false
+        }
+      });
+    } else {
+      res.json({
+        success: false,
+        user: null
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching user:', error);
     res.json({
       success: false,
       user: null
     });
   }
 });
+
+// Get admin status
+app.get('/api/user/admin-status', async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.json({
+        success: false,
+        isAdmin: false,
+        message: 'Not logged in'
+      });
+    }
+
+    const user = await User.findById(req.session.user.id);
+    if (!user) {
+      return res.json({
+        success: false,
+        isAdmin: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      isAdmin: user.isAdmin || false
+    });
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    res.json({
+      success: false,
+      isAdmin: false
+    });
+  }
+});
+
+// ========== ADMIN AUTHENTICATION MIDDLEWARE ==========
+const adminAuth = (req, res, next) => {
+  if (!req.session.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Please log in to access admin panel'
+    });
+  }
+
+  // Check if user is admin
+  if (!req.session.user.isAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'Admin privileges required'
+    });
+  }
+
+  next();
+};
 
 // ========== USER PREFERENCES ENDPOINT ==========
 app.get('/api/user/preferences', async (req, res) => {
@@ -2538,6 +2776,7 @@ app.post('/api/user/follow-match', async (req, res) => {
 });
 
 // Enhanced Set/Remove Reminder endpoint
+// Set/Remove Reminder endpoint
 app.post('/api/user/set-reminder', async (req, res) => {
   console.log('🔔 Set reminder request received:', req.body);
   
@@ -2559,10 +2798,10 @@ app.post('/api/user/set-reminder', async (req, res) => {
     action
   });
 
-  if (!matchId || !homeTeam || !awayTeam || !action) {
+  if (!matchId || !action) {
     return res.status(400).json({
       success: false,
-      message: 'Missing required fields: matchId, homeTeam, awayTeam, action'
+      message: 'Missing required fields: matchId, action'
     });
   }
 
@@ -2573,6 +2812,14 @@ app.post('/api/user/set-reminder', async (req, res) => {
   let responseAction;
 
   if (action === 'add') {
+    // For add, require more fields
+    if (!homeTeam || !awayTeam) {
+      return res.status(400).json({
+        success: false,
+        message: 'For adding reminder, homeTeam and awayTeam are required'
+      });
+    }
+
     update = {
       $addToSet: {
         matchReminders: { 
@@ -2590,12 +2837,13 @@ app.post('/api/user/set-reminder', async (req, res) => {
     message = `Reminder set for ${homeTeam} vs ${awayTeam}`;
     responseAction = 'reminder_set';
   } else if (action === 'remove') {
+    // For remove, only matchId is needed
     update = {
       $pull: {
         matchReminders: { matchId: matchIdStr }
       }
     };
-    message = `Reminder removed for ${homeTeam} vs ${awayTeam}`;
+    message = `Reminder removed successfully`;
     responseAction = 'reminder_removed';
   } else {
     return res.status(400).json({
@@ -2638,6 +2886,7 @@ app.post('/api/user/set-reminder', async (req, res) => {
     });
   }
 });
+
 
 // Get user's followed matches
 app.get('/api/user/followed-matches', async (req, res) => {
@@ -2772,10 +3021,10 @@ app.post('/api/user/set-tournament-reminder', async (req, res) => {
     action
   });
 
-  if (!tournamentId || !tournamentName || !action) {
+  if (!tournamentId || !action) {
     return res.status(400).json({
       success: false,
-      message: 'Missing required fields: tournamentId, tournamentName, action'
+      message: 'Missing required fields: tournamentId, action'
     });
   }
 
@@ -2786,6 +3035,14 @@ app.post('/api/user/set-tournament-reminder', async (req, res) => {
   let responseAction;
 
   if (action === 'add') {
+    // For add, require tournamentName
+    if (!tournamentName) {
+      return res.status(400).json({
+        success: false,
+        message: 'For adding tournament reminder, tournamentName is required'
+      });
+    }
+
     update = {
       $addToSet: {
         tournamentReminders: { 
@@ -2801,12 +3058,13 @@ app.post('/api/user/set-tournament-reminder', async (req, res) => {
     message = `You are now following ${tournamentName}`;
     responseAction = 'reminder_set';
   } else if (action === 'remove') {
+    // For remove, only tournamentId is needed
     update = {
       $pull: {
         tournamentReminders: { tournamentId: tournamentIdStr }
       }
     };
-    message = `You have unfollowed ${tournamentName}`;
+    message = `You have unfollowed the tournament`;
     responseAction = 'reminder_removed';
   } else {
     return res.status(400).json({
@@ -3168,21 +3426,6 @@ app.get('/api/tournaments', async (req, res) => {
     // If no tournaments found, return sample data
     if (tournaments.length === 0) {
       const sampleTournaments = [
-        {
-          tournamentId: 'TRN-501',
-          name: 'FIFA World Cup 2026',
-          sport: 'Football',
-          status: 'upcoming',
-          startDate: new Date('2026-06-08'),
-          endDate: new Date('2026-07-03'),
-          location: 'USA, Canada & Mexico',
-          teams: 48,
-          description: 'The 23rd FIFA World Cup, to be jointly hosted by 16 cities in three North American countries.',
-          prizeMoney: '$440 million',
-          isActive: true,
-          isFeatured: true
-        },
-
         {
           tournamentId: 'TRN-506',
           name: 'Super Bowl LVIII',
@@ -3552,6 +3795,1008 @@ function getSampleScores(status) {
   return allScores.filter(score => score.status === status.toLowerCase());
 }
 
+// ========== ADMIN STATISTICS ENDPOINTS ==========
+
+// Get dashboard statistics
+app.get('/api/admin/statistics', adminAuth, async (req, res) => {
+  try {
+    const [
+      totalUsers,
+      totalNews,
+      totalVideos,
+      totalFixtures,
+      totalLiveEvents,
+      totalTeams,
+      totalPlayers,
+      todayUsers,
+      todayFixtures
+    ] = await Promise.all([
+      User.countDocuments(),
+      News.countDocuments(),
+      Video.countDocuments(),
+      Fixture.countDocuments(),
+      LiveEvent.countDocuments(),
+      Team.countDocuments(),
+      Player.countDocuments(),
+      User.countDocuments({
+        createdAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+      }),
+      Fixture.countDocuments({
+        date: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+      })
+    ]);
+
+    // Count admin users
+    const adminUsers = await User.countDocuments({ isAdmin: true });
+
+    res.json({
+      success: true,
+      statistics: {
+        totalUsers,
+        totalNews,
+        totalVideos,
+        totalFixtures,
+        totalLiveEvents,
+        totalTeams,
+        totalPlayers,
+        adminUsers,
+        todayUsers,
+        todayFixtures,
+        storageUsed: Math.round(totalUsers * 0.5 + totalNews * 0.1), // Mock storage calculation
+        activeSessions: Math.floor(Math.random() * 100) + 50 // Mock active sessions
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching admin statistics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching statistics'
+    });
+  }
+});
+
+// Get recent activity
+app.get('/api/admin/activity', adminAuth, async (req, res) => {
+  try {
+    const [recentUsers, recentNews, recentVideos] = await Promise.all([
+      User.find().sort({ createdAt: -1 }).limit(5).select('username email createdAt isAdmin'),
+      News.find().sort({ date: -1 }).limit(5).select('title sport date'),
+      Video.find().sort({ createdAt: -1 }).limit(5).select('title sport createdAt')
+    ]);
+
+    const activityLog = [
+      ...recentUsers.map(user => ({
+        type: user.isAdmin ? 'admin_signup' : 'user_signup',
+        message: `${user.isAdmin ? 'New admin registered' : 'New user registered'}: ${user.username}`,
+        timestamp: user.createdAt,
+        user: { username: user.username, email: user.email, isAdmin: user.isAdmin }
+      })),
+      ...recentNews.map(news => ({
+        type: 'news_published',
+        message: `News published: ${news.title}`,
+        timestamp: news.date,
+        sport: news.sport
+      })),
+      ...recentVideos.map(video => ({
+        type: 'video_uploaded',
+        message: `Video uploaded: ${video.title}`,
+        timestamp: video.createdAt,
+        sport: video.sport
+      }))
+    ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 10);
+
+    res.json({
+      success: true,
+      activity: activityLog
+    });
+  } catch (error) {
+    console.error('Error fetching admin activity:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching activity'
+    });
+  }
+});
+
+// ========== USER MANAGEMENT ENDPOINTS ==========
+
+// Get all users with pagination
+app.get('/api/admin/users', adminAuth, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, search = '', sort = 'createdAt', order = 'desc' } = req.query;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (search) {
+      query.$or = [
+        { username: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const users = await User.find(query)
+      .select('-password')
+      .sort({ [sort]: order === 'desc' ? -1 : 1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await User.countDocuments(query);
+
+    res.json({
+      success: true,
+      users,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages: Math.ceil(total / limit)
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching users'
+    });
+  }
+});
+
+// Update user
+app.put('/api/admin/users/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, email, isAdmin, isActive } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Prevent admin from demoting themselves
+    if (req.session.user.id === id && isAdmin === false) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot remove admin privileges from yourself'
+      });
+    }
+
+    const updateData = {};
+    if (username !== undefined) updateData.username = username;
+    if (email !== undefined) updateData.email = email;
+    if (isAdmin !== undefined) updateData.isAdmin = isAdmin;
+    if (isActive !== undefined) updateData.isActive = isActive;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    ).select('-password');
+
+    res.json({
+      success: true,
+      message: 'User updated successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating user'
+    });
+  }
+});
+
+// Delete user
+app.delete('/api/admin/users/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent admin from deleting themselves
+    if (req.session.user.id === id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete your own account'
+      });
+    }
+
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting user'
+    });
+  }
+});
+
+// ========== CONTENT MANAGEMENT ENDPOINTS ==========
+
+// News management
+app.get('/api/admin/news', adminAuth, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, search = '' } = req.query;
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { excerpt: { $regex: search, $options: 'i' } },
+        { sport: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const news = await News.find(query)
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await News.countDocuments(query);
+
+    res.json({
+      success: true,
+      news,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching news'
+    });
+  }
+});
+
+app.post('/api/admin/news', adminAuth, async (req, res) => {
+  try {
+    const news = new News({
+      ...req.body,
+      isActive: true,
+      createdAt: new Date()
+    });
+
+    await news.save();
+
+    res.json({
+      success: true,
+      message: 'News article created successfully',
+      news
+    });
+  } catch (error) {
+    console.error('Error creating news:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating news article'
+    });
+  }
+});
+
+app.put('/api/admin/news/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const news = await News.findByIdAndUpdate(id, req.body, { new: true });
+
+    if (!news) {
+      return res.status(404).json({
+        success: false,
+        message: 'News article not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'News article updated successfully',
+      news
+    });
+  } catch (error) {
+    console.error('Error updating news:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating news article'
+    });
+  }
+});
+
+app.delete('/api/admin/news/:id', adminAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const news = await News.findByIdAndDelete(id);
+
+    if (!news) {
+      return res.status(404).json({
+        success: false,
+        message: 'News article not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'News article deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting news:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting news article'
+    });
+  }
+});
+
+// Videos management (similar structure)
+app.get('/api/admin/videos', adminAuth, async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const videos = await Video.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Video.countDocuments();
+
+    res.json({
+      success: true,
+      videos,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
+  } catch (error) {
+    console.error('Error fetching videos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching videos'
+    });
+  }
+});
+
+// Fixtures management
+app.get('/api/admin/fixtures', adminAuth, async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const fixtures = await Fixture.find()
+      .sort({ date: 1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Fixture.countDocuments();
+
+    res.json({
+      success: true,
+      fixtures,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    });
+  } catch (error) {
+    console.error('Error fetching fixtures:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching fixtures'
+    });
+  }
+});
+
+// ========== SYSTEM SETTINGS ENDPOINTS ==========
+
+// Get system settings
+app.get('/api/admin/settings', adminAuth, async (req, res) => {
+  try {
+    // In a real app, you'd store these in a database
+    const settings = {
+      siteName: 'AllSports Games',
+      siteDescription: 'Your premier sports destination',
+      maintenanceMode: false,
+      allowRegistrations: true,
+      allowAdminSignup: true,
+      adminSecretCode: process.env.ADMIN_SECRET_CODE ? '********' : 'Not set',
+      maxUploadSize: 50, // MB
+      videoQuality: '1080p',
+      cacheDuration: 3600, // seconds
+      analyticsEnabled: true,
+      emailNotifications: true,
+      socialSharing: true,
+      adPlacements: ['header', 'sidebar', 'article']
+    };
+
+    res.json({
+      success: true,
+      settings
+    });
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching settings'
+    });
+  }
+});
+
+// Update system settings
+app.put('/api/admin/settings', adminAuth, async (req, res) => {
+  try {
+    // In a real app, you'd save these to a database
+    const settings = req.body;
+
+    // Don't allow changing admin secret code from client for security
+    if (settings.adminSecretCode) {
+      delete settings.adminSecretCode;
+    }
+
+    res.json({
+      success: true,
+      message: 'Settings updated successfully',
+      settings
+    });
+  } catch (error) {
+    console.error('Error updating settings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating settings'
+    });
+  }
+});
+
+// ========== ANALYTICS ENDPOINTS ==========
+
+// Get analytics data
+app.get('/api/admin/analytics', adminAuth, async (req, res) => {
+  try {
+    const { period = '7d' } = req.query; // 7d, 30d, 90d
+    
+    // Mock analytics data - in a real app, you'd use a proper analytics service
+    const now = new Date();
+    const analytics = {
+      pageViews: {
+        total: 15000,
+        change: '+12%'
+      },
+      uniqueVisitors: {
+        total: 4500,
+        change: '+8%'
+      },
+      averageSession: {
+        total: '4m 30s',
+        change: '+5%'
+      },
+      bounceRate: {
+        total: '42%',
+        change: '-3%'
+      }
+    };
+
+    // Mock chart data
+    const chartData = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(now);
+      date.setDate(date.getDate() - (6 - i));
+      return {
+        date: date.toISOString().split('T')[0],
+        visits: Math.floor(Math.random() * 500) + 200,
+        pageviews: Math.floor(Math.random() * 1000) + 500,
+        users: Math.floor(Math.random() * 300) + 100
+      };
+    });
+
+    // Mock popular content
+    const popularContent = [
+      { title: 'Champions League Final Highlights', views: 12500, type: 'video' },
+      { title: 'NBA Finals Game 7 Analysis', views: 9800, type: 'news' },
+      { title: 'Premier League Transfer News', views: 8700, type: 'news' },
+      { title: 'World Cup Qualifiers', views: 7600, type: 'live' },
+      { title: 'Tennis Grand Slam Finals', views: 6500, type: 'video' }
+    ];
+
+    res.json({
+      success: true,
+      analytics,
+      chartData,
+      popularContent
+    });
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching analytics'
+    });
+  }
+});
+
+// ========== BACKUP & EXPORT ENDPOINTS ==========
+
+// Export data
+app.get('/api/admin/export/:type', adminAuth, async (req, res) => {
+  try {
+    const { type } = req.params;
+    let data;
+
+    switch (type) {
+      case 'users':
+        data = await User.find().select('-password');
+        break;
+      case 'news':
+        data = await News.find();
+        break;
+      case 'videos':
+        data = await Video.find();
+        break;
+      default:
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid export type'
+        });
+    }
+
+    res.json({
+      success: true,
+      data,
+      exportedAt: new Date().toISOString(),
+      count: data.length
+    });
+  } catch (error) {
+    console.error('Error exporting data:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error exporting data'
+    });
+  }
+});
+
+// Database backup (simulated)
+app.post('/api/admin/backup', adminAuth, async (req, res) => {
+  try {
+    // In a real app, you'd create an actual database backup
+    const backupInfo = {
+      id: `backup_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      size: '2.4 GB',
+      status: 'completed',
+      downloadUrl: `/api/admin/backup/download/backup_${Date.now()}.json`
+    };
+
+    res.json({
+      success: true,
+      message: 'Backup created successfully',
+      backup: backupInfo
+    });
+  } catch (error) {
+    console.error('Error creating backup:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating backup'
+    });
+  }
+});
+
+// ========== BULK OPERATIONS ENDPOINTS ==========
+
+// Bulk delete
+app.post('/api/admin/bulk/delete', adminAuth, async (req, res) => {
+  try {
+    const { type, ids } = req.body;
+
+    if (!type || !ids || !Array.isArray(ids)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request data'
+      });
+    }
+
+    let result;
+    switch (type) {
+      case 'users':
+        // Don't allow deleting admin users or yourself
+        const filteredIds = ids.filter(id => id !== req.session.user.id);
+        result = await User.deleteMany({ _id: { $in: filteredIds } });
+        break;
+      case 'news':
+        result = await News.deleteMany({ _id: { $in: ids } });
+        break;
+      case 'videos':
+        result = await Video.deleteMany({ _id: { $in: ids } });
+        break;
+      default:
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid type for bulk delete'
+        });
+    }
+
+    res.json({
+      success: true,
+      message: `Deleted ${result.deletedCount} ${type}`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error in bulk delete:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error performing bulk delete'
+    });
+  }
+});
+
+// Bulk update
+app.post('/api/admin/bulk/update', adminAuth, async (req, res) => {
+  try {
+    const { type, ids, update } = req.body;
+
+    if (!type || !ids || !update) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request data'
+      });
+    }
+
+    let result;
+    switch (type) {
+      case 'users':
+        result = await User.updateMany(
+          { _id: { $in: ids } },
+          { $set: update }
+        );
+        break;
+      case 'news':
+        result = await News.updateMany(
+          { _id: { $in: ids } },
+          { $set: update }
+        );
+        break;
+      default:
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid type for bulk update'
+        });
+    }
+
+    res.json({
+      success: true,
+      message: `Updated ${result.modifiedCount} ${type}`,
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('Error in bulk update:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error performing bulk update'
+    });
+  }
+});
+// ========== ADMIN VIDEO ENDPOINTS ==========
+app.get('/api/admin/videos', adminAuth, async (req, res) => {
+    try {
+        const { 
+            page = 1, 
+            limit = 20, 
+            search = '',
+            sport,
+            category,
+            type 
+        } = req.query;
+        
+        const skip = (page - 1) * limit;
+        
+        let query = {};
+        
+        // Build filter query
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        if (sport && sport !== 'all') query.sport = sport;
+        if (category && category !== 'all') query.category = category;
+        if (type && type !== 'all') query.type = type;
+
+        const videos = await Video.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+        
+        const total = await Video.countDocuments(query);
+
+        res.json({
+            success: true,
+            videos,
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit)
+        });
+    } catch (error) {
+        console.error('Error fetching admin videos:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching videos'
+        });
+    }
+});
+
+app.post('/api/admin/videos', adminAuth, async (req, res) => {
+    try {
+        const videoData = {
+            ...req.body,
+            videoId: `VID_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            createdAt: new Date(),
+            isActive: true
+        };
+
+        const video = new Video(videoData);
+        await video.save();
+
+        res.json({
+            success: true,
+            message: 'Video created successfully',
+            video
+        });
+    } catch (error) {
+        console.error('Error creating video:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating video'
+        });
+    }
+});
+
+app.put('/api/admin/videos/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const video = await Video.findByIdAndUpdate(id, req.body, { new: true });
+
+        if (!video) {
+            return res.status(404).json({
+                success: false,
+                message: 'Video not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Video updated successfully',
+            video
+        });
+    } catch (error) {
+        console.error('Error updating video:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating video'
+        });
+    }
+});
+
+app.delete('/api/admin/videos/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const video = await Video.findByIdAndDelete(id);
+
+        if (!video) {
+            return res.status(404).json({
+                success: false,
+                message: 'Video not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Video deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting video:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting video'
+        });
+    }
+});
+
+// ========== ADMIN FIXTURE ENDPOINTS ==========
+app.get('/api/admin/fixtures', adminAuth, async (req, res) => {
+    try {
+        const { 
+            page = 1, 
+            limit = 20, 
+            search = '',
+            sport,
+            status,
+            league 
+        } = req.query;
+        
+        const skip = (page - 1) * limit;
+        
+        let query = {};
+        
+        // Build filter query
+        if (search) {
+            query.$or = [
+                { 'homeTeam.name': { $regex: search, $options: 'i' } },
+                { 'awayTeam.name': { $regex: search, $options: 'i' } },
+                { league: { $regex: search, $options: 'i' } }
+            ];
+        }
+        
+        if (sport && sport !== 'all') query.sport = sport;
+        if (status && status !== 'all') query.status = status;
+        if (league && league !== 'all') query.league = { $regex: new RegExp(league, 'i') };
+
+        const fixtures = await Fixture.find(query)
+            .sort({ date: 1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+        
+        const total = await Fixture.countDocuments(query);
+
+        res.json({
+            success: true,
+            fixtures,
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit)
+        });
+    } catch (error) {
+        console.error('Error fetching admin fixtures:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching fixtures'
+        });
+    }
+});
+
+app.post('/api/admin/fixtures', adminAuth, async (req, res) => {
+    try {
+        const fixtureData = {
+            ...req.body,
+            fixtureId: `FIX_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            isActive: true
+        };
+
+        const fixture = new Fixture(fixtureData);
+        await fixture.save();
+
+        res.json({
+            success: true,
+            message: 'Fixture created successfully',
+            fixture
+        });
+    } catch (error) {
+        console.error('Error creating fixture:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error creating fixture'
+        });
+    }
+});
+
+app.put('/api/admin/fixtures/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const fixture = await Fixture.findByIdAndUpdate(id, req.body, { new: true });
+
+        if (!fixture) {
+            return res.status(404).json({
+                success: false,
+                message: 'Fixture not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Fixture updated successfully',
+            fixture
+        });
+    } catch (error) {
+        console.error('Error updating fixture:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating fixture'
+        });
+    }
+});
+
+app.delete('/api/admin/fixtures/:id', adminAuth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const fixture = await Fixture.findByIdAndDelete(id);
+
+        if (!fixture) {
+            return res.status(404).json({
+                success: false,
+                message: 'Fixture not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: 'Fixture deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting fixture:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting fixture'
+        });
+    }
+});
+
+// ========== ADMIN STATISTICS ENDPOINT (ENHANCED) ==========
+app.get('/api/admin/statistics', adminAuth, async (req, res) => {
+    try {
+        const [
+            totalUsers,
+            totalNews,
+            totalVideos,
+            totalFixtures,
+            totalLiveEvents,
+            totalTeams,
+            totalPlayers,
+            todayUsers,
+            todayFixtures,
+            todayVideos
+        ] = await Promise.all([
+            User.countDocuments(),
+            News.countDocuments(),
+            Video.countDocuments(),
+            Fixture.countDocuments(),
+            LiveEvent.countDocuments({ status: 'Live' }),
+            Team.countDocuments(),
+            Player.countDocuments(),
+            User.countDocuments({
+                createdAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+            }),
+            Fixture.countDocuments({
+                date: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+            }),
+            Video.countDocuments({
+                createdAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+            })
+        ]);
+
+        // Count admin users
+        const adminUsers = await User.countDocuments({ isAdmin: true });
+
+        res.json({
+            success: true,
+            statistics: {
+                totalUsers,
+                totalNews,
+                totalVideos,
+                totalFixtures,
+                totalLiveEvents,
+                totalTeams,
+                totalPlayers,
+                adminUsers,
+                todayUsers,
+                todayFixtures,
+                todayVideos,
+                storageUsed: Math.round((totalUsers * 0.5 + totalNews * 0.1 + totalVideos * 2) / 1024), // in MB
+                activeSessions: Math.floor(Math.random() * 100) + 50
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching admin statistics:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching statistics'
+        });
+    }
+});
+
 // ========== MISSING SAMPLE VIDEOS FUNCTION ==========
 function getSampleVideos() {
     const now = new Date();
@@ -3778,6 +5023,82 @@ function getSampleUpcomingScores() {
   ];
 }
 
+// ========== CREATE DEFAULT ADMIN ACCOUNT ==========
+async function createDefaultAdmin() {
+  try {
+    // Check if admin exists
+    const adminExists = await User.findOne({ email: 'admin@allsports.com' });
+    
+    if (!adminExists) {
+      const adminUser = new User({
+        username: 'admin',
+        email: 'admin@allsports.com',
+        password: 'admin123', // Change this in production!
+        isAdmin: true,
+        adminCode: process.env.ADMIN_SECRET_CODE || 'DEFAULT_ADMIN_CODE_123'
+      });
+      
+      await adminUser.save();
+      console.log('✅ Default admin account created: admin@allsports.com / admin123');
+    }
+  } catch (error) {
+    console.error('Error creating default admin:', error);
+  }
+}
+// Add this endpoint to check admin status
+app.get('/api/admin/check-status/:userId', async (req, res) => {
+    try {
+        console.log('🔍 Checking admin status for user:', req.params.userId);
+        
+        const user = await User.findById(req.params.userId).select('isAdmin username email');
+        
+        if (!user) {
+            console.log('❌ User not found for admin check');
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        
+        console.log(`✅ User ${user.username} admin status: ${user.isAdmin}`);
+        
+        res.json({
+            success: true,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                isAdmin: user.isAdmin || false
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error checking admin status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error checking admin status'
+        });
+    }
+});
+
+// Protect admin routes
+app.get('/admin.html', requireAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Protect all /api/admin/* routes
+app.use('/api/admin/*', (req, res, next) => {
+  if (!req.session.user || !req.session.user.isAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'Admin privileges required'
+    });
+  }
+  next();
+});
+
+// Run on startup
+createDefaultAdmin();
+
 // SPA fallback route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -3796,4 +5117,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`💾 Database: ${MONGODB_URI}`);
+  console.log(`🔐 Admin access code: ${process.env.ADMIN_ACCESS_CODE || 'ADMIN123'}`);
+  console.log(`🔐 Admin secret code: ${process.env.ADMIN_SECRET_CODE || 'DEFAULT_ADMIN_CODE_123'}`);
+  console.log(`👑 Default admin: admin@allsports.com / admin123`);
 });

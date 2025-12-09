@@ -747,50 +747,41 @@ class AllSportsApp {
         this.renderUpcomingReminders(safeData.matchReminders, safeData.tournamentReminders);
     }
 
-    updateProfileStats(data) {
-        const followedTeams = data.followedTeams || [];
-        const followedPlayers = data.followedPlayers || [];
-        const matchReminders = data.matchReminders || [];
-        const tournamentReminders = data.tournamentReminders || [];
-        const watchHistory = data.watchHistory || [];
-        const followedSports = data.followedSports || [];
+   updateProfileStats(data) {
+    const followedTeams = data.followedTeams || [];
+    const followedPlayers = data.followedPlayers || [];
+    const matchReminders = data.matchReminders || [];
+    const tournamentReminders = data.tournamentReminders || [];
+    const watchHistory = data.watchHistory || [];
+    const followedSports = data.followedSports || [];
 
-        console.log('Profile stats data:', {
-            followedTeams: followedTeams.length,
-            followedPlayers: followedPlayers.length,
-            matchReminders: matchReminders.length,
-            tournamentReminders: tournamentReminders.length,
-            watchHistory: watchHistory.length,
-            followedSports: followedSports.length
-        });
-
-        const followedTeamsCount = document.getElementById('followedTeamsCount');
-        const followedPlayersCount = document.getElementById('followedPlayersCount');
-        const remindersCount = document.getElementById('remindersCount');
-        const watchHistoryCount = document.getElementById('watchHistoryCount');
-        
-        if (followedTeamsCount) followedTeamsCount.textContent = followedTeams.length;
-        if (followedPlayersCount) followedPlayersCount.textContent = followedPlayers.length;
-        if (remindersCount) remindersCount.textContent = matchReminders.length + tournamentReminders.length;
-        if (watchHistoryCount) watchHistoryCount.textContent = watchHistory.length;
-        
-        const totalMatches = document.getElementById('totalMatches');
-        const totalSports = document.getElementById('totalSports');
-        const activeReminders = document.getElementById('activeReminders');
-        const videosWatched = document.getElementById('videosWatched');
-        
-        if (totalMatches) totalMatches.textContent = matchReminders.length;
-        if (totalSports) totalSports.textContent = followedSports.length;
-        if (activeReminders) {
-            const upcomingReminders = matchReminders.filter(match => {
-                const matchTime = match.time || match.date;
-                if (!matchTime) return false;
-                return new Date(matchTime) >= new Date();
-            }).length;
-            activeReminders.textContent = upcomingReminders;
-        }
-        if (videosWatched) videosWatched.textContent = watchHistory.length;
+    const followedTeamsCount = document.getElementById('followedTeamsCount');
+    const followedPlayersCount = document.getElementById('followedPlayersCount');
+    const remindersCount = document.getElementById('remindersCount');
+    const watchHistoryCount = document.getElementById('watchHistoryCount');
+    
+    if (followedTeamsCount) followedTeamsCount.textContent = followedTeams.length;
+    if (followedPlayersCount) followedPlayersCount.textContent = followedPlayers.length;
+    if (remindersCount) remindersCount.textContent = matchReminders.length + tournamentReminders.length;
+    if (watchHistoryCount) watchHistoryCount.textContent = watchHistory.length;
+    
+    const totalMatches = document.getElementById('totalMatches');
+    const totalSports = document.getElementById('totalSports');
+    const activeReminders = document.getElementById('activeReminders');
+    const videosWatched = document.getElementById('videosWatched');
+    
+    if (totalMatches) totalMatches.textContent = matchReminders.length;
+    if (totalSports) totalSports.textContent = followedSports.length;
+    if (activeReminders) {
+        const upcomingReminders = matchReminders.filter(match => {
+            const matchTime = match.time || match.date;
+            if (!matchTime) return false;
+            return new Date(matchTime) >= new Date();
+        }).length;
+        activeReminders.textContent = upcomingReminders;
     }
+    if (videosWatched) videosWatched.textContent = watchHistory.length;
+}
 
     renderPinnedPlayer(pinnedPlayerId) {
         const container = document.getElementById('pinnedPlayerContent');
@@ -1336,26 +1327,32 @@ class AllSportsApp {
     }
 
     attachReminderEventListeners() {
-        document.querySelectorAll('.remove-reminder-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const type = btn.dataset.type;
-                const id = btn.dataset.id;
-                const itemElement = btn.closest('.followed-match-item');
-                const itemName = itemElement.querySelector('.match-teams strong').textContent;
-                
-                if (confirm(`Are you sure you want to remove reminder for ${itemName}?`)) {
-                    try {
-                        const endpoint = type === 'match' ? '/api/user/set-reminder' : '/api/user/set-tournament-reminder';
-                        const response = await fetch(endpoint, {
+    document.querySelectorAll('.remove-reminder-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const type = btn.dataset.type;
+            const id = btn.dataset.id;
+            const itemElement = btn.closest('.followed-match-item');
+            const itemName = itemElement.querySelector('.match-teams strong').textContent;
+            
+            if (confirm(`Are you sure you want to remove reminder for ${itemName}?`)) {
+                try {
+                    // For match reminders, get additional data from the element
+                    if (type === 'match') {
+                        const homeTeam = itemElement.querySelector('.match-teams strong')?.textContent?.split(' vs ')[0] || 'Unknown';
+                        const awayTeam = itemElement.querySelector('.match-teams strong')?.textContent?.split(' vs ')[1] || 'Unknown';
+                        
+                        const response = await fetch('/api/user/set-reminder', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                [`${type === 'match' ? 'matchId' : 'tournamentId'}`]: id,
+                                matchId: id,
+                                homeTeam: homeTeam,
+                                awayTeam: awayTeam,
                                 action: 'remove'
                             })
                         });
@@ -1366,28 +1363,63 @@ class AllSportsApp {
                             this.showToast(`Reminder removed for ${itemName}`);
                             itemElement.remove();
                             
-                            if (type === 'match') {
+                            // Update local state
+                            if (this.state.userProfile) {
                                 this.state.userProfile.matchReminders = this.state.userProfile.matchReminders.filter(
                                     reminder => (reminder.matchId !== id && reminder._id !== id)
                                 );
-                            } else {
+                            }
+                            
+                            // Update profile stats
+                            this.updateProfileStats(this.state.userProfile || {});
+                        } else {
+                            this.showToast('Error removing reminder', 'error');
+                        }
+                    } 
+                    // For tournament reminders
+                    else if (type === 'tournament') {
+                        const tournamentName = itemElement.querySelector('.match-teams strong')?.textContent || 'Unknown Tournament';
+                        
+                        const response = await fetch('/api/user/set-tournament-reminder', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                tournamentId: id,
+                                tournamentName: tournamentName,
+                                action: 'remove'
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            this.showToast(`Reminder removed for ${itemName}`);
+                            itemElement.remove();
+                            
+                            // Update local state
+                            if (this.state.userProfile) {
                                 this.state.userProfile.tournamentReminders = this.state.userProfile.tournamentReminders.filter(
                                     reminder => (reminder.tournamentId !== id && reminder._id !== id)
                                 );
                             }
                             
-                            this.updateProfileStats(this.state.userProfile);
+                            // Update profile stats
+                            this.updateProfileStats(this.state.userProfile || {});
                         } else {
                             this.showToast('Error removing reminder', 'error');
                         }
-                    } catch (error) {
-                        console.error('Error removing reminder:', error);
-                        this.showToast('Error removing reminder', 'error');
                     }
+                    
+                } catch (error) {
+                    console.error('Error removing reminder:', error);
+                    this.showToast('Error removing reminder', 'error');
                 }
-            });
+            }
         });
-    }
+    });
+}
 
     attachFollowedItemEventListeners() {
         document.querySelectorAll('.unfollow-btn').forEach(btn => {
@@ -4443,48 +4475,7 @@ class AllSportsApp {
                 isActive: true,
                 isFeatured: true
             },
-            {
-                _id: 'fixture2', 
-                homeTeam: { name: 'Barcelona' },
-                awayTeam: { name: 'Real Madrid' },
-                teams: { home: 'Barcelona', away: 'Real Madrid' },
-                league: 'La Liga',
-                sport: 'Football', 
-                time: '20:00',
-                date: today,
-                venue: 'Camp Nou',
-                status: 'upcoming',
-                isActive: true,
-                isFeatured: true
-            },
-            {
-                _id: 'fixture3',
-                homeTeam: { name: 'Golden State Warriors' },
-                awayTeam: { name: 'LA Lakers' },
-                teams: { home: 'Golden State Warriors', away: 'LA Lakers' },
-                league: 'NBA',
-                sport: 'Basketball',
-                time: '02:30',
-                date: tomorrow,
-                venue: 'Chase Center',
-                status: 'upcoming',
-                isActive: true,
-                isFeatured: true
-            },
-            {
-                _id: 'fixture4',
-                homeTeam: { name: 'India' },
-                awayTeam: { name: 'Australia' },
-                teams: { home: 'India', away: 'Australia' },
-                league: 'ICC World Cup',
-                sport: 'Cricket',
-                time: '09:30',
-                date: today,
-                venue: 'Melbourne Cricket Ground',
-                status: 'upcoming', 
-                isActive: true,
-                isFeatured: false
-            },
+           
             {
                 _id: 'fixture5',
                 homeTeam: { name: 'Chelsea' },

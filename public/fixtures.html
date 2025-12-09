@@ -1521,7 +1521,7 @@ class FixturesApp {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         
-        const sampleFixtures = getSampleFixtures();
+        const sampleFixtures = this.getSampleFixtures();
         this.fixturesData.today = sampleFixtures.filter(fixture => {
           const fixtureDate = new Date(fixture.date);
           fixtureDate.setHours(0, 0, 0, 0);
@@ -1577,7 +1577,7 @@ class FixturesApp {
         
         // Use sample data
         const now = new Date();
-        const sampleFixtures = getSampleFixtures();
+        const sampleFixtures = this.getSampleFixtures();
         this.fixturesData.upcoming = sampleFixtures
           .filter(fixture => {
             const fixtureDate = new Date(fixture.date);
@@ -1732,6 +1732,115 @@ class FixturesApp {
     return fixtures;
   }
 
+  getSampleFixtures() {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayAfter = new Date(tomorrow);
+    dayAfter.setDate(dayAfter.getDate() + 1);
+    
+    return [
+      {
+        fixtureId: '101',
+        sport: 'Football',
+        league: 'Premier League',
+        time: '20:00',
+        homeTeam: { name: 'Manchester United', shortCode: 'MUN' },
+        awayTeam: { name: 'Liverpool', shortCode: 'LIV' },
+        venue: 'Old Trafford',
+        date: today,
+        status: 'Scheduled',
+        round: 'Matchday 28',
+        competition: 'Premier League',
+        isActive: true
+      },
+      {
+        fixtureId: '102',
+        sport: 'Football',
+        league: 'Premier League',
+        time: '17:30',
+        homeTeam: { name: 'Arsenal', shortCode: 'ARS' },
+        awayTeam: { name: 'Chelsea', shortCode: 'CHE' },
+        venue: 'Emirates Stadium',
+        date: today,
+        status: 'Scheduled',
+        round: 'Matchday 28',
+        competition: 'Premier League',
+        isActive: true
+      },
+      {
+        fixtureId: '103',
+        sport: 'Basketball',
+        league: 'NBA',
+        time: '19:30',
+        homeTeam: { name: 'LA Lakers', shortCode: 'LAL' },
+        awayTeam: { name: 'Boston Celtics', shortCode: 'BOS' },
+        venue: 'Staples Center',
+        date: today,
+        status: 'Scheduled',
+        round: 'Regular Season',
+        competition: 'NBA',
+        isActive: true
+      },
+      {
+        fixtureId: '201',
+        sport: 'Football',
+        league: 'Champions League',
+        time: '20:00',
+        homeTeam: { name: 'Real Madrid', shortCode: 'RMA' },
+        awayTeam: { name: 'Bayern Munich', shortCode: 'BAY' },
+        venue: 'Santiago Bernabeu',
+        date: tomorrow,
+        status: 'Scheduled',
+        round: 'Quarterfinals',
+        competition: 'UEFA Champions League',
+        isActive: true
+      },
+      {
+        fixtureId: '202',
+        sport: 'Cricket',
+        league: 'IPL',
+        time: '19:30',
+        homeTeam: { name: 'Mumbai Indians', shortCode: 'MI' },
+        awayTeam: { name: 'Chennai Super Kings', shortCode: 'CSK' },
+        venue: 'Wankhede Stadium',
+        date: tomorrow,
+        status: 'Scheduled',
+        round: 'Match 35',
+        competition: 'Indian Premier League',
+        isActive: true
+      },
+      {
+        fixtureId: '301',
+        sport: 'Tennis',
+        league: 'ATP',
+        time: '14:00',
+        homeTeam: { name: 'Novak Djokovic', shortCode: 'DJK' },
+        awayTeam: { name: 'Carlos Alcaraz', shortCode: 'ALC' },
+        venue: 'Centre Court',
+        date: dayAfter,
+        status: 'Scheduled',
+        round: 'Semifinals',
+        competition: 'Wimbledon',
+        isActive: true
+      },
+      {
+        fixtureId: '302',
+        sport: 'Formula1',
+        league: 'Formula 1',
+        time: '15:00',
+        homeTeam: { name: 'Max Verstappen', shortCode: 'VER' },
+        awayTeam: { name: 'Lewis Hamilton', shortCode: 'HAM' },
+        venue: 'Silverstone Circuit',
+        date: dayAfter,
+        status: 'Scheduled',
+        round: 'British GP',
+        competition: 'Formula 1 World Championship',
+        isActive: true
+      }
+    ];
+  }
+
   normalizeFixture(fixture) {
     // Handle different data structures from server vs sample data
     const homeTeamName = fixture.homeTeam?.name || fixture.teams?.home || 'Home Team';
@@ -1812,65 +1921,6 @@ class FixturesApp {
     return dateObj.toLocaleDateString('en-US', options);
   }
 
-  loadSampleData() {
-    console.log('📋 Loading minimal sample data as fallback...');
-    
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const dayAfter = new Date(tomorrow);
-    dayAfter.setDate(dayAfter.getDate() + 1);
-    
-
-    
-    this.fixturesData.upcoming = [
-      {
-        fixtureId: '409',
-        sport: 'Football',
-        league: 'Premier League',
-        time: '15:00',
-        homeTeam: { name: 'Manchester United', shortCode: 'MUN' },
-        awayTeam: { name: 'Liverpool', shortCode: 'LIV' },
-        venue: 'Old Trafford',
-        date: tomorrow,
-        status: 'Scheduled',
-        round: 'Regular Season',
-        competition: 'Premier League',
-        isActive: true
-      },
-      {
-        fixtureId: '410',
-        sport: 'Football',
-        league: 'La Liga',
-        time: '20:00',
-        homeTeam: { name: 'Barcelona', shortCode: 'FCB' },
-        awayTeam: { name: 'Real Madrid', shortCode: 'RMA' },
-        venue: 'Camp Nou',
-        date: tomorrow,
-        status: 'Scheduled',
-        round: 'Regular Season',
-        competition: 'La Liga',
-        isActive: true
-      },
-      {
-        fixtureId: '411',
-        sport: 'Basketball',
-        league: 'NBA',
-        time: '23:00',
-        homeTeam: { name: 'LA Lakers', shortCode: 'LAL' },
-        awayTeam: { name: 'Boston Celtics', shortCode: 'BOS' },
-        venue: 'Staples Center',
-        date: dayAfter,
-        status: 'Scheduled',
-        round: 'Regular Season',
-        competition: 'National Basketball Association',
-        isActive: true
-      }
-    ];
-    
-    this.fixturesData.tournaments = this.getSampleTournaments();
-  }
-
   getSampleTournaments() {
     return [
       {
@@ -1881,7 +1931,9 @@ class FixturesApp {
         startDate: 'June 8, 2026',
         endDate: 'July 3, 2026',
         teams: 48,
-        location: 'USA, Canada & Mexico'
+        location: 'USA, Canada & Mexico',
+        description: 'The 23rd FIFA World Cup, featuring 48 teams for the first time.',
+        prizeMoney: '$440 million'
       },
       {
         id: 502,
@@ -1891,7 +1943,9 @@ class FixturesApp {
         startDate: 'October 5, 2024',
         endDate: 'November 19, 2024',
         teams: 10,
-        location: 'India'
+        location: 'India',
+        description: 'The 13th edition of the Cricket World Cup.',
+        prizeMoney: '$10 million'
       },
       {
         id: 503,
@@ -1901,8 +1955,46 @@ class FixturesApp {
         startDate: 'April 15, 2024',
         endDate: 'June 18, 2024',
         teams: 16,
-        location: 'USA & Canada'
+        location: 'USA & Canada',
+        description: 'The postseason tournament of the National Basketball Association.',
+        prizeMoney: '$15 million'
       },
+      {
+        id: 504,
+        name: 'Wimbledon Championships',
+        sport: 'Tennis',
+        status: 'upcoming',
+        startDate: 'July 1, 2024',
+        endDate: 'July 14, 2024',
+        teams: 128,
+        location: 'London, England',
+        description: 'The oldest tennis tournament in the world.',
+        prizeMoney: '£44.7 million'
+      },
+      {
+        id: 505,
+        name: 'UEFA Champions League',
+        sport: 'Football',
+        status: 'ongoing',
+        startDate: 'September 19, 2023',
+        endDate: 'June 1, 2024',
+        teams: 32,
+        location: 'Europe',
+        description: 'Premier European club football competition.',
+        prizeMoney: '€2 billion'
+      },
+      {
+        id: 506,
+        name: 'Summer Olympics Paris 2024',
+        sport: 'Olympics',
+        status: 'upcoming',
+        startDate: 'July 26, 2024',
+        endDate: 'August 11, 2024',
+        teams: 206,
+        location: 'Paris, France',
+        description: 'The 33rd Summer Olympic Games.',
+        prizeMoney: 'N/A (Medals)'
+      }
     ];
   }
 
@@ -3222,10 +3314,18 @@ class FixturesApp {
             <i class="fas fa-users"></i>
             <strong>Teams:</strong> ${tournament.teams}
           </div>
-        </div>
-        
-        <div class="tournament-description" style="margin-bottom: 20px;">
-          <p>${tournament.name} is a major ${tournament.sport.toLowerCase()} tournament featuring ${tournament.teams} teams competing for the championship title.</p>
+          ${tournament.description ? `
+          <div class="tournament-description">
+            <i class="fas fa-info-circle"></i>
+            <strong>Description:</strong> ${tournament.description}
+          </div>
+          ` : ''}
+          ${tournament.prizeMoney ? `
+          <div class="tournament-prize">
+            <i class="fas fa-award"></i>
+            <strong>Prize Money:</strong> ${tournament.prizeMoney}
+          </div>
+          ` : ''}
         </div>
         
         <div class="tournament-actions">
@@ -3356,121 +3456,228 @@ class FixturesApp {
   }
 
   generateTournamentSchedule(tournament) {
-    // Generate sample schedule data based on tournament type
-    let stages = [];
-    
-    if (tournament.sport === 'Football') {
-      stages = [
+    // Generate comprehensive tournament schedules based on tournament type
+    if (tournament.name === 'FIFA World Cup 2026') {
+      return [
         {
           name: 'Group Stage',
-          date: 'June 8 - June 20, 2026',
+          date: 'June 8 - June 24, 2026',
           matches: [
-            { date: 'June 8', time: '15:00', homeTeam: 'Brazil', awayTeam: 'Germany', venue: 'MetLife Stadium' },
-            { date: 'June 9', time: '18:00', homeTeam: 'Argentina', awayTeam: 'France', venue: 'SoFi Stadium' },
-            { date: 'June 10', time: '12:00', homeTeam: 'Spain', awayTeam: 'Italy', venue: 'AT&T Stadium' },
-            { date: 'June 11', time: '21:00', homeTeam: 'England', awayTeam: 'Portugal', venue: 'Mercedes-Benz Stadium' }
+            { date: 'June 8', time: '12:00', homeTeam: 'Qatar', awayTeam: 'Ecuador', venue: 'Al Bayt Stadium' },
+            { date: 'June 9', time: '15:00', homeTeam: 'England', awayTeam: 'Iran', venue: 'Khalifa International Stadium' },
+            { date: 'June 10', time: '18:00', homeTeam: 'Argentina', awayTeam: 'Saudi Arabia', venue: 'Lusail Stadium' },
+            { date: 'June 11', time: '14:00', homeTeam: 'France', awayTeam: 'Australia', venue: 'Al Janoub Stadium' },
+            { date: 'June 12', time: '16:00', homeTeam: 'Brazil', awayTeam: 'Serbia', venue: 'Education City Stadium' }
+          ]
+        },
+        {
+          name: 'Round of 32',
+          date: 'June 27 - June 30, 2026',
+          matches: [
+            { date: 'June 27', time: '16:00', homeTeam: 'Group A Winner', awayTeam: 'Group B Runner-up', venue: 'Al Bayt Stadium' },
+            { date: 'June 28', time: '20:00', homeTeam: 'Group C Winner', awayTeam: 'Group D Runner-up', venue: 'Lusail Stadium' },
+            { date: 'June 29', time: '18:00', homeTeam: 'Group E Winner', awayTeam: 'Group F Runner-up', venue: 'Education City Stadium' },
+            { date: 'June 30', time: '22:00', homeTeam: 'Group G Winner', awayTeam: 'Group H Runner-up', venue: 'Al Janoub Stadium' }
           ]
         },
         {
           name: 'Round of 16',
-          date: 'June 21 - June 28, 2026',
+          date: 'July 3 - July 6, 2026',
           matches: [
-            { date: 'June 21', time: '16:00', homeTeam: 'Group A Winner', awayTeam: 'Group B Runner-up', venue: 'MetLife Stadium' },
-            { date: 'June 22', time: '19:00', homeTeam: 'Group C Winner', awayTeam: 'Group D Runner-up', venue: 'SoFi Stadium' }
+            { date: 'July 3', time: '18:00', homeTeam: 'Round of 32 Winner 1', awayTeam: 'Round of 32 Winner 2', venue: 'Al Bayt Stadium' },
+            { date: 'July 4', time: '21:00', homeTeam: 'Round of 32 Winner 3', awayTeam: 'Round of 32 Winner 4', venue: 'Lusail Stadium' },
+            { date: 'July 5', time: '18:00', homeTeam: 'Round of 32 Winner 5', awayTeam: 'Round of 32 Winner 6', venue: 'Education City Stadium' },
+            { date: 'July 6', time: '21:00', homeTeam: 'Round of 32 Winner 7', awayTeam: 'Round of 32 Winner 8', venue: 'Al Janoub Stadium' }
           ]
         },
         {
-          name: 'Quarter Finals',
-          date: 'June 29 - July 2, 2026',
+          name: 'Quarterfinals',
+          date: 'July 9 - July 10, 2026',
           matches: [
-            { date: 'June 29', time: '17:00', homeTeam: 'Match 25 Winner', awayTeam: 'Match 26 Winner', venue: 'AT&T Stadium' },
-            { date: 'June 30', time: '20:00', homeTeam: 'Match 27 Winner', awayTeam: 'Match 28 Winner', venue: 'Mercedes-Benz Stadium' }
+            { date: 'July 9', time: '18:00', homeTeam: 'Round of 16 Winner 1', awayTeam: 'Round of 16 Winner 2', venue: 'Lusail Stadium' },
+            { date: 'July 9', time: '21:00', homeTeam: 'Round of 16 Winner 3', awayTeam: 'Round of 16 Winner 4', venue: 'Al Bayt Stadium' },
+            { date: 'July 10', time: '18:00', homeTeam: 'Round of 16 Winner 5', awayTeam: 'Round of 16 Winner 6', venue: 'Education City Stadium' },
+            { date: 'July 10', time: '21:00', homeTeam: 'Round of 16 Winner 7', awayTeam: 'Round of 16 Winner 8', venue: 'Al Janoub Stadium' }
           ]
         },
         {
-          name: 'Semi Finals',
-          date: 'July 5 - July 6, 2026',
+          name: 'Semifinals',
+          date: 'July 14 - July 15, 2026',
           matches: [
-            { date: 'July 5', time: '19:00', homeTeam: 'Quarter Final 1 Winner', awayTeam: 'Quarter Final 2 Winner', venue: 'MetLife Stadium' },
-            { date: 'July 6', time: '19:00', homeTeam: 'Quarter Final 3 Winner', awayTeam: 'Quarter Final 4 Winner', venue: 'SoFi Stadium' }
+            { date: 'July 14', time: '20:00', homeTeam: 'Quarterfinal Winner 1', awayTeam: 'Quarterfinal Winner 2', venue: 'Al Bayt Stadium' },
+            { date: 'July 15', time: '20:00', homeTeam: 'Quarterfinal Winner 3', awayTeam: 'Quarterfinal Winner 4', venue: 'Lusail Stadium' }
           ]
         },
         {
           name: 'Final',
-          date: 'July 12, 2026',
+          date: 'July 19, 2026',
           matches: [
-            { date: 'July 12', time: '18:00', homeTeam: 'Semi Final 1 Winner', awayTeam: 'Semi Final 2 Winner', venue: 'MetLife Stadium' }
+            { date: 'July 19', time: '18:00', homeTeam: 'Semifinal Winner 1', awayTeam: 'Semifinal Winner 2', venue: 'Lusail Stadium' }
           ]
         }
       ];
-    } else if (tournament.sport === 'Tennis') {
-      stages = [
+    } else if (tournament.name === 'ICC Cricket World Cup') {
+      return [
+        {
+          name: 'Group Stage',
+          date: 'October 5 - October 30, 2024',
+          matches: [
+            { date: 'October 5', time: '14:30', homeTeam: 'England', awayTeam: 'New Zealand', venue: 'Ahmedabad' },
+            { date: 'October 6', time: '14:30', homeTeam: 'India', awayTeam: 'Australia', venue: 'Chennai' },
+            { date: 'October 7', time: '14:30', homeTeam: 'Pakistan', awayTeam: 'South Africa', venue: 'Delhi' },
+            { date: 'October 8', time: '14:30', homeTeam: 'Bangladesh', awayTeam: 'Sri Lanka', venue: 'Mumbai' }
+          ]
+        },
+        {
+          name: 'Semifinals',
+          date: 'November 14 - November 15, 2024',
+          matches: [
+            { date: 'November 14', time: '14:30', homeTeam: 'Group 1 Winner', awayTeam: 'Group 2 Runner-up', venue: 'Mumbai' },
+            { date: 'November 15', time: '14:30', homeTeam: 'Group 2 Winner', awayTeam: 'Group 1 Runner-up', venue: 'Kolkata' }
+          ]
+        },
+        {
+          name: 'Final',
+          date: 'November 19, 2024',
+          matches: [
+            { date: 'November 19', time: '14:30', homeTeam: 'Semifinal Winner 1', awayTeam: 'Semifinal Winner 2', venue: 'Ahmedabad' }
+          ]
+        }
+      ];
+    } else if (tournament.name === 'NBA Playoffs') {
+      return [
+        {
+          name: 'First Round',
+          date: 'April 15 - April 28, 2024',
+          matches: [
+            { date: 'April 15', time: '19:00', homeTeam: 'Eastern Conf 1', awayTeam: 'Eastern Conf 8', venue: 'Home Arena' },
+            { date: 'April 16', time: '20:30', homeTeam: 'Western Conf 1', awayTeam: 'Western Conf 8', venue: 'Home Arena' },
+            { date: 'April 17', time: '19:00', homeTeam: 'Eastern Conf 2', awayTeam: 'Eastern Conf 7', venue: 'Home Arena' },
+            { date: 'April 18', time: '22:00', homeTeam: 'Western Conf 2', awayTeam: 'Western Conf 7', venue: 'Home Arena' }
+          ]
+        },
+        {
+          name: 'Conference Semifinals',
+          date: 'April 30 - May 12, 2024',
+          matches: [
+            { date: 'April 30', time: '19:00', homeTeam: 'First Round Winner', awayTeam: 'First Round Winner', venue: 'Home Arena' },
+            { date: 'May 1', time: '20:30', homeTeam: 'First Round Winner', awayTeam: 'First Round Winner', venue: 'Home Arena' },
+            { date: 'May 2', time: '19:00', homeTeam: 'First Round Winner', awayTeam: 'First Round Winner', venue: 'Home Arena' },
+            { date: 'May 3', time: '22:00', homeTeam: 'First Round Winner', awayTeam: 'First Round Winner', venue: 'Home Arena' }
+          ]
+        },
+        {
+          name: 'Conference Finals',
+          date: 'May 14 - May 27, 2024',
+          matches: [
+            { date: 'May 14', time: '20:30', homeTeam: 'Semifinal Winner', awayTeam: 'Semifinal Winner', venue: 'Home Arena' },
+            { date: 'May 15', time: '20:30', homeTeam: 'Semifinal Winner', awayTeam: 'Semifinal Winner', venue: 'Home Arena' },
+            { date: 'May 16', time: '21:00', homeTeam: 'Semifinal Winner', awayTeam: 'Semifinal Winner', venue: 'Home Arena' }
+          ]
+        },
+        {
+          name: 'NBA Finals',
+          date: 'June 1 - June 18, 2024',
+          matches: [
+            { date: 'June 1', time: '20:00', homeTeam: 'Eastern Conf Champion', awayTeam: 'Western Conf Champion', venue: 'Home Arena' },
+            { date: 'June 4', time: '20:00', homeTeam: 'Western Conf Champion', awayTeam: 'Eastern Conf Champion', venue: 'Home Arena' },
+            { date: 'June 7', time: '20:00', homeTeam: 'Eastern Conf Champion', awayTeam: 'Western Conf Champion', venue: 'Home Arena' },
+            { date: 'June 9', time: '20:00', homeTeam: 'Western Conf Champion', awayTeam: 'Eastern Conf Champion', venue: 'Home Arena' },
+            { date: 'June 12', time: '20:00', homeTeam: 'Eastern Conf Champion', awayTeam: 'Western Conf Champion', venue: 'Home Arena' },
+            { date: 'June 15', time: '20:00', homeTeam: 'Western Conf Champion', awayTeam: 'Eastern Conf Champion', venue: 'Home Arena' },
+            { date: 'June 18', time: '20:00', homeTeam: 'Eastern Conf Champion', awayTeam: 'Western Conf Champion', venue: 'Home Arena' }
+          ]
+        }
+      ];
+    } else if (tournament.name === 'Wimbledon Championships') {
+      return [
         {
           name: 'First Round',
           date: 'July 1 - July 3, 2024',
           matches: [
-            { date: 'July 1', time: '11:00', homeTeam: 'Player A', awayTeam: 'Player B', venue: 'Centre Court' },
-            { date: 'July 1', time: '13:00', homeTeam: 'Player C', awayTeam: 'Player D', venue: 'Court 1' }
+            { date: 'July 1', time: '13:00', homeTeam: 'Novak Djokovic', awayTeam: 'Qualifier', venue: 'Centre Court' },
+            { date: 'July 1', time: '15:30', homeTeam: 'Carlos Alcaraz', awayTeam: 'Qualifier', venue: 'Court 1' },
+            { date: 'July 2', time: '13:00', homeTeam: 'Iga Swiatek', awayTeam: 'Qualifier', venue: 'Centre Court' }
           ]
         },
         {
           name: 'Second Round',
           date: 'July 4 - July 5, 2024',
           matches: [
-            { date: 'July 4', time: '12:00', homeTeam: 'Round 1 Winner', awayTeam: 'Round 1 Winner', venue: 'Centre Court' }
+            { date: 'July 4', time: '13:00', homeTeam: 'First Round Winner', awayTeam: 'First Round Winner', venue: 'Centre Court' },
+            { date: 'July 4', time: '15:30', homeTeam: 'First Round Winner', awayTeam: 'First Round Winner', venue: 'Court 1' }
           ]
         },
         {
-          name: 'Quarter Finals',
+          name: 'Third Round',
+          date: 'July 6 - July 7, 2024',
+          matches: [
+            { date: 'July 6', time: '13:00', homeTeam: 'Second Round Winner', awayTeam: 'Second Round Winner', venue: 'Centre Court' },
+            { date: 'July 6', time: '15:30', homeTeam: 'Second Round Winner', awayTeam: 'Second Round Winner', venue: 'Court 1' }
+          ]
+        },
+        {
+          name: 'Quarterfinals',
           date: 'July 9 - July 10, 2024',
           matches: [
-            { date: 'July 9', time: '14:00', homeTeam: 'Round 2 Winner', awayTeam: 'Round 2 Winner', venue: 'Centre Court' }
+            { date: 'July 9', time: '13:00', homeTeam: 'Third Round Winner', awayTeam: 'Third Round Winner', venue: 'Centre Court' },
+            { date: 'July 10', time: '13:00', homeTeam: 'Third Round Winner', awayTeam: 'Third Round Winner', venue: 'Centre Court' }
           ]
         },
         {
-          name: 'Semi Finals',
-          date: 'July 12, 2024',
+          name: 'Semifinals',
+          date: 'July 11 - July 12, 2024',
           matches: [
-            { date: 'July 12', time: '15:00', homeTeam: 'Quarter Final Winner', awayTeam: 'Quarter Final Winner', venue: 'Centre Court' }
+            { date: 'July 11', time: '13:00', homeTeam: 'Quarterfinal Winner', awayTeam: 'Quarterfinal Winner', venue: 'Centre Court' },
+            { date: 'July 12', time: '13:00', homeTeam: 'Quarterfinal Winner', awayTeam: 'Quarterfinal Winner', venue: 'Centre Court' }
           ]
         },
         {
-          name: 'Final',
-          date: 'July 14, 2024',
+          name: 'Finals',
+          date: 'July 13 - July 14, 2024',
           matches: [
-            { date: 'July 14', time: '14:00', homeTeam: 'Semi Final Winner', awayTeam: 'Semi Final Winner', venue: 'Centre Court' }
+            { date: 'July 13', time: '14:00', homeTeam: 'Women\'s Semifinal Winner', awayTeam: 'Women\'s Semifinal Winner', venue: 'Centre Court' },
+            { date: 'July 14', time: '14:00', homeTeam: 'Men\'s Semifinal Winner', awayTeam: 'Men\'s Semifinal Winner', venue: 'Centre Court' }
           ]
         }
       ];
     } else {
-      // Generic schedule for other sports
-      stages = [
+      // Generic tournament schedule for other tournaments
+      return [
         {
-          name: 'Preliminary Stage',
-          date: `${tournament.startDate}`,
+          name: 'Preliminary Rounds',
+          date: tournament.startDate,
           matches: [
-            { date: tournament.startDate, time: '10:00', homeTeam: 'Team 1', awayTeam: 'Team 2', venue: tournament.location },
-            { date: tournament.startDate, time: '14:00', homeTeam: 'Team 3', awayTeam: 'Team 4', venue: tournament.location }
+            { date: tournament.startDate, time: '10:00', homeTeam: 'Participant 1', awayTeam: 'Participant 2', venue: tournament.location },
+            { date: tournament.startDate, time: '14:00', homeTeam: 'Participant 3', awayTeam: 'Participant 4', venue: tournament.location },
+            { date: tournament.startDate, time: '18:00', homeTeam: 'Participant 5', awayTeam: 'Participant 6', venue: tournament.location }
           ]
         },
         {
-          name: 'Knockout Stage',
-          date: 'Mid-tournament dates',
+          name: 'Quarterfinals',
+          date: tournament.startDate,
           matches: [
-            { date: 'TBD', time: 'TBD', homeTeam: 'Group Winner', awayTeam: 'Runner-up', venue: tournament.location }
+            { date: tournament.startDate, time: '16:00', homeTeam: 'Round 1 Winner', awayTeam: 'Round 1 Winner', venue: tournament.location },
+            { date: tournament.startDate, time: '20:00', homeTeam: 'Round 1 Winner', awayTeam: 'Round 1 Winner', venue: tournament.location }
+          ]
+        },
+        {
+          name: 'Semifinals',
+          date: tournament.endDate,
+          matches: [
+            { date: tournament.endDate, time: '15:00', homeTeam: 'Quarterfinal Winner', awayTeam: 'Quarterfinal Winner', venue: tournament.location },
+            { date: tournament.endDate, time: '19:00', homeTeam: 'Quarterfinal Winner', awayTeam: 'Quarterfinal Winner', venue: tournament.location }
           ]
         },
         {
           name: 'Final',
-          date: `${tournament.endDate}`,
+          date: tournament.endDate,
           matches: [
-            { date: tournament.endDate, time: '18:00', homeTeam: 'Semi Final Winner', awayTeam: 'Semi Final Winner', venue: tournament.location }
+            { date: tournament.endDate, time: '18:00', homeTeam: 'Semifinal Winner', awayTeam: 'Semifinal Winner', venue: tournament.location }
           ]
         }
       ];
     }
-    
-    return stages;
   }
 
   showToast(message) {

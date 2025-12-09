@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AllSports</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Admin Dashboard Specific Styles */
+        :root {
+            --sidebar-width: 250px;
+            --header-height: 60px;
+            --admin-bg: #0f1724;
+            --admin-card: #1a2435;
+            --admin-accent: #3b82f6;
+            --admin-danger: #ef4444;
+            --admin-success: #10b981;
+            --admin-warning: #f59e0b;
+        }
+
+        body {
+            background: var(--admin-bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: var(--admin-card);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .admin-logo {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .admin-logo h2 {
+            margin: 0;
+            color: var(--accent);
+            font-size: 24px;
+        }
+
+        .admin-logo span {
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .admin-nav {
+            padding: 20px 0;
+        }
+
+        .admin-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .admin-nav-item:hover,
+        .admin-nav-item.active {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            border-left-color: var(--admin-accent);
+        }
+
+        .admin-nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .admin-nav-section {
+            padding: 20px 20px 10px;
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Main Content */
+        .admin-main {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 0 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+
+        .admin-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .admin-header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Dashboard Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--admin-card);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.users { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .stat-icon.news { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .stat-icon.videos { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .stat-icon.fixtures { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 8px 0;
+            color: white;
+        }
+
+        .stat-change {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive { color: var(--admin-success); }
+        .stat-change.negative { color: var(--admin-danger); }
+
+        /* Tables */
+        .admin-table-container {
+            background: var(--admin-card);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th {
+            background: rgba(255,255,255,0.05);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .admin-table td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .admin-table tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.admin { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .badge.user { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+        .badge.active { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge.inactive { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge.pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+
+        .btn-icon.edit:hover { color: #3b82f6; }
+        .btn-icon.delete:hover { color: #ef4444; }
+        .btn-icon.view:hover { color: #10b981; }
+
+        /* Forms */
+        .admin-form {
+            background: var(--admin-card);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--admin-accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        /* Charts */
+        .chart-container {
+            background: var(--admin-card);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--admin-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .admin-sidebar {
+                width: 200px;
+            }
+            .admin-main {
+                margin-left: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .admin-main {
+                margin-left: 0;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .admin-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        /* Modal */
+        .admin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .admin-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--admin-card);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Tabs */
+        .admin-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: white;
+        }
+
+        .tab-btn.active {
+            color: var(--admin-accent);
+            border-bottom-color: var(--admin-accent);
+        }
+
+        /* Search and Filter */
+        .admin-toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* Pagination */
+        .admin-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        .page-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <h2>AllSports</h2>
+                <span>Admin Panel</span>
+            </div>
+
+            <nav class="admin-nav">
+                <div class="admin-nav-section">Dashboard</div>
+                <a href="#dashboard" class="admin-nav-item active" data-section="dashboard">
+                    <span class="admin-nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#analytics" class="admin-nav-item" data-section="analytics">
+                    <span class="admin-nav-icon">📈</span>
+                    <span>Analytics</span>
+                </a>
+
+                <div class="admin-nav-section">Content Management</div>
+                <a href="#users" class="admin-nav-item" data-section="users">
+                    <span class="admin-nav-icon">👥</span>
+                    <span>Users</span>
+                </a>
+                <a href="#news" class="admin-nav-item" data-section="news">
+                    <span class="admin-nav-icon">📰</span>
+                    <span>News</span>
+                </a>
+                <a href="#videos" class="admin-nav-item" data-section="videos">
+                    <span class="admin-nav-icon">🎥</span>
+                    <span>Videos</span>
+                </a>
+                <a href="#fixtures" class="admin-nav-item" data-section="fixtures">
+                    <span class="admin-nav-icon">📅</span>
+                    <span>Fixtures</span>
+                </a>
+
+                <div class="admin-nav-section">System</div>
+                <a href="#settings" class="admin-nav-item" data-section="settings">
+                    <span class="admin-nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+                <a href="#backup" class="admin-nav-item" data-section="backup">
+                    <span class="admin-nav-icon">💾</span>
+                    <span>Backup & Export</span>
+                </a>
+                <a href="#activity" class="admin-nav-item" data-section="activity">
+                    <span class="admin-nav-icon">📋</span>
+                    <span>Activity Log</span>
+                </a>
+            </nav>
+
+            <!-- In admin.html sidebar -->
+            <div class="admin-user">
+                <div class="user-info">
+                    <div class="user-avatar" id="adminUserAvatar">A</div>
+                    <div class="user-details">
+                        <div class="user-name" id="adminUserName">Admin User</div>
+                        <div class="user-email" id="adminUserEmail">admin@example.com</div>
+                        <div class="user-role badge admin">Admin</div>
+                    </div>
+                </div>
+                <button class="btn btn-small logout-btn" id="adminLogout">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Dashboard Header -->
+            <header class="admin-header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="admin-header-actions">
+                    <button class="btn btn-small" id="refreshBtn">🔄 Refresh</button>
+                    <div class="date-display" id="currentDate"></div>
+                </div>
+            </header>
+
+            <!-- Content Sections -->
+            <div id="adminContent">
+                <!-- Dashboard content will be loaded here -->
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading admin dashboard...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="editUserModal" class="admin-modal">
+        <div class="modal-content">
+            <h2>Edit User</h2>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="editUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="editEmail" class="form-control" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="editIsAdmin"> Admin User
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="editIsActive" checked> Active Account
+                        </label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Save Changes</button>
+                    <button type="button" class="btn ghost" id="cancelEdit">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="createNewsModal" class="admin-modal">
+        <div class="modal-content">
+            <h2>Create News Article</h2>
+            <form id="createNewsForm">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" id="newsTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Excerpt</label>
+                    <textarea id="newsExcerpt" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Sport</label>
+                        <select id="newsSport" class="form-control" required>
+                            <option value="">Select Sport</option>
+                            <option value="Football">Football</option>
+                            <option value="Basketball">Basketball</option>
+                            <option value="Cricket">Cricket</option>
+                            <option value="Tennis">Tennis</option>
+                            <option value="Baseball">Baseball</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">League</label>
+                        <input type="text" id="newsLeague" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea id="newsContent" class="form-control" rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Image URL</label>
+                    <input type="url" id="newsImage" class="form-control">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Publish Article</button>
+                    <button type="button" class="btn ghost" id="cancelNews">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="admin-modal">
+        <div class="modal-content">
+            <h2 id="confirmTitle">Confirm Action</h2>
+            <p id="confirmMessage">Are you sure you want to perform this action?</p>
+            <div class="form-actions">
+                <button class="btn btn-danger" id="confirmAction">Confirm</button>
+                <button class="btn ghost" id="cancelAction">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates -->
+    <template id="dashboardTemplate">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-change positive">↑ 12% from last month</div>
+                    </div>
+                    <div class="stat-icon users">👥</div>
+                </div>
+                <div class="stat-value" id="statUsers">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">News Articles</div>
+                        <div class="stat-change positive">↑ 8% from last month</div>
+                    </div>
+                    <div class="stat-icon news">📰</div>
+                </div>
+                <div class="stat-value" id="statNews">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Videos</div>
+                        <div class="stat-change positive">↑ 15% from last month</div>
+                    </div>
+                    <div class="stat-icon videos">🎥</div>
+                </div>
+                <div class="stat-value" id="statVideos">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-label">Fixtures</div>
+                        <div class="stat-change positive">↑ 5% from last month</div>
+                    </div>
+                    <div class="stat-icon fixtures">📅</div>
+                </div>
+                <div class="stat-value" id="statFixtures">0</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Recent Activity</h3>
+                <select id="activityPeriod" class="form-control" style="width: auto;">
+                    <option value="7d">Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                    <option value="90d">Last 90 days</option>
+                </select>
+            </div>
+            <div id="activityChart" style="height: 300px;"></div>
+        </div>
+
+        <div class="admin-table-container">
+            <div class="table-header">
+                <h3>Latest Users</h3>
+                <a href="#users" class="btn btn-small">View All</a>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Joined</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="recentUsersTable">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <template id="usersTemplate">
+        <div class="admin-toolbar">
+            <div class="search-box">
+                <input type="text" id="userSearch" placeholder="Search users...">
+            </div>
+            <select id="userFilter" class="form-control" style="width: auto;">
+                <option value="">All Users</option>
+                <option value="admin">Admins Only</option>
+                <option value="active">Active Only</option>
+                <option value="inactive">Inactive Only</option>
+            </select>
+            <button class="btn" id="addUserBtn">+ Add User</button>
+            <button class="btn ghost" id="exportUsersBtn">Export Users</button>
+        </div>
+
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAllUsers"></th>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-pagination">
+            <button class="page-btn" id="prevPage">← Previous</button>
+            <span class="page-info" id="pageInfo">Page 1 of 1</span>
+            <button class="page-btn" id="nextPage">Next →</button>
+        </div>
+
+        <div class="bulk-actions">
+            <select id="bulkAction" class="form-control" style="width: auto;">
+                <option value="">Bulk Actions</option>
+                <option value="activate">Activate</option>
+                <option value="deactivate">Deactivate</option>
+                <option value="makeAdmin">Make Admin</option>
+                <option value="removeAdmin">Remove Admin</option>
+                <option value="delete">Delete</option>
+            </select>
+            <button class="btn" id="applyBulkAction">Apply</button>
+        </div>
+    </template>
+
+    <template id="newsTemplate">
+        <div class="admin-toolbar">
+            <div class="search-box">
+                <input type="text" id="newsSearch" placeholder="Search news...">
+            </div>
+            <select id="newsFilter" class="form-control" style="width: auto;">
+                <option value="">All Sports</option>
+                <option value="Football">Football</option>
+                <option value="Basketball">Basketball</option>
+                <option value="Cricket">Cricket</option>
+                <option value="Tennis">Tennis</option>
+            </select>
+            <button class="btn" id="addNewsBtn">+ Add News</button>
+        </div>
+
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Sport</th>
+                        <th>League</th>
+                        <th>Author</th>
+                        <th>Date</th>
+                        <th>Views</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="newsTable">
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <template id="settingsTemplate">
+        <div class="admin-form">
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="general">General</button>
+                <button class="tab-btn" data-tab="content">Content</button>
+                <button class="tab-btn" data-tab="users">Users</button>
+                <button class="tab-btn" data-tab="system">System</button>
+            </div>
+
+            <div id="settingsContent">
+                <div class="tab-content active" id="generalTab">
+                    <div class="form-group">
+                        <label class="form-label">Site Name</label>
+                        <input type="text" id="siteName" class="form-control" value="AllSports Games">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Site Description</label>
+                        <textarea id="siteDescription" class="form-control" rows="3">Your premier sports destination</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="maintenanceMode"> Maintenance Mode
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="allowRegistrations" checked> Allow New Registrations
+                        </label>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="contentTab">
+                    <div class="form-group">
+                        <label class="form-label">Maximum Upload Size (MB)</label>
+                        <input type="number" id="maxUploadSize" class="form-control" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Default Video Quality</label>
+                        <select id="videoQuality" class="form-control">
+                            <option value="720p">720p</option>
+                            <option value="1080p" selected>1080p</option>
+                            <option value="4k">4K</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cache Duration (seconds)</label>
+                        <input type="number" id="cacheDuration" class="form-control" value="3600">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn" id="saveSettings">Save Settings</button>
+                    <button class="btn ghost" id="resetSettings">Reset to Defaults</button>
+                </div>
+            </div>
+        </div>
+    </template>
+    <!-- Add these templates after the existing ones -->
+
+<template id="newsTemplate">
+    <div class="admin-toolbar">
+        <div class="search-box">
+            <input type="text" id="newsSearch" placeholder="Search news...">
+        </div>
+        <select id="newsFilter" class="form-control" style="width: auto;">
+            <option value="all">All Sports</option>
+            <option value="Football">Football</option>
+            <option value="Basketball">Basketball</option>
+            <option value="Cricket">Cricket</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Baseball">Baseball</option>
+        </select>
+        <button class="btn" id="addNewsBtn">+ Add News</button>
+    </div>
+
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Sport</th>
+                    <th>League</th>
+                    <th>Author</th>
+                    <th>Date</th>
+                    <th>Views</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="newsTable">
+                <!-- Will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<template id="videosTemplate">
+    <div class="admin-toolbar">
+        <div class="search-box">
+            <input type="text" id="videoSearch" placeholder="Search videos...">
+        </div>
+        <select id="videoFilter" class="form-control" style="width: auto;">
+            <option value="all">All Sports</option>
+            <option value="Football">Football</option>
+            <option value="Basketball">Basketball</option>
+            <option value="Cricket">Cricket</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Baseball">Baseball</option>
+        </select>
+        <button class="btn" id="addVideoBtn">+ Add Video</button>
+    </div>
+
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Video</th>
+                    <th>Sport</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Views</th>
+                    <th>Duration</th>
+                    <th>Uploaded</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="videosTable">
+                <!-- Will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<template id="fixturesTemplate">
+    <div class="admin-toolbar">
+        <div class="search-box">
+            <input type="text" id="fixtureSearch" placeholder="Search fixtures...">
+        </div>
+        <select id="fixtureFilter" class="form-control" style="width: auto;">
+            <option value="all">All Sports</option>
+            <option value="Football">Football</option>
+            <option value="Basketball">Basketball</option>
+            <option value="Cricket">Cricket</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Baseball">Baseball</option>
+        </select>
+        <button class="btn" id="addFixtureBtn">+ Add Fixture</button>
+    </div>
+
+    <div class="admin-table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Match</th>
+                    <th>Sport</th>
+                    <th>League</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Round</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="fixturesTable">
+                <!-- Will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<template id="analyticsTemplate">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Page Views</div>
+                    <div class="stat-change positive">↑ 12% from last month</div>
+                </div>
+                <div class="stat-icon users">👁️</div>
+            </div>
+            <div class="stat-value" id="analyticsPageViews">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Unique Visitors</div>
+                    <div class="stat-change positive">↑ 8% from last month</div>
+                </div>
+                <div class="stat-icon news">👤</div>
+            </div>
+            <div class="stat-value" id="analyticsUniqueVisitors">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Avg Session</div>
+                    <div class="stat-change positive">↑ 5% from last month</div>
+                </div>
+                <div class="stat-icon videos">⏱️</div>
+            </div>
+            <div class="stat-value" id="analyticsAverageSession">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Bounce Rate</div>
+                    <div class="stat-change negative">↓ 3% from last month</div>
+                </div>
+                <div class="stat-icon fixtures">📊</div>
+            </div>
+            <div class="stat-value" id="analyticsBounceRate">0</div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3>Traffic Overview</h3>
+            <select id="analyticsPeriod" class="form-control" style="width: auto;">
+                <option value="7d">Last 7 days</option>
+                <option value="30d">Last 30 days</option>
+                <option value="90d">Last 90 days</option>
+            </select>
+        </div>
+        <div id="analyticsChart" style="height: 300px;"></div>
+    </div>
+
+    <div class="admin-table-container">
+        <div class="table-header">
+            <h3>Popular Content</h3>
+        </div>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Views</th>
+                </tr>
+            </thead>
+            <tbody id="popularContentTable">
+                <!-- Will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<template id="settingsTemplate">
+    <div class="admin-form">
+        <div class="admin-tabs">
+            <button class="tab-btn active" data-tab="general">General</button>
+            <button class="tab-btn" data-tab="content">Content</button>
+            <button class="tab-btn" data-tab="users">Users</button>
+            <button class="tab-btn" data-tab="system">System</button>
+        </div>
+
+        <div id="settingsContent">
+            <div class="tab-content active" id="generalTab">
+                <div class="form-group">
+                    <label class="form-label">Site Name</label>
+                    <input type="text" id="siteName" class="form-control" value="AllSports Games">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Site Description</label>
+                    <textarea id="siteDescription" class="form-control" rows="3">Your premier sports destination</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="maintenanceMode"> Maintenance Mode
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="allowRegistrations" checked> Allow New Registrations
+                    </label>
+                </div>
+            </div>
+
+            <div class="tab-content" id="contentTab">
+                <div class="form-group">
+                    <label class="form-label">Maximum Upload Size (MB)</label>
+                    <input type="number" id="maxUploadSize" class="form-control" value="50">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Default Video Quality</label>
+                    <select id="videoQuality" class="form-control">
+                        <option value="720p">720p</option>
+                        <option value="1080p" selected>1080p</option>
+                        <option value="4k">4K</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cache Duration (seconds)</label>
+                    <input type="number" id="cacheDuration" class="form-control" value="3600">
+                </div>
+            </div>
+
+            <div class="tab-content" id="usersTab">
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="requireEmailVerification"> Require Email Verification
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="allowSocialLogin" checked> Allow Social Login
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Maximum Login Attempts</label>
+                    <input type="number" id="maxLoginAttempts" class="form-control" value="5">
+                </div>
+            </div>
+
+            <div class="tab-content" id="systemTab">
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="enableAnalytics" checked> Enable Analytics
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="enableNotifications" checked> Enable Notifications
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Backup Frequency</label>
+                    <select id="backupFrequency" class="form-control">
+                        <option value="daily">Daily</option>
+                        <option value="weekly" selected>Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn" id="saveSettings">Save Settings</button>
+                <button class="btn ghost" id="resetSettings">Reset to Defaults</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="activityTemplate">
+    <div class="admin-toolbar">
+        <select id="activityTypeFilter" class="form-control" style="width: auto;">
+            <option value="all">All Activities</option>
+            <option value="user">User Activities</option>
+            <option value="content">Content Activities</option>
+            <option value="system">System Activities</option>
+        </select>
+        <select id="activityTimeFilter" class="form-control" style="width: auto;">
+            <option value="24h">Last 24 hours</option>
+            <option value="7d" selected>Last 7 days</option>
+            <option value="30d">Last 30 days</option>
+        </select>
+    </div>
+
+    <div class="admin-table-container">
+        <div class="table-header">
+            <h3>Activity Log</h3>
+            <button class="btn btn-small" id="clearActivityLog">Clear Log</button>
+        </div>
+        <div id="activityLogContainer" style="max-height: 500px; overflow-y: auto;">
+            <div id="activityLog">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="backupTemplate">
+    <div class="admin-form">
+        <h2>Backup & Export</h2>
+        
+        <div class="backup-section">
+            <h3>Database Backup</h3>
+            <p>Create a complete backup of your database including all users, content, and settings.</p>
+            <button class="btn" id="createBackupBtn">Create Backup Now</button>
+        </div>
+
+        <div class="backup-section">
+            <h3>Export Data</h3>
+            <p>Export specific data types for analysis or migration.</p>
+            <div class="form-group">
+                <label class="form-label">Select Data Type</label>
+                <select id="exportDataType" class="form-control">
+                    <option value="users">Users</option>
+                    <option value="news">News Articles</option>
+                    <option value="videos">Videos</option>
+                    <option value="fixtures">Fixtures</option>
+                    <option value="all">All Data</option>
+                </select>
+            </div>
+            <button class="btn" id="exportDataBtn">Export Data</button>
+        </div>
+
+        <div class="backup-section">
+            <h3>Recent Backups</h3>
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="backupsTable">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px;">
+                                No backups found
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</template>
+
+    <script src="admin.js"></script>
+    <script>
+        // Update current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    </script>
+</body>
+</html>

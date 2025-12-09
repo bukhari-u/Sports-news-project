@@ -6,23 +6,128 @@
     <title>Login - All Sports</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="auth.css">
+    <style>
+        /* Add toggle switch styles */
+        .admin-toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "👤";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #3b82f6;
+        }
+        
+        input:checked + .toggle-slider:before {
+            content: "👑";
+            transform: translateX(30px);
+        }
+        
+        .toggle-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .admin-code-field {
+            margin-top: 15px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
-            <!-- Logo Added Here -->
+            <!-- Logo -->
             <div class="auth-logo">
                 <img src="https://i.pinimg.com/736x/1a/03/15/1a0315e084288700eaf5451d53aeffad.jpg" alt="All Sports Logo">
             </div>
 
             <div class="auth-header">
-                <h1>Welcome Back</h1>
-                <p>Sign in to your All Sports account</p>
+                <h1 id="loginTitle">Welcome Back</h1>
+                <p id="loginSubtitle">Sign in to your All Sports account</p>
             </div>
 
             <form id="loginForm">
                 <div id="alertContainer"></div>
                 
+                <!-- Admin Toggle -->
+                <div class="admin-toggle-container">
+                    <span class="toggle-label">User</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="adminLoginToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Admin</span>
+                </div>
+                
+                <!-- Admin Code Field (Initially hidden) -->
+                <div id="adminCodeField" class="admin-code-field" style="display: none;">
+                    <div class="form-group">
+                        <label for="adminCode">Admin Access Code</label>
+                        <input 
+                            type="password" 
+                            id="adminCode" 
+                            class="form-control" 
+                            placeholder="Enter admin access code"
+                        >
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input 
@@ -52,10 +157,30 @@
 
             <div class="auth-footer">
                 <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+                <p>Or <a href="index.html">continue as guest</a></p>
             </div>
         </div>
     </div>
 
     <script src="auth.js"></script>
+    <script>
+        // Toggle admin mode
+        document.getElementById('adminLoginToggle').addEventListener('change', function(e) {
+            const isAdminMode = e.target.checked;
+            const adminCodeField = document.getElementById('adminCodeField');
+            const loginTitle = document.getElementById('loginTitle');
+            const loginSubtitle = document.getElementById('loginSubtitle');
+            
+            if (isAdminMode) {
+                adminCodeField.style.display = 'block';
+                loginTitle.textContent = 'Admin Login';
+                loginSubtitle.textContent = 'Access the admin dashboard';
+            } else {
+                adminCodeField.style.display = 'none';
+                loginTitle.textContent = 'Welcome Back';
+                loginSubtitle.textContent = 'Sign in to your All Sports account';
+            }
+        });
+    </script>
 </body>
 </html>
