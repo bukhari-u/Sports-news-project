@@ -22,10 +22,13 @@ const LeagueTable = require('./models/LeagueTable');
 const Tournament = require('./models/Tournament');
 
 // Enhanced middleware
-app.use(cors({
-  origin: true,
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://sports-news-project.onrender.com', 'https://allsports-app.onrender.com'] 
+    : true,
   credentials: true
-}));
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Database connection
@@ -48,9 +51,15 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production', // Only secure in production
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
+
+// Trust proxy for production
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
 
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
