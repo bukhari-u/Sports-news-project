@@ -246,7 +246,6 @@ class Navigation {
         
         mobileToggle.setAttribute('aria-expanded', 'true');
         mobileMenu.setAttribute('aria-hidden', 'false');
-        mobileMenu.classList.add('open'); // Add this line
         document.body.style.overflow = 'hidden';
         
         // Trap focus in mobile menu
@@ -259,7 +258,6 @@ class Navigation {
         
         mobileToggle.setAttribute('aria-expanded', 'false');
         mobileMenu.setAttribute('aria-hidden', 'true');
-        mobileMenu.classList.remove('open'); // Add this line
         document.body.style.overflow = '';
         
         // Close all mobile dropdowns

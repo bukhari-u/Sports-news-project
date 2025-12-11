@@ -647,7 +647,7 @@ body {
 
 .mobile-panel-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: between;
   align-items: center;
   padding: var(--space-3);
   border-bottom: 1px solid rgba(255,255,255,0.1);

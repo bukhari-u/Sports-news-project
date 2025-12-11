@@ -5,6 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Football - AllSports</title>
   <link rel="stylesheet" href="games.css">
+  <style>
+    /* Add some additional styles for follow button */
+    .sport-follow-btn-hero {
+        cursor: pointer;
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 1000;
+    }
+    
+    .sport-follow-btn-hero * {
+        pointer-events: none;
+    }
+    
+    .sport-follow-btn-hero.following {
+        background-color: #e74c3c !important;
+    }
+    
+    .sport-follow-btn-hero.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    /* Toast notification styles */
+    #toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-weight: 500;
+        pointer-events: none;
+        max-width: 300px;
+        text-align: center;
+    }
+    
+    #toast.error {
+        background: #ff4444 !important;
+    }
+  </style>
 </head>
 <body>
   <!-- Top Color Strip -->
@@ -348,7 +393,8 @@
               </svg>
               Watch on YouTube
             </a>
-            <button class="sport-follow-btn-hero" id="footballFollowBtn" data-sport-id="football" data-sport-name="Football" data-sport-icon="⚽">
+            <!-- CHANGED: Use consistent id "heroFollowBtn" -->
+            <button class="sport-follow-btn-hero" id="heroFollowBtn" data-sport-id="football" data-sport-name="Football" data-sport-icon="⚽">
               <span class="follow-text">Follow</span>
               <span class="follow-icon-hero">🤍</span>
             </button>

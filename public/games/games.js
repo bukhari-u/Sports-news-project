@@ -1,4 +1,4 @@
-// games.js - Updated to use API calls instead of videosData
+// games.js - Updated with proper YouTube ID extraction
 
 // Global flag to prevent recursion
 let isCreatingSportsWidget = false;
@@ -30,23 +30,122 @@ class SportPageManager {
         this.setupVideoPlayers();
         this.setupRightSidebar();
         
-        // IMPORTANT: Initialize hero follow button for this sport
+        // Initialize hero follow button
         this.initHeroFollowButton();
+        
+        // Add video player CSS
+        this.addVideoPlayButtonCSS();
+    }
+
+    addVideoPlayButtonCSS() {
+        if (!document.getElementById('video-player-styles')) {
+            const style = document.createElement('style');
+            style.id = 'video-player-styles';
+            style.textContent = `
+                .video-card {
+                    position: relative;
+                    cursor: pointer;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                
+                .video-card:hover {
+                    transform: translateY(-8px) scale(1.02);
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+                }
+                
+                .video-play-button {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(255, 0, 0, 0.8);
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    opacity: 0;
+                    transition: opacity 0.3s ease, transform 0.3s ease;
+                    z-index: 2;
+                }
+                
+                .video-card:hover .video-play-button {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1.1);
+                }
+                
+                .card-image {
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .card-image img {
+                    transition: transform 0.3s ease;
+                }
+                
+                .video-card:hover .card-image img {
+                    transform: scale(1.05);
+                }
+                
+                .youtube-overlay {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: rgba(0, 0, 0, 0.7);
+                    border-radius: 4px;
+                    padding: 4px;
+                    z-index: 1;
+                }
+                
+                .no-videos-message {
+                    grid-column: 1 / -1;
+                    text-align: center;
+                    padding: 40px 20px;
+                    color: #666;
+                    background: var(--sky-gray);
+                    border-radius: 8px;
+                    margin: 20px 0;
+                }
+                
+                .no-videos-message .icon {
+                    font-size: 48px;
+                    margin-bottom: 16px;
+                    display: block;
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
     initHeroFollowButton() {
-        const heroFollowBtn = document.getElementById('heroFollowBtn');
+        console.log('Initializing hero follow button...');
+        
+        // Try multiple selectors to find the button
+        let heroFollowBtn = document.getElementById('heroFollowBtn');
+        
+        if (!heroFollowBtn) {
+            console.log('Hero follow button not found by ID, trying class...');
+            heroFollowBtn = document.querySelector('.sport-follow-btn-hero');
+        }
+        
         if (heroFollowBtn) {
-            const sportId = heroFollowBtn.getAttribute('data-sport-id');
-            const isFollowed = this.isSportFollowed(sportId);
+            console.log('Hero follow button found:', heroFollowBtn);
             
-            this.updateHeroFollowButton(heroFollowBtn, isFollowed);
-            
+            // Add debug click listener to verify it's working
             heroFollowBtn.addEventListener('click', (e) => {
+                console.log('Hero follow button CLICKED!');
                 e.preventDefault();
                 e.stopPropagation();
                 this.handleHeroFollowClick(heroFollowBtn);
             });
+            
+            // Update initial state
+            const sportId = heroFollowBtn.getAttribute('data-sport-id');
+            const isFollowed = this.isSportFollowed(sportId);
+            this.updateHeroFollowButton(heroFollowBtn, isFollowed);
+        } else {
+            console.warn('Hero follow button not found!');
         }
     }
 
@@ -55,6 +154,8 @@ class SportPageManager {
     }
 
     updateHeroFollowButton(button, isFollowed) {
+        if (!button) return;
+        
         const followText = button.querySelector('.follow-text');
         const followIcon = button.querySelector('.follow-icon-hero');
         
@@ -93,6 +194,8 @@ class SportPageManager {
     }
 
     async handleHeroFollowClick(button) {
+        console.log('Handling hero follow click...');
+        
         if (!this.currentUser) {
             this.showToast('Please log in to follow sports', 'error');
             return;
@@ -103,13 +206,10 @@ class SportPageManager {
         const sportIcon = button.getAttribute('data-sport-icon');
         const isCurrentlyFollowed = this.isSportFollowed(sportId);
 
-        // Add loading state with proper transitions
-        button.classList.add('loading', 'btn-loading');
+        // Add loading state
+        button.classList.add('loading');
         button.disabled = true;
         
-        // Store original content for restoration if needed
-        const originalContent = button.innerHTML;
-
         try {
             let result;
             if (isCurrentlyFollowed) {
@@ -125,7 +225,7 @@ class SportPageManager {
                 button.classList.add('animating');
                 setTimeout(() => button.classList.remove('animating'), 600);
                 
-                // Update button state with smooth transition
+                // Update button state
                 this.updateHeroFollowButton(button, !isCurrentlyFollowed);
                 
                 await this.loadFollowedSports();
@@ -136,18 +236,14 @@ class SportPageManager {
                 }
             } else {
                 this.showToast(result.message, 'error');
-                // Restore original content on error
-                button.innerHTML = originalContent;
                 this.updateHeroFollowButton(button, isCurrentlyFollowed);
             }
         } catch (error) {
             console.error('Error handling sport follow:', error);
             this.showToast('Error updating sport follow status', 'error');
-            // Restore original content on error
-            button.innerHTML = originalContent;
             this.updateHeroFollowButton(button, isCurrentlyFollowed);
         } finally {
-            button.classList.remove('loading', 'btn-loading');
+            button.classList.remove('loading');
             button.disabled = false;
         }
     }
@@ -167,7 +263,8 @@ class SportPageManager {
     }
 
     updateSportFollowButtons() {
-        const heroFollowBtn = document.getElementById('heroFollowBtn');
+        const heroFollowBtn = document.getElementById('heroFollowBtn') || 
+                              document.querySelector('.sport-follow-btn-hero');
         if (heroFollowBtn) {
             const sportId = heroFollowBtn.getAttribute('data-sport-id');
             const isFollowed = this.isSportFollowed(sportId);
@@ -176,178 +273,41 @@ class SportPageManager {
     }
 
     showToast(message, type = 'success') {
-        if (window.AllSportsApp && window.AllSportsApp.showToast) {
-            window.AllSportsApp.showToast(message, type);
-        } else {
-            const toast = document.createElement('div');
+        // Create toast element if it doesn't exist
+        let toast = document.getElementById('toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
             toast.style.cssText = `
                 position: fixed;
                 bottom: 20px;
                 right: 20px;
-                background: ${type === 'error' ? '#ff4444' : '#34a853'};
+                background: var(--accent);
                 color: white;
                 padding: 12px 24px;
                 border-radius: 8px;
+                font-weight: 500;
                 z-index: 10000;
-                animation: slideIn 0.3s ease;
+                opacity: 0;
+                transition: opacity 0.3s;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             `;
-            toast.textContent = message;
             document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
         }
-    }
-
-    // ... rest of the SportPageManager class methods remain the same ...
-    // Setup right sidebar, load data, render videos, etc.
-
-    setupRightSidebar() {
-        this.ensureRightSidebarContainers();
         
-        if (this.currentUser && window.AllSportsApp) {
-            console.log('Sports widget will be handled by AllSportsApp');
+        toast.textContent = message;
+        toast.className = type === 'error' ? 'error' : 'success';
+        if (type === 'error') {
+            toast.style.background = '#dc3545';
+        } else {
+            toast.style.background = 'var(--accent)';
         }
-    }
-
-    ensureRightSidebarContainers() {
-        const rightColumn = document.querySelector('.right-column');
-        if (!rightColumn) {
-            console.warn('Right column not found');
-            return;
-        }
-
-        // Create featured teams container if it doesn't exist
-        if (!document.getElementById('featuredTeamsContainer')) {
-            const teamsWidget = document.createElement('div');
-            teamsWidget.className = 'widget';
-            teamsWidget.innerHTML = `
-                <h3>Featured Teams</h3>
-                <div id="featuredTeamsContainer" class="top-picks-grid">
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Loading teams...</h4>
-                            <div class="top-pick-meta">Loading data</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            rightColumn.appendChild(teamsWidget);
-        }
-
-        // Create news container if it doesn't exist
-        if (!document.getElementById('newsContainer')) {
-            const newsWidget = document.createElement('div');
-            newsWidget.className = 'widget';
-            newsWidget.innerHTML = `
-                <h3>Top News</h3>
-                <div id="newsContainer" class="top-picks-grid">
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Loading news...</h4>
-                            <div class="top-pick-meta">Loading data</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            rightColumn.appendChild(newsWidget);
-        }
-
-        // Create standings container if it doesn't exist
-        if (!document.getElementById('standingsContainer')) {
-            const standingsWidget = document.createElement('div');
-            standingsWidget.className = 'widget';
-            standingsWidget.innerHTML = `
-                <h3>Standings</h3>
-                <div id="standingsContainer">
-                    <div style="font-size: 14px; color: #666; text-align: center; padding: 20px;">
-                        Loading standings...
-                    </div>
-                </div>
-            `;
-            rightColumn.appendChild(standingsWidget);
-        }
-    }
-
-    setupCardInteractions() {
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-8px) scale(1.02)';
-                card.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.4)';
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0) scale(1)';
-                card.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.3)';
-            });
-        });
-    }
-
-    setupLiveScoreUpdates() {
-        const scores = document.querySelectorAll('.live-score');
-        scores.forEach((score, index) => {
-            if (score.querySelector('.live-indicator')) {
-                setTimeout(() => {
-                    const scoreElement = score.querySelector('.score');
-                    if (scoreElement) {
-                        const [home, away] = scoreElement.textContent.split('-').map(num => parseInt(num.trim()));
-                        if (!isNaN(home) && !isNaN(away)) {
-                            const homeChange = Math.random() > 0.7 ? 1 : 0;
-                            const awayChange = Math.random() > 0.7 ? 1 : 0;
-                            const newHome = Math.min(home + homeChange, 5);
-                            const newAway = Math.min(away + awayChange, 5);
-                            scoreElement.textContent = `${newHome}-${newAway}`;
-                            scoreElement.style.transform = 'scale(1.2)';
-                            setTimeout(() => {
-                                scoreElement.style.transform = 'scale(1)';
-                            }, 300);
-                        }
-                    }
-                }, 5000 + (index * 2000));
-            }
-        });
-        setTimeout(() => this.setupLiveScoreUpdates(), 10000);
-    }
-
-    setupVideoPlayers() {
-        const videoCards = document.querySelectorAll('.card[href*="youtube.com"], .card[href*="youtu.be"]');
-        videoCards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                if (window.AllSportsApp && window.AllSportsApp.state.user) {
-                    const videoId = this.href.split('v=')[1]?.split('&')[0];
-                    if (videoId) {
-                        fetch('/api/user/track-watch', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            credentials: 'include',
-                            body: JSON.stringify({
-                                videoId: videoId,
-                                title: this.querySelector('h3')?.textContent || 'Unknown Video',
-                                duration: this.querySelector('.card-badge')?.textContent || '0:00'
-                            })
-                        }).catch(console.error);
-                    }
-                }
-            });
-        });
-    }
-
-    async checkAuthStatus() {
-        try {
-            const response = await fetch('/api/user', {
-                credentials: 'include'
-            });
-            const result = await response.json();
-            if (result.success && result.user) {
-                this.currentUser = result.user;
-            }
-        } catch (error) {
-            console.error('Error checking auth status:', error);
-        }
+        
+        toast.style.opacity = '1';
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+        }, 3000);
     }
 
     setupEventListeners() {
@@ -358,7 +318,18 @@ class SportPageManager {
             }, 300));
         }
 
+        // Add event delegation for hero follow button
+        document.addEventListener('click', (e) => {
+            const heroFollowBtn = e.target.closest('.sport-follow-btn-hero');
+            if (heroFollowBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleHeroFollowClick(heroFollowBtn);
+            }
+        });
+
         this.setupLazyLoading();
+        this.setupVideoPlayers();
     }
 
     setupLazyLoading() {
@@ -501,8 +472,9 @@ class SportPageManager {
         }
 
         if (heroWatchLink) {
-            if (data.youtubeId) {
-                heroWatchLink.href = `https://youtu.be/${data.youtubeId}`;
+            const youtubeId = this.extractYouTubeId(data);
+            if (youtubeId) {
+                heroWatchLink.href = `https://youtu.be/${youtubeId}`;
                 heroWatchLink.style.display = 'flex';
             } else {
                 heroWatchLink.style.display = 'none';
@@ -533,6 +505,7 @@ class SportPageManager {
             if (sportResult.success && sportResult.videos && sportResult.videos.length > 0) {
                 videos = sportResult.videos;
                 console.log(`Found ${videos.length} videos from sport-specific endpoint`);
+                console.log('Sample video:', videos[0]); // Debug log
             } else {
                 // Try general videos endpoint with sport filter
                 const generalResponse = await fetch(`/api/videos?sport=${this.sport}&limit=20`);
@@ -541,6 +514,7 @@ class SportPageManager {
                 if (generalResult.success && generalResult.videos && generalResult.videos.length > 0) {
                     videos = generalResult.videos;
                     console.log(`Found ${videos.length} videos from general endpoint`);
+                    console.log('Sample video:', videos[0]); // Debug log
                 } else {
                     // Try search endpoint as last resort
                     const searchResponse = await fetch(`/api/videos/search?q=${this.sport}&limit=20`);
@@ -549,8 +523,11 @@ class SportPageManager {
                     if (searchResult.success && searchResult.videos && searchResult.videos.length > 0) {
                         videos = searchResult.videos;
                         console.log(`Found ${videos.length} videos from search endpoint`);
+                        console.log('Sample video:', videos[0]); // Debug log
                     } else {
-                        throw new Error('No videos available from any endpoint');
+                        // No videos available from any endpoint
+                        this.renderNoVideosMessage();
+                        return;
                     }
                 }
             }
@@ -559,254 +536,59 @@ class SportPageManager {
                 console.log(`Rendering ${videos.length} videos for ${this.sport}`);
                 this.renderVideos(videos);
             } else {
-                throw new Error('No videos found for this sport');
+                this.renderNoVideosMessage();
             }
         } catch (error) {
             console.error('Error loading videos:', error);
-            this.showSectionError('videos-section', 'Failed to load videos. Using sample data.');
-            this.renderFallbackVideos();
+            this.showSectionError('videos-section', 'Failed to load videos. Please try again later.');
+            this.renderNoVideosMessage();
         }
     }
 
-    renderFallbackVideos() {
+    extractYouTubeId(video) {
+        // Try multiple possible fields for YouTube ID
+        if (video.youtubeId) return video.youtubeId;
+        if (video.videoId) return video.videoId;
+        if (video.id && video.id.length === 11) return video.id; // YouTube IDs are 11 chars
+        
+        // Try to extract from URL if present
+        if (video.url) {
+            const url = video.url;
+            // Match YouTube URLs
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+                /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    renderNoVideosMessage() {
         const highlightsContainer = document.getElementById('highlightsContainer');
         const featuresContainer = document.getElementById('featuresContainer');
         
-        console.log('Rendering fallback videos for sport:', this.sport);
-        
-        const fallbackContent = this.getComprehensiveFallbackVideos();
+        const noVideosHTML = `
+            <div class="no-videos-message">
+                <span class="icon">🎥</span>
+                <h4>No Videos Available</h4>
+                <p>No videos found for ${this.sport}. Check back later for new content!</p>
+            </div>
+        `;
         
         if (highlightsContainer) {
-            highlightsContainer.innerHTML = fallbackContent.highlights.map(video => this.createVideoCard(video)).join('');
+            highlightsContainer.innerHTML = noVideosHTML;
         }
 
         if (featuresContainer) {
-            featuresContainer.innerHTML = fallbackContent.features.map(video => this.createVideoCard(video)).join('');
-        }
-    }
-
-    getComprehensiveFallbackVideos() {
-        const sport = this.sport;
-        const sportName = sport.charAt(0).toUpperCase() + sport.slice(1);
-        
-        // Sport-specific fallback videos
-        switch(sport) {
-            case 'cricket':
-                return {
-                    highlights: [
-                        {
-                            title: 'India vs Australia: T20 World Cup Final Highlights',
-                            thumbnail: 'https://i.pinimg.com/736x/06/e8/2d/06e82d79a909496b05a312b428f21a1d.jpg',
-                            duration: '10:30',
-                            category: 'Highlights',
-                            youtubeId: 'R2rYf7Y7VXI',
-                            sport: 'cricket'
-                        },
-                        {
-                            title: 'England vs Pakistan: Day 4 Highlights',
-                            thumbnail: 'https://i.pinimg.com/1200x/46/a6/6f/46a66fa555e7d4ce6c19677bbd26445a.jpg',
-                            duration: '22:30',
-                            category: 'Highlights',
-                            youtubeId: 'CbMLUaGwVUk',
-                            sport: 'cricket'
-                        },
-                        {
-                            title: 'T20 World Cup Super Over Thriller',
-                            thumbnail: 'https://i.pinimg.com/1200x/be/0a/2a/be0a2a037b1b4ec55bbc277f30aea823.jpg',
-                            duration: '18:45',
-                            category: 'Highlights',
-                            youtubeId: 'm60WK8BoryY',
-                            sport: 'cricket'
-                        },
-                        {
-                            title: 'The Ashes: Epic Test Match Moments',
-                            thumbnail: 'https://i.pinimg.com/1200x/e0/76/6b/e0766b589c6f1e404dee8544a7f889ce.jpg',
-                            duration: '22:15',
-                            category: 'Highlights',
-                            youtubeId: 'qVb4irhX9Cw',
-                            sport: 'cricket'
-                        }
-                    ],
-                    features: [
-                        {
-                            title: 'Virat Kohli Century Masterclass',
-                            thumbnail: 'https://i.pinimg.com/736x/d4/c8/b0/d4c8b0bc89ebfe8749833a1bc5498682.jpg',
-                            duration: '25:10',
-                            category: 'Analysis',
-                            youtubeId: 'm8u-18Q0s7I',
-                            sport: 'cricket'
-                        },
-                        {
-                            title: 'Australia Road to Final: Tactical Review',
-                            thumbnail: 'https://i.pinimg.com/1200x/6d/22/79/6d22791c4f98d9ec6a154481bae54e77.jpg',
-                            duration: '15:40',
-                            category: 'Feature',
-                            youtubeId: 'PzHZGefMx9Q',
-                            sport: 'cricket'
-                        },
-                        {
-                            title: 'Breaking Down Modern Cricket Batting',
-                            thumbnail: 'https://i.pinimg.com/1200x/96/38/29/96382929546214435455c11fba8af270.jpg',
-                            duration: '12:15',
-                            category: 'Analysis',
-                            youtubeId: '6QB8C48DHlA',
-                            sport: 'cricket'
-                        },
-                        {
-                            title: 'IPL Final: Mumbai vs Chennai Highlights',
-                            thumbnail: 'https://i.pinimg.com/736x/00/bf/c2/00bfc216dc1d3898011ebec63b74ede9.jpg',
-                            duration: '16:40',
-                            category: 'Highlights',
-                            youtubeId: 'tdC2whKyvas',
-                            sport: 'cricket'
-                        }
-                    ]
-                };
-            
-            case 'mma':
-                return {
-                    highlights: [
-                        {
-                            title: 'Khabib vs Conor Fight Analysis',
-                            thumbnail: 'https://i.pinimg.com/736x/c3/f1/47/c3f147411a3e49fda4be077fad6da972.jpg',
-                            duration: '25:45',
-                            category: 'Highlights',
-                            youtubeId: '4bbxI4K0z_A',
-                            sport: 'mma'
-                        },
-                        {
-                            title: 'Adesanya vs Pereira 3: Co-main Event',
-                            thumbnail: 'https://i.pinimg.com/736x/10/c8/96/10c8961d69d40b55673d99ea905170b0.jpg',
-                            duration: '18:20',
-                            category: 'Highlights',
-                            youtubeId: 'yaWukOFeBAI',
-                            sport: 'mma'
-                        },
-                        {
-                            title: 'UFC Main Event: Full Fight Breakdown',
-                            thumbnail: 'https://i.pinimg.com/736x/c8/6e/68/c86e687da9e788b44eed8c87e13e2791.jpg',
-                            duration: '32:15',
-                            category: 'Analysis',
-                            youtubeId: 'Tmu6vNdAaPc',
-                            sport: 'mma'
-                        },
-                        {
-                            title: 'Submission of the Year Candidates',
-                            thumbnail: 'https://i.pinimg.com/736x/bc/36/cd/bc36cd9d286e58ef2a62b157b0f64f45.jpg',
-                            duration: '19:45',
-                            category: 'Highlights',
-                            youtubeId: 'Y1SESf1MoSc',
-                            sport: 'mma'
-                        }
-                    ],
-                    features: [
-                        {
-                            title: 'Jon Jones: The Greatest of All Time?',
-                            thumbnail: 'https://i.pinimg.com/736x/11/08/ae/1108ae4f9d26e52790545647c97158cc.jpg',
-                            duration: '16:30',
-                            category: 'Feature',
-                            youtubeId: 'GTonLEN-v4M',
-                            sport: 'mma'
-                        },
-                        {
-                            title: 'Breaking Down Ngannou\'s Punching Power',
-                            thumbnail: 'https://i.pinimg.com/736x/15/2b/a5/152ba52050ed78ef2a96282dde439db3.jpg',
-                            duration: '12:15',
-                            category: 'Analysis',
-                            youtubeId: 'jLqyRdwDzBQ',
-                            sport: 'mma'
-                        },
-                        {
-                            title: 'Khabib: The Eagle\'s Journey',
-                            thumbnail: 'https://i.pinimg.com/736x/c8/6e/68/c86e687da9e788b44eed8c87e13e2791.jpg',
-                            duration: '26:30',
-                            category: 'Feature',
-                            youtubeId: 'x0Xgx9sTsKs',
-                            sport: 'mma'
-                        },
-                        {
-                            title: 'MMA Technique: Ground Game Masterclass',
-                            thumbnail: 'https://i.pinimg.com/736x/91/d7/ea/91d7ea9f4a60af7273af2f5f8761f532.jpg',
-                            duration: '22:45',
-                            category: 'Analysis',
-                            youtubeId: 'mx-QZcBhZZM',
-                            sport: 'mma'
-                        }
-                    ]
-                };
-            
-            case 'football':
-            default:
-                return {
-                    highlights: [
-                        {
-                            title: `${sportName} Match Highlights`,
-                            thumbnail: 'https://i.pinimg.com/736x/14/31/56/143156d98ce3004bbd0d18ab9d0ee1a1.jpg',
-                            duration: '8:45',
-                            category: 'Highlights',
-                            youtubeId: 'dQw4w9WgXcQ',
-                            sport: sport
-                        },
-                        {
-                            title: `${sportName} Top Plays`,
-                            thumbnail: 'https://i.pinimg.com/736x/cf/5f/9a/cf5f9a1ba5080c29a58e6a6e3fbe9986.jpg',
-                            duration: '10:20',
-                            category: 'Highlights', 
-                            youtubeId: 'dQw4w9WgXcQ',
-                            sport: sport
-                        },
-                        {
-                            title: `${sportName} Championship Moments`,
-                            thumbnail: 'https://i.pinimg.com/736x/02/12/58/021258c035d77f92b2f873fafab2f097.jpg',
-                            duration: '12:30',
-                            category: 'Highlights',
-                            youtubeId: 'dQw4w9WgXcQ',
-                            sport: sport
-                        },
-                        {
-                            title: `${sportName} Best Goals`,
-                            thumbnail: 'https://i.pinimg.com/736x/6c/1b/14/6c1b143a9c84a78c3dd2752b5ca638ec.jpg',
-                            duration: '9:15',
-                            category: 'Highlights',
-                            youtubeId: 'dQw4w9WgXcQ',
-                            sport: sport
-                        }
-                    ],
-                    features: [
-                        {
-                            title: `${sportName} Tactical Analysis`,
-                            thumbnail: 'https://i.pinimg.com/736x/95/c3/81/95c3815b8907724df588110224d2aff0.jpg',
-                            duration: '15:20',
-                            category: 'Analysis',
-                            youtubeId: 'dQw4w9WgXcQ',
-                            sport: sport
-                        },
-                        {
-                            title: `${sportName} Player Spotlight`,
-                            thumbnail: 'https://i.pinimg.com/736x/4e/05/ba/4e05baa52f89b44efda2c702c12fddd2.jpg',
-                            duration: '11:45',
-                            category: 'Feature',
-                            youtubeId: 'dQw4w9WgXcQ',
-                            sport: sport
-                        },
-                        {
-                            title: `${sportName} Training Secrets`,
-                            thumbnail: 'https://i.pinimg.com/736x/b4/ce/24/b4ce24f9aa10b6950fc1ef556d7a6503.jpg',
-                            duration: '13:30',
-                            category: 'Feature',
-                            youtubeId: 'dQw4w9WgXcQ',
-                            sport: sport
-                        },
-                        {
-                            title: `${sportName} Championship Review`,
-                            thumbnail: 'https://i.pinimg.com/736x/d4/c8/b0/d4c8b0bc89ebfe8749833a1bc5498682.jpg',
-                            duration: '18:20',
-                            category: 'Analysis',
-                            youtubeId: 'dQw4w9WgXcQ',
-                            sport: sport
-                        }
-                    ]
-                };
+            featuresContainer.innerHTML = noVideosHTML;
         }
     }
 
@@ -898,98 +680,34 @@ class SportPageManager {
             }
         }
         
-        this.ensureMinimumVideos();
-    }
-
-    ensureMinimumVideos() {
-        const highlightsContainer = document.getElementById('highlightsContainer');
-        const featuresContainer = document.getElementById('featuresContainer');
-        
-        if (highlightsContainer && highlightsContainer.children.length < 2) {
-            console.log('Adding fallback videos to highlights');
-            this.addFallbackVideos(highlightsContainer, 'highlights');
-        }
-        
-        if (featuresContainer && featuresContainer.children.length < 2) {
-            console.log('Adding fallback videos to features');
-            this.addFallbackVideos(featuresContainer, 'features');
-        }
-    }
-
-    addFallbackVideos(container, type) {
-        const fallbackVideos = this.getFallbackVideosForSport(type);
-        const currentCount = container.children.length;
-        const needed = 4 - currentCount;
-        
-        if (needed > 0) {
-            const additionalVideos = fallbackVideos.slice(0, needed);
-            container.innerHTML += additionalVideos.map(video => this.createVideoCard(video)).join('');
-        }
-    }
-
-    getFallbackVideosForSport(type) {
-        const sport = this.sport;
-        const baseVideos = [
-            {
-                title: `${sport.charAt(0).toUpperCase() + sport.slice(1)} ${type === 'highlights' ? 'Highlights' : 'Analysis'}`,
-                thumbnail: this.getSportFallbackThumbnail(sport),
-                duration: '10:30',
-                category: type === 'highlights' ? 'Highlights' : 'Analysis',
-                youtubeId: 'dQw4w9WgXcQ',
-                sport: sport
-            },
-            {
-                title: `Top ${sport} Moments`,
-                thumbnail: this.getSportFallbackThumbnail(sport, 1),
-                duration: '8:45',
-                category: type === 'highlights' ? 'Highlights' : 'Feature',
-                youtubeId: 'dQw4w9WgXcQ',
-                sport: sport
-            }
-        ];
-        
-        return baseVideos;
-    }
-
-    getSportFallbackThumbnail(sport, index = 0) {
-        const thumbnails = {
-            'cricket': [
-                'https://i.pinimg.com/736x/06/e8/2d/06e82d79a909496b05a312b428f21a1d.jpg',
-                'https://i.pinimg.com/1200x/46/a6/6f/46a66fa555e7d4ce6c19677bbd26445a.jpg'
-            ],
-            'mma': [
-                'https://i.pinimg.com/736x/c3/f1/47/c3f147411a3e49fda4be077fad6da972.jpg',
-                'https://i.pinimg.com/736x/10/c8/96/10c8961d69d40b55673d99ea905170b0.jpg'
-            ],
-            'football': [
-                'https://i.pinimg.com/736x/14/31/56/143156d98ce3004bbd0d18ab9d0ee1a1.jpg',
-                'https://i.pinimg.com/736x/02/12/58/021258c035d77f92b2f873fafab2f097.jpg'
-            ],
-            'basketball': [
-                'https://i.pinimg.com/1200x/7f/99/b9/7f99b9e379872f897914fc8ecf7166f4.jpg',
-                'https://i.pinimg.com/1200x/c9/ff/a2/c9ffa26fca83bcdd69e4a56fd1d2a26a.jpg'
-            ],
-            'baseball': [
-                'https://i.pinimg.com/736x/d8/30/61/d83061c05799c7da5c001641a1536ad9.jpg',
-                'https://i.pinimg.com/1200x/a4/3d/67/a43d67d09741fad533578b25d97b8c52.jpg'
-            ]
-        };
-        
-        return thumbnails[sport]?.[index] || thumbnails.football[index];
+        // Setup video players for newly rendered cards
+        this.setupVideoPlayers();
     }
 
     createVideoCard(video) {
-        const videoId = video.videoId || video.youtubeId;
-        const youtubeUrl = videoId ? `https://youtu.be/${videoId}` : '#';
+        const youtubeId = this.extractYouTubeId(video);
+        let youtubeUrl = '#';
+        
+        if (youtubeId) {
+            youtubeUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
+        } else if (video.url) {
+            // Use the direct URL if available
+            youtubeUrl = video.url;
+        }
         
         return `
-            <a href="${youtubeUrl}" target="_blank" class="card">
+            <div class="card video-card" data-youtube-id="${youtubeId || ''}" data-video-url="${youtubeUrl}">
                 <div class="card-image">
                     <img src="${video.thumbnail}" alt="${video.title}" loading="lazy" data-src="${video.thumbnail}">
                     <div class="card-badge">${video.duration || '0:00'}</div>
                     <div class="youtube-overlay">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000">
                             <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                        </svg>
+                    </div>
+                    <div class="video-play-button">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="white">
+                            <path d="M8 5v14l11-7z"/>
                         </svg>
                     </div>
                 </div>
@@ -1000,8 +718,77 @@ class SportPageManager {
                         <span>${this.formatTimeAgo(video.publishedAt)}</span>
                     </div>
                 </div>
-            </a>
+            </div>
         `;
+    }
+
+    setupVideoPlayers() {
+        // Event delegation for video cards
+        document.addEventListener('click', (e) => {
+            const videoCard = e.target.closest('.video-card');
+            if (videoCard) {
+                this.playVideo(videoCard);
+            }
+            
+            // Also handle the old anchor links
+            const youtubeCard = e.target.closest('.card[href*="youtube.com"], .card[href*="youtu.be"]');
+            if (youtubeCard && youtubeCard.href && youtubeCard.href !== '#') {
+                e.preventDefault();
+                this.openVideoInNewTab(youtubeCard.href);
+            }
+        });
+    }
+
+    playVideo(videoCard) {
+        const youtubeId = videoCard.getAttribute('data-youtube-id');
+        const videoUrl = videoCard.getAttribute('data-video-url');
+        
+        if (!youtubeId && videoUrl === '#') {
+            console.warn('No YouTube ID or URL found');
+            this.showToast('Video not available', 'error');
+            return;
+        }
+        
+        if (window.AllSportsApp && window.AllSportsApp.state.user) {
+            // Track video watch
+            this.trackVideoWatch(youtubeId, videoCard);
+        }
+        
+        // Open video in new tab
+        if (videoUrl && videoUrl !== '#') {
+            this.openVideoInNewTab(videoUrl);
+        } else if (youtubeId) {
+            // Fallback to YouTube URL
+            this.openVideoInNewTab(`https://www.youtube.com/watch?v=${youtubeId}`);
+        }
+    }
+
+    openVideoInNewTab(url) {
+        // Open in new tab
+        window.open(url, '_blank', 'noopener,noreferrer');
+        
+        // Show a toast message
+        this.showToast('Opening video...', 'success');
+    }
+
+    trackVideoWatch(videoId, videoCard) {
+        if (!videoId) return;
+        
+        const title = videoCard.querySelector('h3')?.textContent || 'Unknown Video';
+        const duration = videoCard.querySelector('.card-badge')?.textContent || '0:00';
+        
+        fetch('/api/user/track-watch', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                videoId: videoId,
+                title: title,
+                duration: duration
+            })
+        }).catch(console.error);
     }
 
     async loadLiveScores() {
@@ -1029,69 +816,25 @@ class SportPageManager {
             if (liveStreams.length > 0) {
                 this.renderLiveScores(liveStreams);
             } else {
-                this.renderFallbackLiveScores();
+                this.renderNoLiveScores();
             }
         } catch (error) {
             console.error('Error loading live scores:', error);
-            this.renderFallbackLiveScores();
+            this.renderNoLiveScores();
         }
     }
 
-    renderFallbackLiveScores() {
+    renderNoLiveScores() {
         const container = document.getElementById('liveScoresContainer');
         if (!container) return;
 
-        // Sport-specific fallback live scores
-        switch(this.sport) {
-            case 'cricket':
-                container.innerHTML = `
-                    <div class="live-score">
-                        <div class="teams">IND vs AUS</div>
-                        <div class="score">185/6</div>
-                        <div class="live-indicator">LIVE</div>
-                    </div>
-                    <div class="live-score">
-                        <div class="teams">ENG vs PAK</div>
-                        <div class="score">312 & 145/2</div>
-                        <div>Day 4</div>
-                    </div>
-                    <div class="live-score">
-                        <div class="teams">NZ vs SA</div>
-                        <div class="score">Starts 23:00</div>
-                        <div>T20</div>
-                    </div>
-                `;
-                break;
-            
-            case 'mma':
-                container.innerHTML = `
-                    <div class="live-score">
-                        <div class="teams">UFC 300: Main Card</div>
-                        <div class="score">LIVE</div>
-                        <div class="live-indicator">876K viewers</div>
-                    </div>
-                    <div class="live-score">
-                        <div class="teams">UFC Fight Night</div>
-                        <div class="score">Prelims</div>
-                        <div>Next: 01:00</div>
-                    </div>
-                    <div class="live-score">
-                        <div class="teams">Bellator 300</div>
-                        <div class="score">Main Event</div>
-                        <div>Live Now</div>
-                    </div>
-                `;
-                break;
-            
-            default:
-                container.innerHTML = `
-                    <div class="live-score">
-                        <div class="teams">No live matches currently</div>
-                        <div class="score">-</div>
-                        <div class="match-status">Check later</div>
-                    </div>
-                `;
-        }
+        container.innerHTML = `
+            <div class="live-score">
+                <div class="teams">No live matches currently</div>
+                <div class="score">-</div>
+                <div class="match-status">Check later</div>
+            </div>
+        `;
     }
 
     renderLiveScores(liveStreams) {
@@ -1116,7 +859,7 @@ class SportPageManager {
                 `;
             }).join('');
         } else {
-            this.renderFallbackLiveScores();
+            this.renderNoLiveScores();
         }
     }
 
@@ -1137,24 +880,27 @@ class SportPageManager {
                 if (tablesResult.success && tablesResult.table) {
                     this.renderStandings([tablesResult.table]);
                 } else {
-                    this.renderFallbackStandings();
+                    this.renderNoStandings();
                 }
             }
         } catch (error) {
             console.error('Error loading standings:', error);
-            this.renderFallbackStandings();
+            this.renderNoStandings();
         }
     }
 
-    renderFallbackStandings() {
+    renderNoStandings() {
         const container = document.getElementById('standingsContainer');
         if (!container) {
             console.warn('Standings container not found');
             return;
         }
 
-        const standingsData = this.getFallbackStandings();
-        container.innerHTML = standingsData;
+        container.innerHTML = `
+            <div style="font-size: 14px; color: #666; text-align: center; padding: 20px;">
+                Standings data not available
+            </div>
+        `;
     }
 
     renderStandings(standings) {
@@ -1182,118 +928,7 @@ class SportPageManager {
                 </div>
             `;
         } else {
-            this.renderFallbackStandings();
-        }
-    }
-
-    getFallbackStandings() {
-        switch(this.sport.toLowerCase()) {
-            case 'cricket':
-                return `
-                    <div style="font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
-                            <span>Team</span>
-                            <span>Pts</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>1. India</span>
-                            <span>12</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>2. Australia</span>
-                            <span>10</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>3. England</span>
-                            <span>8</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>4. New Zealand</span>
-                            <span>6</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>5. Pakistan</span>
-                            <span>4</span>
-                        </div>
-                    </div>
-                `;
-            case 'mma':
-                return `
-                    <div style="font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
-                            <span>Fighter</span>
-                            <span>W-L</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>1. Jon Jones</span>
-                            <span>27-1</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>2. Islam Makhachev</span>
-                            <span>25-1</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>3. Alex Pereira</span>
-                            <span>9-2</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>4. Leon Edwards</span>
-                            <span>22-3</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>5. Sean O'Malley</span>
-                            <span>17-1</span>
-                        </div>
-                    </div>
-                `;
-            case 'football':
-                return `
-                    <div style="font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
-                            <span>Team</span>
-                            <span>Pts</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>1. Manchester City</span>
-                            <span>45</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>2. Arsenal</span>
-                            <span>42</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>3. Liverpool</span>
-                            <span>41</span>
-                        </div>
-                    </div>
-                `;
-            case 'basketball':
-                return `
-                    <div style="font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between; background: var(--sky-gray); padding: 8px 10px;">
-                            <span>Team</span>
-                            <span>W-L</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>1. Celtics</span>
-                            <span>58-24</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>2. Bucks</span>
-                            <span>55-27</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid var(--sky-border);">
-                            <span>3. Knicks</span>
-                            <span>52-30</span>
-                        </div>
-                    </div>
-                `;
-            default:
-                return `
-                    <div style="font-size: 14px; color: #666; text-align: center; padding: 20px;">
-                        Standings data not available
-                    </div>
-                `;
+            this.renderNoStandings();
         }
     }
 
@@ -1314,80 +949,30 @@ class SportPageManager {
                 if (teamsResult.success && teamsResult.teams && teamsResult.teams.length > 0) {
                     this.renderFeaturedTeams(teamsResult.teams);
                 } else {
-                    this.renderFallbackTeams();
+                    this.renderNoTeams();
                 }
             }
         } catch (error) {
             console.error('Error loading teams:', error);
-            this.renderFallbackTeams();
+            this.renderNoTeams();
         }
     }
 
-    renderFallbackTeams() {
+    renderNoTeams() {
         const container = document.getElementById('featuredTeamsContainer');
         if (!container) {
             console.warn('Featured teams container not found');
             return;
         }
 
-        // Sport-specific fallback teams
-        switch(this.sport) {
-            case 'cricket':
-                container.innerHTML = `
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>India</h4>
-                            <div class="top-pick-meta">ICC Ranking: 1 • Wins: 45</div>
-                        </div>
-                    </div>
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Australia</h4>
-                            <div class="top-pick-meta">ICC Ranking: 2 • Wins: 42</div>
-                        </div>
-                    </div>
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>England</h4>
-                            <div class="top-pick-meta">ICC Ranking: 3 • Wins: 38</div>
-                        </div>
-                    </div>
-                `;
-                break;
-            
-            case 'mma':
-                container.innerHTML = `
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>UFC</h4>
-                            <div class="top-pick-meta">MMA • 300+ Events</div>
-                        </div>
-                    </div>
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Bellator</h4>
-                            <div class="top-pick-meta">MMA • 100+ Events</div>
-                        </div>
-                    </div>
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>ONE Championship</h4>
-                            <div class="top-pick-meta">MMA • 50+ Events</div>
-                        </div>
-                    </div>
-                `;
-                break;
-            
-            default:
-                container.innerHTML = `
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Top ${this.sport.charAt(0).toUpperCase() + this.sport.slice(1)} Teams</h4>
-                            <div class="top-pick-meta">Loading teams data...</div>
-                        </div>
-                    </div>
-                `;
-        }
+        container.innerHTML = `
+            <div class="top-pick">
+                <div class="top-pick-content">
+                    <h4>No teams data available</h4>
+                    <div class="top-pick-meta">Check back later</div>
+                </div>
+            </div>
+        `;
     }
 
     renderFeaturedTeams(teams) {
@@ -1407,7 +992,7 @@ class SportPageManager {
                 </div>
             `).join('');
         } else {
-            this.renderFallbackTeams();
+            this.renderNoTeams();
         }
     }
 
@@ -1421,79 +1006,29 @@ class SportPageManager {
             if (result.success && result.news && result.news.length > 0) {
                 this.renderNews(result.news);
             } else {
-                this.renderFallbackNews();
+                this.renderNoNews();
             }
         } catch (error) {
             console.error('Error loading news:', error);
-            this.renderFallbackNews();
+            this.renderNoNews();
         }
     }
 
-    renderFallbackNews() {
+    renderNoNews() {
         const container = document.getElementById('newsContainer');
         if (!container) {
             console.warn('News container not found');
             return;
         }
 
-        // Sport-specific fallback news
-        switch(this.sport) {
-            case 'cricket':
-                container.innerHTML = `
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Kohli Announces T20 World Cup Retirement</h4>
-                            <div class="top-pick-meta">1 hour ago</div>
-                        </div>
-                    </div>
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Australia Names New Test Captain</h4>
-                            <div class="top-pick-meta">3 hours ago</div>
-                        </div>
-                    </div>
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>IPL 2024 Auction Highlights</h4>
-                            <div class="top-pick-meta">Yesterday</div>
-                        </div>
-                    </div>
-                `;
-                break;
-            
-            case 'mma':
-                container.innerHTML = `
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Jones vs Miocic Fight Announced</h4>
-                            <div class="top-pick-meta">2 hours ago</div>
-                        </div>
-                    </div>
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>UFC 300 Main Card Revealed</h4>
-                            <div class="top-pick-meta">5 hours ago</div>
-                        </div>
-                    </div>
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>McGregor Announces Comeback Fight</h4>
-                            <div class="top-pick-meta">Yesterday</div>
-                        </div>
-                    </div>
-                `;
-                break;
-            
-            default:
-                container.innerHTML = `
-                    <div class="top-pick">
-                        <div class="top-pick-content">
-                            <h4>Latest ${this.sport.charAt(0).toUpperCase() + this.sport.slice(1)} News</h4>
-                            <div class="top-pick-meta">Loading news updates...</div>
-                        </div>
-                    </div>
-                `;
-        }
+        container.innerHTML = `
+            <div class="top-pick">
+                <div class="top-pick-content">
+                    <h4>No news available</h4>
+                    <div class="top-pick-meta">Check back later for updates</div>
+                </div>
+            </div>
+        `;
     }
 
     renderNews(news) {
@@ -1513,7 +1048,7 @@ class SportPageManager {
                 </div>
             `).join('');
         } else {
-            this.renderFallbackNews();
+            this.renderNoNews();
         }
     }
 
@@ -1609,6 +1144,118 @@ class SportPageManager {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    }
+
+    // Right sidebar setup methods
+    setupRightSidebar() {
+        this.ensureRightSidebarContainers();
+        
+        if (this.currentUser && window.AllSportsApp) {
+            console.log('Sports widget will be handled by AllSportsApp');
+        }
+    }
+
+    ensureRightSidebarContainers() {
+        const rightColumn = document.querySelector('.right-column');
+        if (!rightColumn) {
+            console.warn('Right column not found');
+            return;
+        }
+
+        // Create featured teams container if it doesn't exist
+        if (!document.getElementById('featuredTeamsContainer')) {
+            const teamsWidget = document.createElement('div');
+            teamsWidget.className = 'widget';
+            teamsWidget.innerHTML = `
+                <h3>Featured Teams</h3>
+                <div id="featuredTeamsContainer" class="top-picks-grid">
+                    <div class="top-pick">
+                        <div class="top-pick-content">
+                            <h4>Loading teams...</h4>
+                            <div class="top-pick-meta">Loading data</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            rightColumn.appendChild(teamsWidget);
+        }
+
+        // Create news container if it doesn't exist
+        if (!document.getElementById('newsContainer')) {
+            const newsWidget = document.createElement('div');
+            newsWidget.className = 'widget';
+            newsWidget.innerHTML = `
+                <h3>Top News</h3>
+                <div id="newsContainer" class="top-picks-grid">
+                    <div class="top-pick">
+                        <div class="top-pick-content">
+                            <h4>Loading news...</h4>
+                            <div class="top-pick-meta">Loading data</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            rightColumn.appendChild(newsWidget);
+        }
+
+        // Create standings container if it doesn't exist
+        if (!document.getElementById('standingsContainer')) {
+            const standingsWidget = document.createElement('div');
+            standingsWidget.className = 'widget';
+            standingsWidget.innerHTML = `
+                <h3>Standings</h3>
+                <div id="standingsContainer">
+                    <div style="font-size: 14px; color: #666; text-align: center; padding: 20px;">
+                        Loading standings...
+                    </div>
+                </div>
+            `;
+            rightColumn.appendChild(standingsWidget);
+        }
+    }
+
+    setupCardInteractions() {
+        // This will now be handled by the video-card specific interactions
+    }
+
+    setupLiveScoreUpdates() {
+        const scores = document.querySelectorAll('.live-score');
+        scores.forEach((score, index) => {
+            if (score.querySelector('.live-indicator')) {
+                setTimeout(() => {
+                    const scoreElement = score.querySelector('.score');
+                    if (scoreElement) {
+                        const [home, away] = scoreElement.textContent.split('-').map(num => parseInt(num.trim()));
+                        if (!isNaN(home) && !isNaN(away)) {
+                            const homeChange = Math.random() > 0.7 ? 1 : 0;
+                            const awayChange = Math.random() > 0.7 ? 1 : 0;
+                            const newHome = Math.min(home + homeChange, 5);
+                            const newAway = Math.min(away + awayChange, 5);
+                            scoreElement.textContent = `${newHome}-${newAway}`;
+                            scoreElement.style.transform = 'scale(1.2)';
+                            setTimeout(() => {
+                                scoreElement.style.transform = 'scale(1)';
+                            }, 300);
+                        }
+                    }
+                }, 5000 + (index * 2000));
+            }
+        });
+        setTimeout(() => this.setupLiveScoreUpdates(), 10000);
+    }
+
+    async checkAuthStatus() {
+        try {
+            const response = await fetch('/api/user', {
+                credentials: 'include'
+            });
+            const result = await response.json();
+            if (result.success && result.user) {
+                this.currentUser = result.user;
+            }
+        } catch (error) {
+            console.error('Error checking auth status:', error);
+        }
     }
 }
 
@@ -1792,9 +1439,12 @@ const AuthManager = {
   }
 };
 
+// Sports Manager
 const SportsManager = {
-  followSport: async function(sportId, sportName, icon = '🏆', category = 'General') {
+  followSport: async function(sportId, sportName, icon = '🏆') {
     try {
+      console.log('Following sport:', sportId, sportName);
+      
       const response = await fetch('/api/user/follow-sport', {
         method: 'POST',
         headers: {
@@ -1804,47 +1454,45 @@ const SportsManager = {
         body: JSON.stringify({
           sportId,
           sportName,
-          category,
           icon,
-          description: `${sportName} - The world's most popular sports`,
-          popularity: 85,
           action: 'follow'
         })
       });
 
       if (response.ok) {
         const result = await response.json();
+        console.log('Follow sport result:', result);
+        
         if (result.success) {
-          const newSport = {
-            sportId,
-            sportName,
-            icon,
-            category,
-            followedAt: new Date().toISOString()
-          };
-          
-          const currentFollowed = Database.getFollowedSports();
-          const updatedFollowed = [...currentFollowed, newSport];
-          Database.saveFollowedSports(updatedFollowed);
+          // Update local state with the server's response
+          followedSports = result.followedSports || [];
+          Database.saveFollowedSports(followedSports);
           
           return result;
         }
       }
-      return {
+      
+      // If we get here, something went wrong
+      const errorResult = await response.json().catch(() => ({
         success: false,
         message: 'Failed to follow sport'
-      };
+      }));
+      
+      return errorResult;
+      
     } catch (error) {
       console.error('Error following sport:', error);
       return {
         success: false,
-        message: 'Error following sport'
+        message: 'Network error. Please check your connection.'
       };
     }
   },
 
   unfollowSport: async function(sportId) {
     try {
+      console.log('Unfollowing sport:', sportId);
+      
       const response = await fetch('/api/user/follow-sport', {
         method: 'POST',
         headers: {
@@ -1859,24 +1507,29 @@ const SportsManager = {
 
       if (response.ok) {
         const result = await response.json();
+        console.log('Unfollow sport result:', result);
+        
         if (result.success) {
-          const currentFollowed = Database.getFollowedSports();
-          const sportToRemove = currentFollowed.find(sport => sport.sportId === sportId);
-          const updatedFollowed = currentFollowed.filter(sport => sport.sportId !== sportId);
-          Database.saveFollowedSports(updatedFollowed);
+          // Update local state with the server's response
+          followedSports = result.followedSports || [];
+          Database.saveFollowedSports(followedSports);
           
           return result;
         }
       }
-      return {
+      
+      const errorResult = await response.json().catch(() => ({
         success: false,
         message: 'Failed to unfollow sport'
-      };
+      }));
+      
+      return errorResult;
+      
     } catch (error) {
       console.error('Error unfollowing sport:', error);
       return {
         success: false,
-        message: 'Error unfollowing sport'
+        message: 'Network error. Please check your connection.'
       };
     }
   },
@@ -2243,8 +1896,6 @@ class AllSportsApp {
         this.initPageSpecific();
         
         await this.initSportsFollowFunctionality();
-        
-        // Don't initialize hero follow button here - let SportPageManager handle it
     }
 
     getCurrentPage() {
@@ -2482,6 +2133,16 @@ class AllSportsApp {
     }
 
     updateSportFollowButtons() {
+        // Update hero follow button
+        const heroFollowBtn = document.getElementById('heroFollowBtn') || 
+                              document.querySelector('.sport-follow-btn-hero');
+        if (heroFollowBtn) {
+            const sportId = heroFollowBtn.getAttribute('data-sport-id');
+            const isFollowed = this.isSportFollowed(sportId);
+            this.updateHeroFollowButton(heroFollowBtn, isFollowed);
+        }
+
+        // Update dropdown sport follow buttons
         const followButtons = document.querySelectorAll('.sport-follow-btn');
         followButtons.forEach(button => {
             const sportId = button.getAttribute('data-sport-id');
@@ -2489,14 +2150,7 @@ class AllSportsApp {
             this.updateFollowButtonAppearance(button, isFollowed);
         });
 
-        // Also update hero follow button if it exists
-        const heroFollowBtn = document.getElementById('heroFollowBtn');
-        if (heroFollowBtn) {
-            const sportId = heroFollowBtn.getAttribute('data-sport-id');
-            const isFollowed = this.isSportFollowed(sportId);
-            this.updateHeroFollowButton(heroFollowBtn, isFollowed);
-        }
-
+        // Also update the toggle buttons in the sports management modal if it's open
         const toggleButtons = document.querySelectorAll('.follow-toggle-btn');
         toggleButtons.forEach(button => {
             const sportId = button.getAttribute('data-sport-id');
@@ -3257,12 +2911,12 @@ class AllSportsApp {
                     `<span class="ticker-item">${item}</span>`
                 ).join(' • ');
             } else if (marqueeInner) {
-                // Fallback ticker content
+                // No live streams
                 const fallbackContent = [
-                    "⚽ Follow your favorite sports and teams",
-                    "🏀 Get live scores and updates", 
-                    "🎾 Watch highlights and full matches",
-                    "🏆 Stay updated with latest news"
+                    "🎥 Follow your favorite sports and teams",
+                    "📺 Get live scores and updates", 
+                    "🏆 Watch highlights and full matches",
+                    "📰 Stay updated with latest news"
                 ];
                 const repeatedContent = [...fallbackContent, ...fallbackContent];
                 marqueeInner.innerHTML = repeatedContent.map(item => 
@@ -3517,25 +3171,28 @@ class AllSportsApp {
             toast.style.cssText = `
                 position: fixed;
                 bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: ${type === 'error' ? '#ff4444' : 'var(--accent)'};
+                right: 20px;
+                background: var(--accent);
                 color: white;
                 padding: 12px 24px;
                 border-radius: 8px;
+                font-weight: 500;
                 z-index: 10000;
                 opacity: 0;
-                transition: opacity 0.3s ease;
-                font-weight: 500;
-                pointer-events: none;
-                max-width: 300px;
-                text-align: center;
+                transition: opacity 0.3s;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             `;
             document.body.appendChild(toast);
         }
         
         toast.textContent = message;
-        toast.style.backgroundColor = type === 'error' ? '#ff4444' : 'var(--accent)';
+        toast.className = type === 'error' ? 'error' : 'success';
+        if (type === 'error') {
+            toast.style.background = '#dc3545';
+        } else {
+            toast.style.background = 'var(--accent)';
+        }
+        
         toast.style.opacity = '1';
         
         setTimeout(() => {
@@ -3662,10 +3319,6 @@ class AllSportsApp {
         // Fixtures page specific initialization
     }
 
-    showToast(message, type = 'success') {
-        AllSportsApp.showToast(message, type);
-    }
-
     // Method to create sports follow widget (used by SportPageManager)
     createSportsFollowWidget() {
         this.addSportsFollowSection();
@@ -3677,7 +3330,7 @@ let currentUser = null;
 let followedSports = [];
 let sportPageManager;
 
-// Global initialization - UPDATED with better timing and no recursion
+// Global initialization
 document.addEventListener('DOMContentLoaded', function() {
     console.log("AllSports site loaded");
 
